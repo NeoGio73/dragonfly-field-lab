@@ -14,7 +14,7 @@
   --haze:#f0a23c; --haze-ink:#2a1706;
   --methane:#7fd0cb;
   --good:#9ad48c; --bad:#ff9a82;
-  --paper:#f4ecdd; --ink:#2a1d12; --ink-muted:#6b5740; --grid:#dccfb8; --trace:#1d2f63; --cross:#b4521a;
+  --paper:#f4ecdd; --ink:#2a1d12; --ink-muted:#6b5740; --grid:#dccfb8; --trace:#1d2f63; --integral:#1b7a58; --cross:#b4521a;
   --font-display:"Saira Condensed","Arial Narrow","Roboto Condensed",sans-serif;
   --font-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
   --font-data:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
@@ -104,6 +104,11 @@ button{font:inherit;color:inherit;cursor:pointer}
 .leg .body .t{font-family:var(--font-display);font-size:1.2rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 .leg .body .s{color:var(--muted);font-size:.92rem}
 .leg.locked .t{color:var(--muted)}
+.leg .thumb{width:210px;max-width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border:1px solid var(--line);border-radius:4px;flex:none;display:block}
+.leg.locked .thumb{opacity:.55;filter:saturate(.7)}
+.leg .txt{flex:1 1 220px;min-width:0}
+.leg .body .v{font-size:.95rem;max-width:52ch}
+@media (max-width:560px){.leg .thumb{width:100%}}
 .zonehead{padding:4px 0 12px 58px}
 
 /* instruments */
@@ -125,6 +130,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .plot .ax{stroke:var(--ink-muted);stroke-width:1;fill:none}
 .plot .gr{stroke:var(--grid);stroke-width:1;fill:none}
 .plot .tr{stroke:var(--trace);stroke-width:1.6;fill:none;stroke-linejoin:round}
+.plot .ig{stroke:var(--integral);stroke-width:1.5;fill:none;stroke-linejoin:round}
+.sw{display:inline-block;width:18px;height:0;border-top:2px solid var(--integral);vertical-align:middle;margin-right:2px}
 .plot .st{stroke:var(--trace);stroke-width:2.5;stroke-linecap:butt}
 .plot .lab{fill:var(--ink);font-size:10.5px}
 .plot .cross{stroke:var(--cross);stroke-width:1;stroke-dasharray:3 3}
@@ -265,6 +272,7 @@ sub{font-size:.72em}
   <p class="eyebrow">Flight plan</p>
   <h2>From the dunes toward Selk crater</h2>
   <div class="panel"><div class="route" id="route"></div></div>
+  <p class="credit">The site pictures are illustrations of what Titan's surface might look like, painted for this game. They are not photographs.</p>
   <div class="row">
     <button class="btn" id="btn-brief" type="button">Briefing and settings</button>
     <button class="btn" id="btn-reset" type="button">Restart mission</button>
@@ -337,6 +345,7 @@ sub{font-size:.72em}
 var VIDEO_URL="https://science.nasa.gov/wp-content/uploads/2026/01/dragonflyattitan2025.mp4";
 var VIDEO_PAGE="https://science.nasa.gov/video-detail/dragonflyattitan2025/";
 var MODEL_JS="media/dragonfly-model.js";   /* 3D rotorcraft on the opening screen (the model, stored as text) */
+var SHOW_AREAS=false;  /* false hides the "area" numbers on the 1H signal buttons, so students must read the integration line */
 var COST={h1:15,c13:15,ir:10,ms:10,miss:15};
 var INST=[{id:"h1",name:"<sup>1</sup>H NMR",plain:"1H NMR"},{id:"c13",name:"<sup>13</sup>C NMR",plain:"13C NMR"},{id:"ir",name:"Infrared",plain:"Infrared"},{id:"ms",name:"Mass spec",plain:"Mass spec"}];
 function s(n){return "<sub>"+n+"</sub>";}
@@ -344,7 +353,7 @@ function s(n){return "<sub>"+n+"</sub>";}
 /* h1: [shift ppm, nH, neighbours, J Hz]   c13: [shift ppm, relative height]
    ir: [wavenumber, depth 0-1, width cm-1]   ms: [m/z, relative %] */
 var SITES=[
-{ id:"ethane", site:"Site 1 · Touchdown", flavor:"The drill's first cuttings warm in the sample cup, and a volatile boils off into the cold trap.",
+{ id:"ethane", img:"media/site1.webp", view:"Long dunes of dark organic sand run toward the horizon. The sun is a small, dim disc in the haze.", site:"Site 1 · Touchdown", flavor:"The drill's first cuttings warm in the sample cup, and a volatile boils off into the cold trap.",
   name:"Ethane", smiles:"CC", jsme:"CC", formula:"C2H6", mass:30, tag:"Detected on Titan",
   h1:[[0.87,6,0,0]], c13:[[6.9,1]],
   ir:[[2975,.82,46],[2895,.55,34],[1465,.5,26],[1379,.3,18],[822,.28,22]],
@@ -362,7 +371,7 @@ var SITES=[
     ms:"M⁺ at m/z 30 fits C"+s(2)+"H"+s(6)+". The tallest peak, m/z 28, comes from loss of H"+s(2)+".",
     titan:"Ethane is one of the main products of methane chemistry in Titan's atmosphere, and Cassini identified liquid ethane in the lake Ontario Lacus."}
 },
-{ id:"benzene", site:"Site 2 · Dune crest", flavor:"A waxy organic ice, chipped from the dark sand at the top of a dune.",
+{ id:"benzene", img:"media/site2.webp", view:"Wind ripples lead along the top of a dune. The slip face drops away into shadow.", site:"Site 2 · Dune crest", flavor:"A waxy organic ice, chipped from the dark sand at the top of a dune.",
   name:"Benzene", smiles:"c1ccccc1", jsme:"c1ccccc1", formula:"C6H6", mass:78, tag:"Detected on Titan",
   h1:[[7.36,6,0,0]], c13:[[128.4,1]],
   ir:[[3091,.38,14],[3071,.5,14],[3036,.62,16],[1960,.12,22],[1815,.14,22],[1479,.78,14],[1035,.5,12],[674,.95,18]],
@@ -380,7 +389,7 @@ var SITES=[
     ms:"M⁺ at m/z 78 is also the tallest peak. Aromatic rings hold together well. m/z 77 is the phenyl cation, formed by loss of H.",
     titan:"Benzene is the only aromatic molecule confirmed in Titan's atmosphere so far. It may be a step toward the larger molecules that make up the orange haze."}
 },
-{ id:"propane", site:"Site 3 · Interdune flat", flavor:"A second volatile reaches the cold trap, a little heavier than the first.",
+{ id:"propane", img:"media/site3.webp", view:"A flat of pale, icy gravel between the dunes, strewn with rounded cobbles.", site:"Site 3 · Interdune flat", flavor:"A second volatile reaches the cold trap, a little heavier than the first.",
   name:"Propane", smiles:"CCC", jsme:"CCC", formula:"C3H8", mass:44, tag:"Detected on Titan",
   h1:[[1.32,2,6,7.3],[0.90,6,2,7.3]], c13:[[16.6,1],[16.4,.55]],
   ir:[[2968,.85,44],[2887,.6,34],[1470,.5,26],[1385,.3,14],[1372,.25,12],[748,.2,18]],
@@ -398,7 +407,7 @@ var SITES=[
     ms:"M⁺ at m/z 44. The tallest peak, m/z 29, is C"+s(2)+"H"+s(5)+"⁺, left after losing CH"+s(3)+" (15).",
     titan:"Propane was found in Titan's atmosphere by Voyager 1's infrared spectrometer in 1980."}
 },
-{ id:"acetonitrile", site:"Site 4 · Sand sheet", flavor:"Colourless crystals collect on the walls of the sample cup as the sand warms.",
+{ id:"acetonitrile", img:"media/site4.webp", view:"A smooth sheet of rippled sand. Far off, a methane shower falls from a cloud.", site:"Site 4 · Sand sheet", flavor:"Colourless crystals collect on the walls of the sample cup as the sand warms.",
   name:"Acetonitrile", smiles:"CC#N", jsme:"CC#N", formula:"C2H3N", mass:41, tag:"Detected on Titan",
   h1:[[2.10,3,0,0]], c13:[[116.4,.35],[1.9,1]],
   ir:[[3003,.28,22],[2944,.45,24],[2293,.22,12],[2253,.8,12],[1443,.5,30],[1375,.48,16],[1039,.45,18],[918,.4,14]],
@@ -416,7 +425,7 @@ var SITES=[
     ms:"M⁺ at m/z 41 is odd. By the nitrogen rule, an odd molecular ion means an odd number of nitrogens. m/z 40 is M – 1.",
     titan:"Acetonitrile was detected in Titan's atmosphere from Earth with millimetre-wave telescopes, before Cassini arrived."}
 },
-{ id:"propionitrile", site:"Site 5 · Dune field edge", flavor:"A second ice from the same sand, collected where the dunes thin out toward the crater.",
+{ id:"propionitrile", img:"media/site5.webp", view:"The dunes thin out. The rim of Selk crater shows faintly through the haze.", site:"Site 5 · Dune field edge", flavor:"A second ice from the same sand, collected where the dunes thin out toward the crater.",
   name:"Propanenitrile (propionitrile)", smiles:"CCC#N", jsme:"CCC#N", formula:"C3H5N", mass:55, tag:"Detected on Titan",
   h1:[[2.36,2,3,7.6],[1.30,3,2,7.6]], c13:[[120.8,.35],[10.9,1],[10.6,.9]],
   ir:[[2990,.42,24],[2950,.4,26],[2890,.22,24],[2249,.8,12],[1462,.5,18],[1431,.45,14],[1386,.25,12],[1319,.2,14],[1076,.42,16],[786,.4,16]],
@@ -498,7 +507,7 @@ function renderMap(){
     if(st.solved){sub=esc(d.name)+(S.power==="mission"?" · banked "+st.banked:"");btn='<button class="btn small" data-site="'+i+'" type="button">Review</button>';}
     else if(i===now){sub="Sample waiting";btn='<button class="btn primary small" data-site="'+i+'" type="button">'+(st.spent||st.tries.length?"Resume":"Land here")+'</button>';}
     else{sub="Solve the earlier sites first";}
-    h+='<div class="leg '+cls+'"><div class="pin"><div class="dot">'+(st.solved?"✓":(i+1))+'</div><div class="wire"></div></div><div class="body"><div><div class="t">'+esc(d.site)+'</div><div class="s">'+sub+'</div></div>'+btn+'</div></div>';
+    h+='<div class="leg '+cls+'"><div class="pin"><div class="dot">'+(st.solved?"✓":(i+1))+'</div><div class="wire"></div></div><div class="body"><img class="thumb" src="'+d.img+'" width="960" height="540" alt="" loading="lazy" decoding="async"><div class="txt"><div class="t">'+esc(d.site)+'</div><div class="v">'+esc(d.view)+'</div><div class="s">'+sub+'</div></div>'+btn+'</div></div>';
   });
   h+='<div class="leg locked"><div class="pin"><div class="dot">Z2</div><div class="wire"></div></div><div class="body"><div><div class="t">Zone 2 · Dune organics</div><div class="s">Aromatic rings and isomers. Not built yet.</div></div></div></div>';
   h+='<div class="leg locked"><div class="pin"><div class="dot">Z3</div></div><div class="body"><div><div class="t">Zone 3 · Selk crater</div><div class="s">Acids, amines, amides and an amino acid. Not built yet.</div></div></div></div>';
@@ -558,7 +567,7 @@ function drawChart(host,kind,d,opts){
   }
   var xl={h1:"δ / ppm",c13:"δ / ppm",ir:"wavenumber / cm⁻¹",ms:"m/z"}[kind];
   svg+='<text x="'+(m.l+pw/2)+'" y="'+(H-4)+'" text-anchor="middle">'+xl+'</text>';
-  var base=m.t+ph, f, evalAt, path="", i;
+  var base=m.t+ph, f, evalAt, integ, integPct, path="", i;
   if(kind==="h1"||kind==="c13"){
     var F=kind==="h1"?400:100, lw=(kind==="h1"?1.1:1.6)/F;
     var lines=kind==="h1"?h1Lines(d.h1):d.c13.map(function(p){return {x:p[0],w:p[1]};});
@@ -577,6 +586,17 @@ function drawChart(host,kind,d,opts){
     if(rev)pts.reverse();
     svg+='<line class="ax" x1="'+m.l+'" x2="'+(m.l+pw)+'" y1="'+base+'" y2="'+base+'"/>';
     svg+='<polyline class="tr" points="'+pts.join(" ")+'"/>';
+    if(kind==="h1"){
+      /* integration line: running area from left to right; each step's height is proportional to the number of H */
+      var tot=lines.reduce(function(a,l){return a+l.w;},0);
+      integ=function(v){var a=0;for(var k=0;k<lines.length;k++)a+=lines[k].w*(0.5+Math.atan(2*(lines[k].x-v)/lw)/Math.PI);return a;};
+      var i0=integ(hi), span=integ(lo)-i0; if(span<tot*0.02)span=tot;
+      var ip2=[];
+      for(i=0;i<xs.length;i++)ip2.push(X(xs[i]).toFixed(2)+","+(base-ph*0.08-Math.max(0,Math.min(1,(integ(xs[i])-i0)/span))*ph*0.62).toFixed(2));
+      ip2.reverse();
+      svg+='<polyline class="ig" points="'+ip2.join(" ")+'"/>';
+      integPct=function(v){return 100*integ(v)/tot;};
+    }
   }else if(kind==="ir"){
     f=function(v){var a=0;for(var k=0;k<d.ir.length;k++){var b=d.ir[k],q=2*(v-b[0])/b[2];
       a+=-Math.log(1-b[1])*(0.5*Math.exp(-0.6931*q*q)+0.5/(1+q*q));}return 96*Math.exp(-a);};
@@ -611,7 +631,7 @@ function drawChart(host,kind,d,opts){
   function px(e){var r=el.getBoundingClientRect();return Math.max(m.l,Math.min(m.l+pw,(e.clientX-r.left)*W/r.width));}
   function readout(x){
     var v=Xinv(x), txt;
-    if(kind==="h1")txt="δ "+v.toFixed(hi-lo<1?3:2)+" ppm";
+    if(kind==="h1")txt="δ "+v.toFixed(hi-lo<1?3:2)+" ppm · integral "+Math.round(integPct(v))+"%";
     else if(kind==="c13")txt="δ "+v.toFixed(1)+" ppm";
     else if(kind==="ir")txt=Math.round(v)+" cm⁻¹ · "+Math.round(f(v))+" %T";
     else{var best=null;d.ms.forEach(function(p){if(!best||Math.abs(p[0]-v)<Math.abs(best[0]-v))best=p;});
@@ -671,9 +691,9 @@ function renderPaper(){
   var h='<div class="head"><span><b>'+titles[k][0]+'</b> · '+titles[k][1]+'</span><span>Sample '+(S.site+1)+'</span></div><div class="plot" id="plot"></div>', list="", tip="";
   if(k==="h1"){
     var r=ratio(d.h1);
-    h+='<div class="chips"><span>Signals:</span>'+d.h1.map(function(g,i){return '<button type="button" class="chip" data-z="'+i+'" aria-pressed="'+(view.zsel===i)+'">δ '+g[0].toFixed(2)+' · '+(d.h1.length>1?"area "+r[i]:"only signal")+'</button>';}).join("")+(view.zoom?'<button type="button" class="chip" data-z="full">Full spectrum</button>':"")+'</div>';
+    h+='<div class="chips"><span>Signals:</span>'+d.h1.map(function(g,i){return '<button type="button" class="chip" data-z="'+i+'" aria-pressed="'+(view.zsel===i)+'">δ '+g[0].toFixed(2)+(SHOW_AREAS?' · '+(d.h1.length>1?"area "+r[i]:"only signal"):"")+'</button>';}).join("")+(view.zoom?'<button type="button" class="chip" data-z="full">Full spectrum</button>':"")+'</div>';
     list=d.h1.map(function(g,i){return "<li>δ "+g[0].toFixed(2)+" ppm: "+MULT[g[2]]+(d.h1.length>1?", relative area "+r[i]:"")+"</li>";}).join("");
-    tip="Tap a signal to expand it and count its lines, or drag across the spectrum to zoom.";
+    tip='<span class="sw"></span> The green stepped line is the integral. The height of each step is proportional to the number of hydrogens in that signal; point at the spectrum to read it as a percentage. Tap a signal to expand it, or drag across to zoom.';
   }else if(k==="c13"){
     h+='<div class="chips"><span>Peaks:</span>'+d.c13.map(function(g,i){return '<button type="button" class="chip" data-z="'+i+'" aria-pressed="'+(view.zsel===i)+'">δ '+g[0].toFixed(1)+'</button>';}).join("")+(view.zoom?'<button type="button" class="chip" data-z="full">Full spectrum</button>':"")+'</div>';
     list=d.c13.map(function(g){return "<li>δ "+g[0].toFixed(1)+" ppm</li>";}).join("");

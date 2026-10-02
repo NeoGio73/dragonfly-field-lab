@@ -15,6 +15,7 @@ Zones 2 and 3 are placeholders on the site map.
 - `lib/jsme/` – JSME structure editor (drawing mode).
 - `lib/rdkit/` – RDKit.js (compares a drawn structure with the answer).
 - `lib/craft3d.js` and `media/dragonfly-model.js` – the 3D rotorcraft on the opening screen.
+- `media/site1.webp` … `site5.webp` – the site pictures on the flight plan.
 
 Keep the folder structure as it is. The game must be served over http(s);
 drawing mode will not fully work if `index.html` is opened by double-clicking.
@@ -48,6 +49,14 @@ opening scene must stay. The original was converted to glTF with its textures re
 `lib/craft3d.js` draws it (three.js is bundled inside that file).
 If a browser cannot show 3D, a flat silhouette of the craft is shown instead.
 
+## The site pictures on the flight plan
+
+`media/site1.webp` to `site5.webp` are illustrations painted for this game by a
+small terrain-drawing script (dunes, ripples, cobbles, haze and a dim sun).
+They are artistic impressions, not photographs or data, and the flight plan
+page says so. Each site's picture and one-line description are set by `img`
+and `view` in its `SITES` entry in `index.html`.
+
 ## Where the spectral data come from
 
 - 1H and 13C shifts for ethane, propane, benzene and acetonitrile: Fulmer et al.,
@@ -55,6 +64,12 @@ If a browser cannot show 3D, a flat silhouette of the craft is shown instead.
 - Propanenitrile NMR shifts, all IR band positions, and all mass-spectrum peak
   heights were entered from memory of standard reference spectra and should be
   checked against SDBS or the NIST WebBook before students rely on them.
+- The 1H spectrum carries an integration line (the green stepped curve), and the
+  signal buttons show only the chemical shift, so students read the relative
+  areas from the steps. To show "area" numbers on the buttons instead, set
+  `SHOW_AREAS` to `true` near the top of the script in `index.html`. The
+  collapsed "Peak list as text" under each spectrum always gives the areas, for
+  students who cannot read the plot.
 - Spectra are drawn from these numbers. Multiplets are first-order at 400 MHz;
   IR band shapes are simplified.
 
