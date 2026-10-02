@@ -23,7 +23,8 @@ predicted there, is a mission target, or is a stand-in for practice.
 - `lib/craft3d.js` and `media/dragonfly-model.js` – the 3D rotorcraft on the opening screen.
 - `media/opening.webp` – the opening screen background.
 - `media/site1.webp` … `site15.webp` – the site pictures on the flight plan.
-- `media/zone2.mp4` and `media/zone2-poster.webp` – the arrival clip for zone 2.
+- `media/zone2.mp4`, `media/zone3.mp4` and their `-poster.webp` pictures – the
+  arrival clips for zones 2 and 3.
 
 Keep the folder structure as it is. The game must be served over http(s);
 drawing mode will not fully work if `index.html` is opened by double-clicking.
@@ -67,14 +68,15 @@ load, the game draws a simple dune scene instead.
 ## Arrival clips
 
 A zone can have a short video that plays the first time a student lands at its
-first site (zone 2 has one: `media/zone2.mp4`, supplied by the course author).
+first site (zones 2 and 3 have one each: `media/zone2.mp4` and
+`media/zone3.mp4`, supplied by the course author).
 It plays over the page with a Skip button (Esc also skips), then the game
 carries on to the site. Once seen, a "Replay arrival" button appears beside
 that zone on the flight plan. If the file is missing or cannot play, the game
 goes straight to the site.
 
-To add one for another zone, put the file in `media/` and add
-`clip:{src:"media/zone3.mp4", poster:"media/zone3-poster.webp"}` to that zone's
+To add or change one, put the file in `media/` and set
+`clip:{src:"media/zone3.mp4", poster:"media/zone3-poster.webp"}` in that zone's
 entry in the `ZONES` list in `index.html` (the poster is optional). Use an MP4
 with H.264 video; a few megabytes is plenty for ten seconds.
 
