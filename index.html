@@ -59,7 +59,13 @@ button{font:inherit;color:inherit;cursor:pointer}
 /* opening */
 .stage{position:relative;aspect-ratio:16/9;max-width:100%;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#3b2513}
 .stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stage-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:62% 50%;display:block}
 .stage video{position:absolute;inset:0;width:100%;height:100%;background:#000}
+.clip{position:fixed;inset:0;z-index:50;background:rgba(12,8,4,.95);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}
+.clip[hidden]{display:none}
+.clip .frame{width:min(100%,1100px,calc((100vh - 130px)*16/9));aspect-ratio:16/9;background:#000;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.clip video{width:100%;height:100%;display:block;background:#000}
+.clip .cap{width:min(100%,1100px,calc((100vh - 130px)*16/9));display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
 .craft{position:absolute;right:9%;top:18%;width:min(30%,300px);animation:hover 6s ease-in-out infinite}
 @keyframes hover{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(10px) rotate(1deg)}}
 .craft.off{display:none}
@@ -133,6 +139,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .plot .gr{stroke:var(--grid);stroke-width:1;fill:none}
 .plot .tr{stroke:var(--trace);stroke-width:1.6;fill:none;stroke-linejoin:round}
 .plot .ig{stroke:var(--integral);stroke-width:1.5;fill:none;stroke-linejoin:round}
+.plot .igl{fill:var(--integral);font-size:12px;font-weight:700;paint-order:stroke;stroke:var(--paper);stroke-width:3.5px;stroke-linejoin:round}
 .sw{display:inline-block;width:18px;height:0;border-top:2px solid var(--integral);vertical-align:middle;margin-right:2px}
 .plot .st{stroke:var(--trace);stroke-width:2.5;stroke-linecap:butt}
 .plot .lab{fill:var(--ink);font-size:10.5px}
@@ -196,6 +203,7 @@ sub{font-size:.72em}
 <section id="s-open" class="stack">
   <div class="stage" id="stage">
     <canvas id="dunes" aria-hidden="true"></canvas>
+    <img class="stage-bg" id="stage-bg" src="media/opening.webp" width="1600" height="900" alt="" decoding="async">
     <svg class="craft off" id="craft2d" viewBox="0 0 300 150" aria-hidden="true">
       <g fill="#140c06">
         <ellipse class="rotor" cx="40" cy="32" rx="38" ry="3"/><ellipse class="rotor" cx="40" cy="44" rx="38" ry="3"/>
@@ -217,7 +225,7 @@ sub{font-size:.72em}
       <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path d="M8 4l18 11L8 26z" fill="#f3e6d2"/></svg>
     </button>
     <div class="stage-copy" id="stage-copy">
-      <p class="eyebrow">Shangri-La dune field · Titan · 94 K</p>
+      <p class="eyebrow">Titan · surface temperature 94 K</p>
       <h1>Dragonfly Field Lab</h1>
       <p class="lede">A rotorcraft has landed on Saturn's largest moon. Its instruments are yours. Work out what the sand is made of.</p>
       <div class="row">
@@ -347,6 +355,11 @@ sub{font-size:.72em}
 
 </div>
 
+<div class="clip" id="clip" role="dialog" aria-modal="true" aria-labelledby="clip-title" hidden>
+  <div class="frame" id="clip-frame"></div>
+  <div class="cap"><span class="eyebrow" id="clip-title"></span><button class="btn small" id="btn-clip-skip" type="button">Skip</button></div>
+</div>
+
 <script>
 (function(){
 "use strict";
@@ -354,7 +367,8 @@ sub{font-size:.72em}
 var VIDEO_URL="https://science.nasa.gov/wp-content/uploads/2026/01/dragonflyattitan2025.mp4";
 var VIDEO_PAGE="https://science.nasa.gov/video-detail/dragonflyattitan2025/";
 var MODEL_JS="media/dragonfly-model.js";   /* 3D rotorcraft on the opening screen (the model, stored as text) */
-var SHOW_AREAS=false;  /* false hides the "area" numbers on the 1H signal buttons, so students must read the integration line */
+var SHOW_AREAS=false;  /* true adds the relative "area" numbers to the 1H signal buttons as well */
+var SHOW_H=true;       /* true labels each step of the 1H integration line with its number of hydrogens ("3H") */
 var COST={h1:15,c13:15,ir:10,ms:10,miss:15};
 var INST=[{id:"h1",name:"<sup>1</sup>H NMR",plain:"1H NMR"},{id:"c13",name:"<sup>13</sup>C NMR",plain:"13C NMR"},{id:"ir",name:"Infrared",plain:"Infrared"},{id:"ms",name:"Mass spec",plain:"Mass spec"}];
 function s(n){return "<sub>"+n+"</sub>";}
@@ -650,7 +664,8 @@ var SITES=[
 ];
 var ZONES=[
   {name:"Zone 1 · Shangri-La dunes", about:"small molecules from the atmosphere", place:"Shangri-La dunes", from:0, to:5},
-  {name:"Zone 2 · Crater approach", about:"aromatic rings and isomer pairs", place:"the crater approach", from:5, to:10},
+  {name:"Zone 2 · Crater approach", about:"aromatic rings and isomer pairs", place:"the crater approach", from:5, to:10,
+   clip:{src:"media/zone2.mp4", poster:"media/zone2-poster.webp"}},   /* plays once, on the first landing in this zone; add a clip:{...} to any zone */
   {name:"Zone 3 · Selk crater", about:"amines, acids, amides and amino acids", place:"Selk crater", from:10, to:15}
 ];
 function zoneOf(i){for(var z=0;z<ZONES.length;z++){if(i<ZONES[z].to)return z;}return ZONES.length-1;}
@@ -722,7 +737,7 @@ function zoneDone(z){for(var i=ZONES[z].from;i<ZONES[z].to;i++){if(!S.sites[i].s
 function renderMap(){
   var now=nextOpen(), h="";
   ZONES.forEach(function(Z,z){
-    h+='<div class="zonehead row" style="justify-content:space-between"><span class="eyebrow">'+esc(Z.name)+' · '+esc(Z.about)+'</span>'+(zoneDone(z)?'<button class="btn small" data-log="'+z+'" type="button">Mission log</button>':"")+'</div>';
+    h+='<div class="zonehead row" style="justify-content:space-between"><span class="eyebrow">'+esc(Z.name)+' · '+esc(Z.about)+'</span>'+'<span class="row">'+(Z.clip&&S.clips&&S.clips[z]?'<button class="btn small" data-clip="'+z+'" type="button">Replay arrival</button>':"")+(zoneDone(z)?'<button class="btn small" data-log="'+z+'" type="button">Mission log</button>':"")+'</span></div>';
     for(var i=Z.from;i<Z.to;i++){
       var d=SITES[i], st=S.sites[i], cls=st.solved?"done":(i===now?"now":"locked"), sub, btn="";
       if(st.solved){sub=esc(d.name)+(S.power==="mission"?" · banked "+st.banked:"");btn='<button class="btn small" data-site="'+i+'" type="button">Review</button>';}
@@ -735,7 +750,15 @@ function renderMap(){
 }
 $("route").addEventListener("click",function(e){
   var b=e.target.closest("[data-site]");
-  if(b){S.site=+b.dataset.site;view={inst:null,zoom:null,pick:null};go("site");return;}
+  if(b){
+    var i=+b.dataset.site, z=zoneOf(i), land=function(){S.site=i;view={inst:null,zoom:null,pick:null};go("site");};
+    /* the first landing in a zone that has an arrival clip plays it once, then carries on to the site */
+    if(ZONES[z].clip&&i===ZONES[z].from&&!S.sites[i].solved&&!(S.clips&&S.clips[z]))playClip(z,land);
+    else land();
+    return;
+  }
+  b=e.target.closest("[data-clip]");
+  if(b){playClip(+b.dataset.clip,function(){var r=document.querySelector('[data-clip="'+b.dataset.clip+'"]');if(r)r.focus();});return;}
   b=e.target.closest("[data-log]");
   if(b){S.doneZone=+b.dataset.log;go("done");}
 });
@@ -816,6 +839,34 @@ function drawChart(host,kind,d,opts){
       ip2.reverse();
       svg+='<polyline class="ig" points="'+ip2.join(" ")+'"/>';
       integPct=function(v){return 100*integ(v)/tot;};
+      if(SHOW_H){
+        /* hydrogen count beside each step: on the shelf to the right of the step if there is room; in a crowded staircase, just left of the step at mid-height */
+        var yI=function(v){return base-ph*0.08-Math.max(0,Math.min(1,(integ(v)-i0)/span))*ph*0.62;};
+        var steps=h1Steps(d.h1).filter(function(c){var mid=(c.lo+c.hi)/2;return mid>lo&&mid<hi;});
+        var strips=steps.map(function(c){return [X(c.hi)-1,X(c.lo)+1];}), used=[], th=12;
+        var plan=steps.map(function(c,ci){
+          var txt=c.nH+"H", tw=txt.length*7.6+2, xl=strips[ci][0], xr=strips[ci][1], e=(c.hi-c.lo)*0.15;
+          var yTop=yI(Math.max(lo,c.lo-e)), yBot=yI(Math.min(hi,c.hi+e));
+          var shelf=[xr+5,yI(Xinv(Math.min(m.l+pw,xr+5+tw/2)))-5-th], left=[xl-4-tw,(yTop+yBot)/2-th/2], above=[(xl+xr)/2-tw/2,Math.min(yTop,evalAt((c.lo+c.hi)/2))-6-th];
+          var crowded=shelf[0]+tw>m.l+pw-1||strips.some(function(q,k){return k!==ci&&shelf[0]<q[1]+2&&shelf[0]+tw>q[0]-2;});
+          return {txt:txt,tw:tw,crowded:crowded,cand:crowded?[left,above]:[shelf,left,above]};
+        });
+        function place(P){
+          function free(b,gap){
+            if(b[0]<m.l+1||b[0]+P.tw>m.l+pw-1||b[1]<m.t-6||b[1]+th>base-2)return false;
+            for(var q=0;q<used.length;q++)if(b[0]<used[q][0]+used[q][2]+gap&&b[0]+P.tw+gap>used[q][0]&&b[1]<used[q][1]+th+1&&b[1]+th+1>used[q][1])return false;
+            return true;
+          }
+          var b=null;
+          /* a shelf label must keep well clear of a neighbour's label, or it is not obvious which step each belongs to */
+          for(var q=0;q<P.cand.length&&!b;q++)if(free(P.cand[q],(!P.crowded&&q===0)?22:3))b=P.cand[q];
+          if(!b){b=P.cand[0];b[0]=Math.max(m.l+1,Math.min(m.l+pw-P.tw-1,b[0]));b[1]=Math.max(m.t-6,b[1]);}
+          used.push([b[0],b[1],P.tw]);
+          svg+='<text class="igl" x="'+(b[0]+1).toFixed(1)+'" y="'+(b[1]+th-2).toFixed(1)+'">'+P.txt+'</text>';
+        }
+        plan.filter(function(P){return P.crowded;}).forEach(place);
+        plan.filter(function(P){return !P.crowded;}).forEach(place);
+      }
     }
   }else if(kind==="ir"){
     f=function(v){var a=0;for(var k=0;k<d.ir.length;k++){var b=d.ir[k],q=2*(v-b[0])/b[2];
@@ -887,6 +938,17 @@ function h1Groups(sig){
   return out;
 }
 
+/* the separate steps of the integration line: like h1Groups, but peaks of one group that sit apart (the two N–H of an amide) are counted one by one */
+function h1Steps(sig){
+  var out=[];
+  sig.forEach(function(g){
+    var half=g[2]*g[3]/2/400+(g[5]||0)*1.5/400+3/400, c={nH:g[1],lo:g[0]-half,hi:g[0]+half,grp:g[4]||null}, hit=null;
+    if(c.grp)out.forEach(function(o){if(o.grp===c.grp&&c.lo-o.hi<0.2&&o.lo-c.hi<0.2)hit=o;});
+    if(hit){hit.nH+=c.nH;hit.lo=Math.min(hit.lo,c.lo);hit.hi=Math.max(hit.hi,c.hi);}else out.push(c);
+  });
+  return out;
+}
+
 /* ---------------------------------------------------------------- site */
 function unlocked(id){var st=S.sites[S.site];return st.solved||!!st.runs[id]||(id==="ms"&&st.tries.length>0);}
 function renderSite(reset){
@@ -924,8 +986,8 @@ function renderPaper(){
   if(k==="h1"){
     var G=h1Groups(d.h1);
     h+='<div class="chips"><span>Signals:</span>'+G.map(function(g,i){return '<button type="button" class="chip" data-z="'+i+'" aria-pressed="'+(view.zsel===i)+'">δ '+g.label+(SHOW_AREAS?' · '+(G.length>1?"area "+g.area:"only signal"):"")+'</button>';}).join("")+(view.zoom?'<button type="button" class="chip" data-z="full">Full spectrum</button>':"")+'</div>';
-    list=G.map(function(g){return "<li>δ "+g.label+" ppm: "+g.mult+(G.length>1?", relative area "+g.area:"")+"</li>";}).join("");
-    tip=(d.h1note?d.h1note+" ":"")+'<span class="sw"></span> The green stepped line is the integral. The height of each step is proportional to the number of hydrogens in that signal; point at the spectrum to read it as a percentage. Tap a signal to expand it, or drag across to zoom.';
+    list=G.map(function(g){return "<li>δ "+g.label+" ppm: "+g.mult+(SHOW_H?", "+g.nH+"H":(G.length>1?", relative area "+g.area:""))+"</li>";}).join("");
+    tip=(d.h1note?d.h1note+" ":"")+'<span class="sw"></span> The green stepped line is the integral. The height of each step is proportional to the number of hydrogens in that signal'+(SHOW_H?", and the label beside the step gives that number":"; point at the spectrum to read it as a percentage")+'. Tap a signal to expand it, or drag across to zoom.';
   }else if(k==="c13"){
     h+='<div class="chips"><span>Peaks:</span>'+d.c13.map(function(g,i){return '<button type="button" class="chip" data-z="'+i+'" aria-pressed="'+(view.zsel===i)+'">δ '+g[0].toFixed(1)+'</button>';}).join("")+(view.zoom?'<button type="button" class="chip" data-z="full">Full spectrum</button>':"")+'</div>';
     list=d.c13.map(function(g){return "<li>δ "+g[0].toFixed(1)+" ppm</li>";}).join("");
@@ -962,11 +1024,29 @@ function ringSVG(n,arom){
   for(i=0;i<n;i++){var a=-Math.PI/2+i*2*Math.PI/n;p.push((c+R*Math.cos(a)).toFixed(1)+","+(c+R*Math.sin(a)).toFixed(1));}
   return '<svg width="52" height="52" viewBox="0 0 52 52" aria-hidden="true"><polygon points="'+p.join(" ")+'" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>'+(arom?'<circle cx="26" cy="26" r="11.5" fill="none" stroke="currentColor" stroke-width="1.6"/>':"")+'</svg>';
 }
+/* Multiple choice order. Each site keeps one shuffled order until the mission is restarted, and the slot of the
+   right answer is dealt from a shuffled deck of slots, so over a zone it lands in every position about equally often. */
+function shuffled(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function optOrder(i){
+  var d=SITES[i], st=S.sites[i], ids=d.options.map(function(o){return o.id;}), k;
+  var ok=st.order&&st.order.length===ids.length&&ids.every(function(id){return st.order.indexOf(id)>=0;});
+  if(!ok){
+    if(!(S.slots&&S.slots.length===SITES.length)){
+      S.slots=[];
+      while(S.slots.length<SITES.length)S.slots=S.slots.concat(shuffled([0,1,2,3]));
+      S.slots.length=SITES.length;
+    }
+    st.order=shuffled(ids.filter(function(id){return id!==d.id;}));
+    st.order.splice(Math.min(S.slots[i],st.order.length),0,d.id);
+    save();
+  }
+  return st.order.map(function(id){for(k=0;k<d.options.length;k++)if(d.options[k].id===id)return d.options[k];});
+}
 function renderAnswer(){
   var d=SITES[S.site], st=S.sites[S.site], mc=S.answer==="mc";
   document.querySelectorAll("#answer-panel [data-set]").forEach(function(b){b.setAttribute("aria-pressed",String(S.answer===b.dataset.val));});
   $("opts").hidden=!mc; $("draw-wrap").hidden=mc||st.solved;
-  $("opts").innerHTML=d.options.map(function(o){
+  $("opts").innerHTML=optOrder(S.site).map(function(o){
     var out=st.tries.indexOf(o.id)>=0&&o.id!==d.id, right=st.solved&&o.id===d.id;
     return '<button type="button" class="opt'+(out?" out":"")+(right?" right":"")+'" data-opt="'+o.id+'" aria-pressed="'+(view.pick===o.id)+'"'+((out||st.solved)?" disabled":"")+'><span class="f">'+(o.ring?ringSVG(o.ring[0],o.ring[1]):(o.draw?(STRUCT[o.smiles]||""):o.f))+'</span><span class="nm">'+o.name+(out?" · rejected":"")+'</span></button>';
   }).join("");
@@ -1130,7 +1210,11 @@ function renderDone(){
 }
 
 /* ---------------------------------------------------------------- opening scene */
+var bgFailed=false;   /* the drawn dunes are only a fallback, used if the opening picture cannot load */
+function bgFail(){bgFailed=true;$("stage-bg").hidden=true;paintDunes();}
+$("stage-bg").addEventListener("error",bgFail);
 function paintDunes(){
+  if(!bgFailed)return;
   var c=$("dunes"), r=c.getBoundingClientRect(), dpr=Math.min(2,window.devicePixelRatio||1);
   if(!r.width)return;
   c.width=Math.round(r.width*dpr); c.height=Math.round(r.height*dpr);
@@ -1201,6 +1285,37 @@ function playVideo(){
   var pr=videoEl.play();if(pr&&pr.catch)pr.catch(function(){});
   setTimeout(function(){if(videoEl&&videoEl.readyState===0&&videoEl.networkState===3)fail();},6000);
 }
+/* zone arrival clips: a short video over the page, with Skip; whatever happens (end, skip, error) the game carries on */
+var clipEl=null, clipThen=null;
+function endClip(){
+  if(!clipEl)return;
+  try{clipEl.pause();}catch(e){}
+  clipEl.removeAttribute("src");try{clipEl.load();}catch(e){}
+  clipEl.remove();clipEl=null;$("clip").hidden=true;
+  var f=clipThen;clipThen=null;if(f)f();
+}
+function playClip(z,then){
+  var c=ZONES[z].clip;
+  if(!c||clipEl){if(then)then();return;}
+  clipThen=then;
+  clipEl=document.createElement("video");
+  clipEl.controls=true;clipEl.playsInline=true;clipEl.preload="auto";
+  if(c.poster)clipEl.poster=c.poster;
+  clipEl.src=c.src;
+  clipEl.setAttribute("aria-label","Arrival clip for "+ZONES[z].name);
+  var seen=function(){S.clips=S.clips||{};S.clips[z]=1;save();};   /* counted as seen once it has started or been skipped, not if it failed to load */
+  clipEl.addEventListener("playing",seen);
+  clipEl.addEventListener("ended",endClip);
+  clipEl.addEventListener("error",endClip);
+  $("btn-clip-skip").onclick=function(){seen();endClip();};
+  $("clip-title").textContent="Arriving · "+ZONES[z].name;
+  $("clip-frame").appendChild(clipEl);
+  $("clip").hidden=false;
+  $("btn-clip-skip").focus();
+  var el=clipEl, pr=el.play();if(pr&&pr.catch)pr.catch(function(){});
+  setTimeout(function(){if(clipEl===el&&el.readyState===0&&el.networkState===3)endClip();},6000);
+}
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&clipEl)$("btn-clip-skip").click();});
 $("btn-play").addEventListener("click",playVideo);
 $("btn-play2").addEventListener("click",playVideo);
 $("video-msg").addEventListener("click",function(e){if(e.target.id==="btn-skip")enterMission();});
@@ -1225,12 +1340,13 @@ $("btn-done-reset").addEventListener("click",function(){
 
 /* ---------------------------------------------------------------- boot */
 function start(d){
+  var bg=$("stage-bg"); if(bg.complete&&!bg.naturalWidth)bgFailed=true,bg.hidden=true;   /* failed before this script ran */
   /* A fresh visit always opens on the title screen; saved progress is kept and "Continue mission" picks it up.
      (Only a live update of an already-open page returns straight to where the player was.) */
   if(d&&d.S){load(d.S);go(S.screen);}
   else go("open");
 }
-window.__lab={state:function(){return S;},sites:SITES,editor:function(){return applet;}};
+window.__lab={state:function(){return S;},sites:SITES,editor:function(){return applet;},order:optOrder};
 var hot=window.claude&&window.claude.hot;
 if(hot&&hot.snapshot)hot.snapshot(function(){return {S:S};});
 if(hot&&hot.ready)hot.ready(start);else start((hot&&hot.data)||{});

@@ -21,7 +21,9 @@ predicted there, is a mission target, or is a stand-in for practice.
 - `lib/jsme/` – JSME structure editor (drawing mode).
 - `lib/rdkit/` – RDKit.js (compares a drawn structure with the answer).
 - `lib/craft3d.js` and `media/dragonfly-model.js` – the 3D rotorcraft on the opening screen.
-- `media/site1.webp` … `site5.webp` – the site pictures on the flight plan.
+- `media/opening.webp` – the opening screen background.
+- `media/site1.webp` … `site15.webp` – the site pictures on the flight plan.
+- `media/zone2.mp4` and `media/zone2-poster.webp` – the arrival clip for zone 2.
 
 Keep the folder structure as it is. The game must be served over http(s);
 drawing mode will not fully work if `index.html` is opened by double-clicking.
@@ -55,6 +57,27 @@ opening scene must stay. The original was converted to glTF with its textures re
 `lib/craft3d.js` draws it (three.js is bundled inside that file).
 If a browser cannot show 3D, a flat silhouette of the craft is shown instead.
 
+## The opening picture
+
+`media/opening.webp` is the background of the opening screen, a picture
+supplied by the course author. To change it, replace that file with another
+picture of the same name (about 1600 pixels wide works well). If it cannot
+load, the game draws a simple dune scene instead.
+
+## Arrival clips
+
+A zone can have a short video that plays the first time a student lands at its
+first site (zone 2 has one: `media/zone2.mp4`, supplied by the course author).
+It plays over the page with a Skip button (Esc also skips), then the game
+carries on to the site. Once seen, a "Replay arrival" button appears beside
+that zone on the flight plan. If the file is missing or cannot play, the game
+goes straight to the site.
+
+To add one for another zone, put the file in `media/` and add
+`clip:{src:"media/zone3.mp4", poster:"media/zone3-poster.webp"}` to that zone's
+entry in the `ZONES` list in `index.html` (the poster is optional). Use an MP4
+with H.264 video; a few megabytes is plenty for ten seconds.
+
 ## The site pictures on the flight plan
 
 `media/site1.webp` to `site5.webp` are illustrations painted for this game by a
@@ -79,12 +102,13 @@ and `view` in its `SITES` entry in `index.html`.
 - The aromatic hydrogens of toluene and ethylbenzene are drawn as three
   overlapping first-order patterns, which gives a realistic-looking multiplet
   but not an exact one.
-- The 1H spectrum carries an integration line (the green stepped curve), and the
-  signal buttons show only the chemical shift, so students read the relative
-  areas from the steps. To show "area" numbers on the buttons instead, set
-  `SHOW_AREAS` to `true` near the top of the script in `index.html`. The
-  collapsed "Peak list as text" under each spectrum always gives the areas, for
-  students who cannot read the plot.
+- The 1H spectrum carries an integration line (the green stepped curve), and
+  each step is labelled with its number of hydrogens ("3H"). To remove those
+  labels, so students must work out the ratio from the step heights, set
+  `SHOW_H` to `false` near the top of the script in `index.html`. The signal
+  buttons show only the chemical shift; `SHOW_AREAS` set to `true` adds relative
+  areas to them. The collapsed "Peak list as text" under each spectrum gives the
+  same numbers as the plot, for students who cannot read it.
 - Spectra are drawn from these numbers. Multiplets are first-order at 400 MHz;
   IR band shapes are simplified.
 
@@ -97,7 +121,11 @@ Each sample is one entry in the `SITES` list in `index.html`:
 - `ir`: `[wavenumber, depth 0–1, width]` per band
 - `ms`: `[m/z, relative %]` per peak
 - `options`: the four multiple-choice structures, each with a SMILES string,
-  nominal mass, and a `why` sentence shown when that wrong answer is proposed
+  nominal mass, and a `why` sentence shown when that wrong answer is proposed.
+  The order in this list does not matter: the game shuffles the four for each
+  student, and deals the position of the right answer so that it falls in each
+  of the four places about equally often. A site keeps its order until the
+  mission is restarted
 - `smiles` / `jsme`: the answer (the second is the editor's own canonical form,
   used only if RDKit cannot load)
 - 1H signals that share a fifth value (for example `"ar"`) are shown to the
