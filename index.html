@@ -196,7 +196,7 @@ sub{font-size:.72em}
 <section id="s-open" class="stack">
   <div class="stage" id="stage">
     <canvas id="dunes" aria-hidden="true"></canvas>
-    <svg class="craft" id="craft2d" viewBox="0 0 300 150" aria-hidden="true">
+    <svg class="craft off" id="craft2d" viewBox="0 0 300 150" aria-hidden="true">
       <g fill="#140c06">
         <ellipse class="rotor" cx="40" cy="32" rx="38" ry="3"/><ellipse class="rotor" cx="40" cy="44" rx="38" ry="3"/>
         <ellipse class="rotor" cx="260" cy="32" rx="38" ry="3"/><ellipse class="rotor" cx="260" cy="44" rx="38" ry="3"/>
@@ -1145,8 +1145,8 @@ function paintDunes(){
     g.lineTo(W,H);g.closePath();g.fill();
   });
 }
-/* 3D rotorcraft: replaces the flat silhouette once the model has loaded.
-   If WebGL or the model file is unavailable, the silhouette simply stays. */
+/* 3D rotorcraft. The flat silhouette is a fallback only: it stays hidden unless
+   the 3D model cannot be shown (no WebGL, or the model files fail to load). */
 var craft=null, craftRun=0, craftAssets=null;
 function loadCraft(){
   if(craft)return;
@@ -1168,13 +1168,13 @@ function loadCraft(){
       },
       onError:function(){ if(run===craftRun)showSilhouette(); }
     });
-  }).catch(function(){});
+  }).catch(function(){ if(run===craftRun)showSilhouette(); });
 }
 function showSilhouette(){$("craft3d").classList.remove("on"); $("craft2d").classList.remove("off"); $("model-credit").hidden=true;}
 function dropCraft(){
   craftRun++;
   if(craft){try{craft.dispose();}catch(e){} craft=null;}
-  showSilhouette();
+  $("craft3d").classList.remove("on"); $("craft2d").classList.add("off");
 }
 var videoEl=null;
 function stopVideo(){if(videoEl){try{videoEl.pause();}catch(e){}videoEl.remove();videoEl=null;$("stage-copy").hidden=false;$("btn-play").hidden=false;if($("craft3d"))$("craft3d").hidden=false;if(craft)craft.resume();}}
