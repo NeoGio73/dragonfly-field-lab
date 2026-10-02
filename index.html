@@ -275,6 +275,7 @@ sub{font-size:.72em}
   <p class="credit">The site pictures are illustrations of what Titan's surface might look like, painted for this game. They are not photographs.</p>
   <div class="row">
     <button class="btn" id="btn-brief" type="button">Briefing and settings</button>
+    <button class="btn" id="btn-open" type="button">Opening screen</button>
     <button class="btn" id="btn-reset" type="button">Restart mission</button>
     <span class="credit" id="reset-confirm" hidden>Erase all progress? <button class="btn small" id="btn-reset-yes" type="button">Yes, restart</button> <button class="btn small" id="btn-reset-no" type="button">Keep going</button></span>
   </div>
@@ -469,7 +470,8 @@ function go(screen){
   if(screen==="site")renderSite(true);
   if(screen==="done")renderDone();
   renderBar();
-  if(screen!=="open"){stopVideo();dropCraft();window.scrollTo(0,0);}else loadCraft();
+  if(screen!=="open"){stopVideo();dropCraft();window.scrollTo(0,0);}
+  else{$("btn-begin").textContent=hasProgress()?"Continue mission":"Begin mission";$("video-msg").hidden=true;paintDunes();loadCraft();window.scrollTo(0,0);}
 }
 function total(){return S.sites.reduce(function(a,x){return a+(x.banked||0);},0);}
 function renderBar(){
@@ -911,32 +913,34 @@ function paintDunes(){
 }
 /* 3D rotorcraft: replaces the flat silhouette once the model has loaded.
    If WebGL or the model file is unavailable, the silhouette simply stays. */
-var craftState="idle", craft=null;
+var craft=null, craftRun=0, craftAssets=null;
 function loadCraft(){
-  if(craftState!=="idle")return; craftState="loading";
-  Promise.all([loadScript("lib/craft3d.js"),loadScript(MODEL_JS)]).then(function(){
-    if(craftState==="gone")return;
+  if(craft)return;
+  var run=++craftRun;
+  if(!craftAssets)craftAssets=Promise.all([loadScript("lib/craft3d.js"),loadScript(MODEL_JS)]).then(function(){
     var bin=atob(window.DRAGONFLY_GLB_B64), bytes=new Uint8Array(bin.length), i;
     for(i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
     window.DRAGONFLY_GLB_B64=null;
-    craft=window.Craft3D.mount($("craft3d"),bytes.buffer,{
+    return bytes.buffer;
+  });
+  craftAssets.then(function(buf){
+    if(run!==craftRun||craft)return;          /* the player has already left the opening screen */
+    craft=window.Craft3D.mount($("craft3d"),buf.slice(0),{
       reducedMotion:matchMedia("(prefers-reduced-motion:reduce)").matches,
       label:"3D model of the Dragonfly rotorcraft. Drag to turn it.",
       onReady:function(){
-        if(craftState==="gone")return; craftState="on";
+        if(run!==craftRun)return;
         $("craft3d").classList.add("on"); $("craft2d").classList.add("off"); $("model-credit").hidden=false;
       },
-      onError:function(){
-        if(craftState==="gone")return; craftState="failed";
-        $("craft3d").classList.remove("on"); $("craft2d").classList.remove("off"); $("model-credit").hidden=true;
-      }
+      onError:function(){ if(run===craftRun)showSilhouette(); }
     });
-  }).catch(function(){craftState="failed";});
+  }).catch(function(){});
 }
+function showSilhouette(){$("craft3d").classList.remove("on"); $("craft2d").classList.remove("off"); $("model-credit").hidden=true;}
 function dropCraft(){
-  craftState="gone";
+  craftRun++;
   if(craft){try{craft.dispose();}catch(e){} craft=null;}
-  var h=$("craft3d"); if(h)h.remove();
+  showSilhouette();
 }
 var videoEl=null;
 function stopVideo(){if(videoEl){try{videoEl.pause();}catch(e){}videoEl.remove();videoEl=null;$("stage-copy").hidden=false;$("btn-play").hidden=false;if($("craft3d"))$("craft3d").hidden=false;if(craft)craft.resume();}}
@@ -951,17 +955,20 @@ function playVideo(){
     p.innerHTML='The animation could not play here. <a href="'+VIDEO_PAGE+'" target="_blank" rel="noopener">Watch it on NASA\'s site</a>, then come back and begin the mission.';
   };
   videoEl.addEventListener("error",fail);
-  videoEl.addEventListener("ended",function(){go("brief");});
+  videoEl.addEventListener("ended",enterMission);
   $("stage").appendChild(videoEl);
   $("stage-copy").hidden=true;$("btn-play").hidden=true;if($("craft3d"))$("craft3d").hidden=true;if(craft)craft.pause();
-  var p=$("video-msg");p.hidden=false;p.innerHTML='Playing from NASA\'s server. <button class="btn small" id="btn-skip" type="button">Skip to the briefing</button>';
+  var p=$("video-msg");p.hidden=false;p.innerHTML='Playing from NASA\'s server. <button class="btn small" id="btn-skip" type="button">Skip the video</button>';
   var pr=videoEl.play();if(pr&&pr.catch)pr.catch(function(){});
   setTimeout(function(){if(videoEl&&videoEl.readyState===0&&videoEl.networkState===3)fail();},6000);
 }
 $("btn-play").addEventListener("click",playVideo);
 $("btn-play2").addEventListener("click",playVideo);
-$("video-msg").addEventListener("click",function(e){if(e.target.id==="btn-skip")go("brief");});
-$("btn-begin").addEventListener("click",function(){go("brief");});
+$("video-msg").addEventListener("click",function(e){if(e.target.id==="btn-skip")enterMission();});
+function hasProgress(){return S.sites.some(function(x){return x.solved||x.spent>0||x.tries.length>0||Object.keys(x.runs).length>0;});}
+function enterMission(){go(hasProgress()?"map":"brief");}
+$("btn-begin").addEventListener("click",enterMission);
+$("btn-open").addEventListener("click",function(){go("open");});
 $("btn-to-map").addEventListener("click",function(){go("map");});
 $("btn-map").addEventListener("click",function(){go("map");});
 $("btn-brief").addEventListener("click",function(){go("brief");});
@@ -974,9 +981,10 @@ $("btn-done-reset").addEventListener("click",resetAll);
 
 /* ---------------------------------------------------------------- boot */
 function start(d){
-  if(d&&d.S)load(d.S);
-  paintDunes();
-  go(S.screen==="open"?"open":S.screen);
+  /* A fresh visit always opens on the title screen; saved progress is kept and "Continue mission" picks it up.
+     (Only a live update of an already-open page returns straight to where the player was.) */
+  if(d&&d.S){load(d.S);go(S.screen);}
+  else go("open");
 }
 window.__lab={state:function(){return S;},sites:SITES,editor:function(){return applet;}};
 var hot=window.claude&&window.claude.hot;
