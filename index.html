@@ -104,6 +104,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .leg .body .t{font-family:var(--font-display);font-size:1.2rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 .leg .body .s{color:var(--muted);font-size:.92rem}
 .leg.locked .t{color:var(--muted)}
+.leg.last .wire{display:none}
 .leg .thumb{width:210px;max-width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border:1px solid var(--line);border-radius:4px;flex:none;display:block}
 .leg.locked .thumb{opacity:.55;filter:saturate(.7)}
 .leg .txt{flex:1 1 220px;min-width:0}
@@ -355,6 +356,7 @@ function s(n){return "<sub>"+n+"</sub>";}
 
 /* h1: [shift ppm, nH, neighbours, J Hz]   c13: [shift ppm, relative height]
    ir: [wavenumber, depth 0-1, width cm-1]   ms: [m/z, relative %] */
+var D2O_NOTE="This spectrum was run in D"+s(2)+"O. Hydrogens on N and O swap with the solvent, so they do not appear.";
 var SITES=[
 { id:"ethane", img:"media/site1.webp", view:"Long dunes of dark organic sand run toward the horizon. The sun is a small, dim disc in the haze.", site:"Site 1 · Touchdown", flavor:"The drill's first cuttings warm in the sample cup, and a volatile boils off into the cold trap.",
   name:"Ethane", smiles:"CC", jsme:"CC", formula:"C2H6", mass:30, tag:"Detected on Titan",
@@ -542,10 +544,109 @@ var SITES=[
     ms:"M⁺ at m/z 69 is weak, and it is the same mass as butanenitrile. The tallest peak here is m/z 42, where butanenitrile's is m/z 41, so the fragments help where the mass cannot.",
     titan:"A stand-in for Titan, where it has not been detected. In 2014 the ALMA telescope found it in the Sagittarius B2 cloud, the first branched carbon chain seen in interstellar space."}
 }
+/* ---- Zone 3 · Selk crater: functional groups with O and N ---- */
+,{ id:"propylamine", img:"media/site11.webp", view:"From the rim, the far wall of Selk crater shows through the haze.", site:"Site 11 · Crater rim", flavor:"A volatile released from icy grit on the rim as the sample cup warms.",
+  name:"Propan-1-amine", smiles:"CCCN", jsme:"CCCN", formula:"C3H9N", mass:59, tag:"Mission target, not yet detected",
+  h1:[[2.65,2,2,7.0],[1.45,2,5,7.2],[1.15,2,0,0,0,14],[0.92,3,2,7.4]],
+  c13:[[44.4,1],[27.3,1],[11.4,.9]],
+  ir:[[3370,.4,40],[3290,.38,45],[2960,.75,24],[2930,.6,22],[2875,.5,20],[1610,.35,50],[1465,.42,16],[1385,.25,12],[1070,.3,30],[810,.4,120]],
+  ms:[[59,9],[58,3],[44,3],[42,5],[41,6],[30,100],[29,5],[28,13],[27,6]],
+  options:[
+    {id:"propylamine",name:"propan-1-amine",f:"CH"+s(3)+"CH"+s(2)+"CH"+s(2)+"–NH"+s(2),smiles:"CCCN",mass:59},
+    {id:"isopropylamine",name:"propan-2-amine",f:"(CH"+s(3)+")"+s(2)+"CH–NH"+s(2),smiles:"CC(C)N",mass:59,why:"Propan-2-amine has the same formula, but its (CH"+s(3)+")"+s(2)+"CH group gives a 6H doublet near 1.1 ppm and a 1H septet near 3.1 ppm."},
+    {id:"nmethylethanamine",name:"N-methylethanamine",f:"CH"+s(3)+"CH"+s(2)+"–NH–CH"+s(3),smiles:"CCNC",mass:59,why:"N-Methylethanamine has the same formula, but it has only one N–H, so its IR shows a single N–H stretch instead of two. The CH"+s(3)+" on nitrogen gives a 3H singlet near 2.4 ppm."},
+    {id:"trimethylamine",name:"N,N-dimethylmethanamine",f:"(CH"+s(3)+")"+s(3)+"N",smiles:"CN(C)C",mass:59,why:"N,N-Dimethylmethanamine (trimethylamine) has nine equivalent hydrogens: a single peak near 2.2 ppm. It has no N–H, so no N–H stretch at all."}
+  ],
+  isomer:"Two N–H stretches mean an NH"+s(2)+" group. The triplet, sextet, triplet pattern is an unbranched three-carbon chain.",
+  debrief:{h1:"Four signals. The triplet at 2.65 ppm (relative area 2) is the CH"+s(2)+" on nitrogen. The sextet at 1.45 ppm (area 2) is the middle CH"+s(2)+", and the triplet at 0.92 ppm (area 3) is the CH"+s(3)+". The broad peak at 1.15 ppm (area 2) is the NH"+s(2)+". Hydrogens on nitrogen swap between molecules, so they appear broad and do not split their neighbours.",
+    c13:"Three peaks, at 44.4, 27.3 and 11.4 ppm. The carbon bonded to nitrogen is the one furthest downfield.",
+    ir:"Two N–H stretches, at 3370 and 3290 cm⁻¹: an NH"+s(2)+" group, so a primary amine. There is an N–H bend near 1610 cm⁻¹, and sp³ C–H stretches below 3000 cm⁻¹.",
+    ms:"M⁺ at m/z 59 is odd: one nitrogen. The tallest peak, m/z 30, is CH"+s(2)+"=NH"+s(2)+"⁺, formed when the C–C bond next to nitrogen breaks. It marks a primary amine with a CH"+s(2)+" on the nitrogen.",
+    titan:"A mission target. Amines have not been detected on Titan. They could form where liquid water met Titan's organics, and the Dragonfly team has tested its mass spectrometer methods on a range of amines and amides."}
+},
+{ id:"butanoicacid", img:"media/site12.webp", view:"A broad terrace of slumped ground steps up toward the crater wall.", site:"Site 12 · Wall terrace", flavor:"An oily residue, frozen into the ice of the terrace.",
+  name:"Butanoic acid", smiles:"CCCC(=O)O", jsme:"CCCC(=O)O", formula:"C4H8O2", mass:88, tag:"Mission target, not yet detected",
+  h1:[[11.5,1,0,0,0,30],[2.35,2,2,7.4],[1.68,2,5,7.4],[0.98,3,2,7.4]],
+  c13:[[180.5,.35],[36.0,1],[18.2,1],[13.6,.9]],
+  ir:[[3000,.62,560],[2968,.5,22],[2940,.38,20],[2878,.3,18],[1712,.93,26],[1460,.3,16],[1413,.42,26],[1285,.5,40],[1220,.42,34],[935,.4,70]],
+  ms:[[88,2],[73,30],[60,100],[55,8],[45,14],[43,17],[42,22],[41,18],[39,8],[29,10],[27,17]],
+  options:[
+    {id:"butanoicacid",name:"butanoic acid",f:"CH"+s(3)+"CH"+s(2)+"CH"+s(2)+"–COOH",smiles:"CCCC(=O)O",mass:88},
+    {id:"isobutyricacid",name:"2-methylpropanoic acid",f:"(CH"+s(3)+")"+s(2)+"CH–COOH",smiles:"CC(C)C(=O)O",mass:88,why:"2-Methylpropanoic acid has the same formula and is also an acid, but its (CH"+s(3)+")"+s(2)+"CH group gives a 6H doublet and a 1H septet."},
+    {id:"ethylacetate",name:"ethyl ethanoate",f:"CH"+s(3)+"–COO–CH"+s(2)+"CH"+s(3),smiles:"CCOC(C)=O",mass:88,why:"Ethyl ethanoate is an ester with the same formula. It has no O–H, so no broad IR band and no peak near 11 ppm. Its C=O stretch comes near 1740 cm⁻¹, and its O–CH"+s(2)+" quartet appears near 4.1 ppm."},
+    {id:"methylpropanoate",name:"methyl propanoate",f:"CH"+s(3)+"CH"+s(2)+"–COO–CH"+s(3),smiles:"CCC(=O)OC",mass:88,why:"Methyl propanoate is an ester with the same formula. It has no O–H, and its O–CH"+s(3)+" gives a 3H singlet near 3.7 ppm."}
+  ],
+  isomer:"The very broad O–H band and the peak near 11.5 ppm mean a carboxylic acid, not an ester. The triplet, sextet, triplet pattern is an unbranched chain.",
+  debrief:{h1:"The broad peak at 11.5 ppm (relative area 1) is the acid hydrogen, far downfield. The triplet at 2.35 ppm (area 2) is the CH"+s(2)+" next to the C=O, the sextet at 1.68 ppm (area 2) is the middle CH"+s(2)+", and the triplet at 0.98 ppm (area 3) is the CH"+s(3)+".",
+    c13:"Four peaks. The C=O carbon is at 180.5 ppm, in the carboxylic acid region. The chain carbons are at 36.0, 18.2 and 13.6 ppm.",
+    ir:"A very broad O–H stretch from about 3300 to 2500 cm⁻¹, lying over the C–H stretches, and a strong C=O stretch at 1712 cm⁻¹. Together they mean a carboxylic acid.",
+    ms:"M⁺ at m/z 88 is even, so there is no nitrogen, and it is weak. The tallest peak, m/z 60, comes from a rearrangement (the McLafferty rearrangement) that is typical of acids with a chain of three carbons or more.",
+    titan:"A mission target. Carboxylic acids have not been detected on Titan. A thermodynamic study of the melted ice at Selk crater predicts that butanoic acid could form there even without ammonia, which would make it a useful marker for Dragonfly."}
+},
+{ id:"propanamide", img:"media/site13.webp", view:"Dark sand drifts across the crater floor. The wall stands pale in the distance.", site:"Site 13 · Crater floor", flavor:"Colourless crystals from the pale crust of the crater floor.",
+  name:"Propanamide", smiles:"CCC(N)=O", jsme:"CCC(N)=O", formula:"C3H7NO", mass:73, tag:"Mission target, not yet detected",
+  h1:[[6.0,1,0,0,"nh",28],[5.5,1,0,0,"nh",28],[2.24,2,3,7.6],[1.15,3,2,7.6]],
+  c13:[[177.0,.35],[29.0,1],[9.7,.9]],
+  ir:[[3360,.6,70],[3190,.58,80],[2975,.35,20],[2940,.28,20],[1660,.92,30],[1630,.7,24],[1465,.35,16],[1420,.5,22]],
+  ms:[[73,38],[72,4],[57,26],[45,6],[44,100],[29,48],[28,28],[27,20]],
+  options:[
+    {id:"propanamide",name:"propanamide",f:"CH"+s(3)+"CH"+s(2)+"–CO–NH"+s(2),smiles:"CCC(N)=O",mass:73},
+    {id:"nmethylacetamide",name:"N-methylethanamide",f:"CH"+s(3)+"–CO–NH–CH"+s(3),smiles:"CNC(C)=O",mass:73,why:"N-Methylethanamide has the same formula, but only one N–H: a single N–H stretch instead of two. It shows two CH"+s(3)+" signals, near 2.0 and 2.8 ppm, and no ethyl pattern."},
+    {id:"dmf",name:"N,N-dimethylmethanamide",f:"H–CO–N(CH"+s(3)+")"+s(2),smiles:"CN(C)C=O",mass:73,why:"N,N-Dimethylmethanamide has the same formula but no N–H at all. It shows a 1H peak near 8.0 ppm and two CH"+s(3)+" singlets near 2.9 ppm."},
+    {id:"propanoicacid",name:"propanoic acid",f:"CH"+s(3)+"CH"+s(2)+"–COOH",smiles:"CCC(=O)O",mass:74,why:"Propanoic acid also has an ethyl group and a C=O, but no nitrogen: its M⁺ is even, at m/z 74. Its O–H gives one very broad IR band, and its acid hydrogen appears near 11.5 ppm."}
+  ],
+  isomer:"Two N–H stretches mean an NH"+s(2)+" group, and a C=O near 1660 cm⁻¹ makes it an amide. The quartet and triplet are an ethyl group.",
+  debrief:{h1:"A quartet at 2.24 ppm (relative area 2) and a triplet at 1.15 ppm (area 3): an ethyl group next to a C=O. The two broad peaks near 5.5 and 6.0 ppm (together area 2) are the NH"+s(2)+". The two N–H hydrogens differ because the C–N bond of an amide does not rotate freely.",
+    c13:"Three peaks. The C=O carbon is at 177.0 ppm, and the ethyl carbons are at 29.0 and 9.7 ppm.",
+    ir:"Two N–H stretches, at 3360 and 3190 cm⁻¹: an NH"+s(2)+" group. The C=O stretch is at 1660 cm⁻¹, lower than in a ketone or an acid, which is typical of amides. Beside it, near 1630 cm⁻¹, is an N–H bend.",
+    ms:"M⁺ at m/z 73 is odd: one nitrogen. The tallest peak, m/z 44, is the CONH"+s(2)+"⁺ fragment, the mark of a primary amide.",
+    titan:"A mission target. Amides have not been detected on Titan. Finding amines and amides together would tell Dragonfly's team about the chemical conditions at the surface, and the team has tested its instrument on both."}
+},
+{ id:"betaalanine", img:"media/site14.webp", view:"A sheet of cracked water ice, where melted ice once pooled after the impact.", site:"Site 14 · Frozen pond", flavor:"A white powder drilled from just under the pond ice. It will not boil off, so the lab dissolves it in heavy water.",
+  name:"3-Aminopropanoic acid (β-alanine)", smiles:"NCCC(=O)O", jsme:"NCCC(=O)O", formula:"C3H7NO2", mass:89, tag:"Mission target, not yet detected",
+  h1note:D2O_NOTE,
+  h1:[[3.18,2,2,6.6],[2.56,2,2,6.6]],
+  c13:[[178.9,.35],[37.4,1],[34.4,1]],
+  ir:[[3050,.55,520],[2130,.14,90],[1630,.6,26],[1575,.88,34],[1505,.5,22],[1400,.7,26],[1335,.4,18]],
+  ms:[[89,8],[71,10],[70,24],[45,10],[44,20],[43,30],[42,25],[30,100],[28,24]],
+  options:[
+    {id:"betaalanine",name:"3-aminopropanoic acid",f:"H"+s(2)+"N–CH"+s(2)+"CH"+s(2)+"–COOH",smiles:"NCCC(=O)O",mass:89},
+    {id:"alanine",name:"2-aminopropanoic acid",f:"CH"+s(3)+"–CH(NH"+s(2)+")–COOH",smiles:"CC(N)C(=O)O",mass:89,why:"2-Aminopropanoic acid (alanine) has the same formula, but its CH"+s(3)+"–CH unit gives a 3H doublet and a 1H quartet, not two triplets."},
+    {id:"sarcosine",name:"2-(methylamino)ethanoic acid",f:"CH"+s(3)+"–NH–CH"+s(2)+"–COOH",smiles:"CNCC(=O)O",mass:89,why:"2-(Methylamino)ethanoic acid (sarcosine) has the same formula, but its CH"+s(3)+" and CH"+s(2)+" have no hydrogens on a neighbouring carbon: two singlets, with areas 3 : 2."},
+    {id:"glycine",name:"aminoethanoic acid",f:"H"+s(2)+"N–CH"+s(2)+"–COOH",smiles:"NCC(=O)O",mass:75,why:"Aminoethanoic acid (glycine) has only one kind of C–H: a single 2H peak, and M⁺ at m/z 75."}
+  ],
+  isomer:"Two triplets of equal area are two CH"+s(2)+" groups side by side, –CH"+s(2)+"–CH"+s(2)+"–.",
+  debrief:{h1:"Two triplets of equal area, at 3.18 and 2.56 ppm: two neighbouring CH"+s(2)+" groups. The one at 3.18 ppm is on nitrogen. The spectrum was run in D"+s(2)+"O, so the hydrogens on N and O are not seen.",
+    c13:"Three peaks: the carboxyl carbon at 178.9 ppm and two CH"+s(2)+" carbons at 37.4 and 34.4 ppm.",
+    ir:"Amino acids are solids made of ions, with an –NH"+s(3)+"⁺ group at one end and a –COO⁻ group at the other. The spectrum shows a broad N–H band from about 3100 to 2600 cm⁻¹ and a strong carboxylate band near 1575 cm⁻¹, in place of the usual C=O near 1710 cm⁻¹.",
+    ms:"M⁺ at m/z 89 is odd: one nitrogen. The tallest peak, m/z 30, is CH"+s(2)+"=NH"+s(2)+"⁺, the same fragment the amine at site 11 gave.",
+    titan:"A mission target. β-Alanine has not been detected on Titan. A study of amino acid formation at Selk crater recommended it as one of the standards for testing Dragonfly's mass spectrometer before flight. It is not one of the twenty amino acids that build proteins."}
+},
+{ id:"alanine", img:"media/site15.webp", view:"The sun rises over the crater wall after the long Titan night.", site:"Site 15 · First light", flavor:"The last sample: another white solid from the ice, a close relative of the one before.",
+  name:"2-Aminopropanoic acid (alanine)", smiles:"CC(N)C(=O)O", jsme:"CC(N)C(=O)O", formula:"C3H7NO2", mass:89, tag:"Mission target, not yet detected",
+  h1note:D2O_NOTE,
+  h1:[[3.78,1,3,7.2],[1.48,3,1,7.2]],
+  c13:[[176.5,.35],[51.3,1],[16.9,.9]],
+  ir:[[3080,.55,520],[2110,.14,90],[1620,.62,24],[1590,.88,32],[1520,.5,22],[1455,.4,16],[1412,.68,22],[1360,.45,16],[1307,.42,16]],
+  ms:[[89,1],[74,2],[45,5],[44,100],[42,10],[28,12]],
+  options:[
+    {id:"alanine",name:"2-aminopropanoic acid",f:"CH"+s(3)+"–CH(NH"+s(2)+")–COOH",smiles:"CC(N)C(=O)O",mass:89},
+    {id:"betaalanine",name:"3-aminopropanoic acid",f:"H"+s(2)+"N–CH"+s(2)+"CH"+s(2)+"–COOH",smiles:"NCCC(=O)O",mass:89,why:"3-Aminopropanoic acid (β-alanine) has the same formula, but its two CH"+s(2)+" groups give two triplets of equal area."},
+    {id:"sarcosine",name:"2-(methylamino)ethanoic acid",f:"CH"+s(3)+"–NH–CH"+s(2)+"–COOH",smiles:"CNCC(=O)O",mass:89,why:"2-(Methylamino)ethanoic acid (sarcosine) has the same formula, but its CH"+s(3)+" and CH"+s(2)+" have no hydrogens on a neighbouring carbon: two singlets, with areas 3 : 2."},
+    {id:"aminobutanoic",name:"2-aminobutanoic acid",f:"CH"+s(3)+"CH"+s(2)+"–CH(NH"+s(2)+")–COOH",smiles:"CCC(N)C(=O)O",mass:103,why:"2-Aminobutanoic acid has one more carbon: an ethyl group next to the CH, three signals, and M⁺ at m/z 103."}
+  ],
+  isomer:"A doublet with three times the area of a quartet is a CH"+s(3)+"–CH unit.",
+  debrief:{h1:"A doublet at 1.48 ppm (relative area 3) and a quartet at 3.78 ppm (area 1): a CH"+s(3)+" next to a single CH. The CH is far downfield because it carries both the nitrogen and the carboxyl group. Run in D"+s(2)+"O, so the hydrogens on N and O are not seen.",
+    c13:"Three peaks: the carboxyl carbon at 176.5 ppm, the CH at 51.3 ppm and the CH"+s(3)+" at 16.9 ppm.",
+    ir:"The same pattern as the last sample: a broad N–H band from the –NH"+s(3)+"⁺ group and a strong carboxylate band near 1590 cm⁻¹.",
+    ms:"M⁺ at m/z 89 is very weak. The tallest peak, m/z 44, is what is left after the COOH group (45) is lost: CH"+s(3)+"–CH=NH"+s(2)+"⁺.",
+    titan:"A mission target, and one of the amino acids of life on Earth. Alanine has not been detected on Titan. It comes in left- and right-handed forms, and Dragonfly's gas chromatograph carries a column that can separate the two. An excess of one hand would be a striking find."}
+}
 ];
 var ZONES=[
   {name:"Zone 1 · Shangri-La dunes", about:"small molecules from the atmosphere", place:"Shangri-La dunes", from:0, to:5},
-  {name:"Zone 2 · Crater approach", about:"aromatic rings and isomer pairs", place:"the crater approach", from:5, to:10}
+  {name:"Zone 2 · Crater approach", about:"aromatic rings and isomer pairs", place:"the crater approach", from:5, to:10},
+  {name:"Zone 3 · Selk crater", about:"amines, acids, amides and amino acids", place:"Selk crater", from:10, to:15}
 ];
 function zoneOf(i){for(var z=0;z<ZONES.length;z++){if(i<ZONES[z].to)return z;}return ZONES.length-1;}
 var STRUCT=/*STRUCT*/{"Cc1ccccc1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 83.5,35.6 L 59.5,35.6'/><path d='M 59.5,35.6 L 47.5,56.4'/><path d='M 55.4,35.6 L 45.4,52.8'/><path d='M 47.5,56.4 L 23.5,56.4'/><path d='M 23.5,56.4 L 11.5,35.6'/><path d='M 25.6,52.8 L 15.7,35.6'/><path d='M 11.5,35.6 L 23.5,14.9'/><path d='M 23.5,14.9 L 47.5,14.9'/><path d='M 25.6,18.5 L 45.4,18.5'/><path d='M 47.5,14.9 L 59.5,35.6'/><path d='M 48.1,55.4 L 47.5,56.4 L 46.3,56.4'/><path d='M 24.7,56.4 L 23.5,56.4 L 22.9,55.4'/><path d='M 12.1,36.7 L 11.5,35.6 L 12.1,34.6'/><path d='M 22.9,15.9 L 23.5,14.9 L 24.7,14.9'/><path d='M 46.3,14.9 L 47.5,14.9 L 48.1,15.9'/></svg>", "C1=CC=CCC=C1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 73.8,35.6 L 63.4,14.0'/><path d='M 69.8,35.6 L 60.9,17.1'/><path d='M 63.4,14.0 L 40.0,8.6'/><path d='M 40.0,8.6 L 21.2,23.6'/><path d='M 40.9,12.5 L 24.8,25.4'/><path d='M 21.2,23.6 L 21.2,47.7'/><path d='M 21.2,47.7 L 40.0,62.6'/><path d='M 40.0,62.6 L 63.4,57.3'/><path d='M 40.9,58.7 L 60.9,54.2'/><path d='M 63.4,57.3 L 73.8,35.6'/><path d='M 73.3,34.6 L 73.8,35.6 L 73.3,36.7'/><path d='M 63.9,15.1 L 63.4,14.0 L 62.2,13.7'/><path d='M 41.2,8.9 L 40.0,8.6 L 39.0,9.4'/><path d='M 22.1,22.9 L 21.2,23.6 L 21.2,24.8'/><path d='M 21.2,46.5 L 21.2,47.7 L 22.1,48.4'/><path d='M 39.0,61.9 L 40.0,62.6 L 41.2,62.4'/><path d='M 62.2,57.6 L 63.4,57.3 L 63.9,56.2'/></svg>", "CCc1ccccc1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 11.5,29.8 L 25.1,44.4'/><path d='M 25.1,44.4 L 44.6,40.0'/><path d='M 44.6,40.0 L 50.5,21.0'/><path d='M 47.9,39.3 L 52.8,23.5'/><path d='M 50.5,21.0 L 70.0,16.6'/><path d='M 70.0,16.6 L 83.5,31.2'/><path d='M 68.9,19.9 L 80.1,32.0'/><path d='M 83.5,31.2 L 77.6,50.3'/><path d='M 77.6,50.3 L 58.1,54.7'/><path d='M 75.2,47.8 L 59.1,51.4'/><path d='M 58.1,54.7 L 44.6,40.0'/><path d='M 24.4,43.7 L 25.1,44.4 L 26.0,44.2'/><path d='M 50.2,21.9 L 50.5,21.0 L 51.5,20.7'/><path d='M 69.0,16.8 L 70.0,16.6 L 70.7,17.3'/><path d='M 82.8,30.5 L 83.5,31.2 L 83.2,32.2'/><path d='M 77.9,49.4 L 77.6,50.3 L 76.6,50.5'/><path d='M 59.1,54.5 L 58.1,54.7 L 57.4,54.0'/></svg>", "Cc1ccccc1C": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 82.6,62.6 L 59.2,49.1'/><path d='M 59.2,49.1 L 35.8,62.6'/><path d='M 55.2,46.8 L 35.8,58.0'/><path d='M 35.8,62.6 L 12.4,49.1'/><path d='M 12.4,49.1 L 12.4,22.1'/><path d='M 16.5,46.8 L 16.5,24.5'/><path d='M 12.4,22.1 L 35.8,8.6'/><path d='M 35.8,8.6 L 59.2,22.1'/><path d='M 35.8,13.3 L 55.2,24.5'/><path d='M 59.2,22.1 L 82.6,8.6'/><path d='M 59.2,22.1 L 59.2,49.1'/><path d='M 37.0,62.0 L 35.8,62.6 L 34.7,62.0'/><path d='M 13.6,49.8 L 12.4,49.1 L 12.4,47.8'/><path d='M 12.4,23.5 L 12.4,22.1 L 13.6,21.5'/><path d='M 34.7,9.3 L 35.8,8.6 L 37.0,9.3'/></svg>", "Cc1cccc(C)c1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 11.5,56.4 L 29.5,46.0'/><path d='M 29.5,46.0 L 29.5,25.2'/><path d='M 29.5,25.2 L 47.5,14.9'/><path d='M 32.6,27.0 L 47.5,18.5'/><path d='M 47.5,14.9 L 65.5,25.2'/><path d='M 65.5,25.2 L 65.5,46.0'/><path d='M 62.4,27.0 L 62.4,44.2'/><path d='M 65.5,46.0 L 83.5,56.4'/><path d='M 65.5,46.0 L 47.5,56.4'/><path d='M 47.5,56.4 L 29.5,46.0'/><path d='M 47.5,52.8 L 32.6,44.2'/><path d='M 29.5,26.3 L 29.5,25.2 L 30.4,24.7'/><path d='M 46.6,15.4 L 47.5,14.9 L 48.4,15.4'/><path d='M 64.6,24.7 L 65.5,25.2 L 65.5,26.3'/><path d='M 48.4,55.9 L 47.5,56.4 L 46.6,55.9'/></svg>", "Cc1ccc(C)cc1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 83.5,35.6 L 65.5,35.6'/><path d='M 65.5,35.6 L 56.5,51.2'/><path d='M 56.5,51.2 L 38.5,51.2'/><path d='M 55.0,48.5 L 40.1,48.5'/><path d='M 38.5,51.2 L 29.5,35.6'/><path d='M 29.5,35.6 L 11.5,35.6'/><path d='M 29.5,35.6 L 38.5,20.1'/><path d='M 32.6,35.6 L 40.1,22.8'/><path d='M 38.5,20.1 L 56.5,20.1'/><path d='M 56.5,20.1 L 65.5,35.6'/><path d='M 55.0,22.8 L 62.4,35.6'/><path d='M 57.0,50.4 L 56.5,51.2 L 55.6,51.2'/><path d='M 39.4,51.2 L 38.5,51.2 L 38.1,50.4'/><path d='M 38.1,20.8 L 38.5,20.1 L 39.4,20.1'/><path d='M 55.6,20.1 L 56.5,20.1 L 57.0,20.8'/></svg>", "c1ccccc1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 78.7,35.6 L 63.1,62.6'/><path d='M 63.1,62.6 L 31.9,62.6'/><path d='M 60.4,58.0 L 34.6,58.0'/><path d='M 31.9,62.6 L 16.3,35.6'/><path d='M 16.3,35.6 L 31.9,8.6'/><path d='M 21.7,35.6 L 34.6,13.3'/><path d='M 31.9,8.6 L 63.1,8.6'/><path d='M 63.1,8.6 L 78.7,35.6'/><path d='M 60.4,13.3 L 73.3,35.6'/><path d='M 77.9,37.0 L 78.7,35.6 L 77.9,34.3'/><path d='M 63.9,61.3 L 63.1,62.6 L 61.5,62.6'/><path d='M 33.5,62.6 L 31.9,62.6 L 31.2,61.3'/><path d='M 17.1,37.0 L 16.3,35.6 L 17.1,34.3'/><path d='M 31.2,10.0 L 31.9,8.6 L 33.5,8.6'/><path d='M 61.5,8.6 L 63.1,8.6 L 63.9,10.0'/></svg>"}/*END*/;   /* ring structures for the answer cards, drawn by gen_struct.js */
@@ -622,10 +723,9 @@ function renderMap(){
       if(st.solved){sub=esc(d.name)+(S.power==="mission"?" · banked "+st.banked:"");btn='<button class="btn small" data-site="'+i+'" type="button">Review</button>';}
       else if(i===now){sub="Sample waiting";btn='<button class="btn primary small" data-site="'+i+'" type="button">'+(st.spent||st.tries.length?"Resume":"Land here")+'</button>';}
       else{sub=(z>0&&!zoneDone(z-1))?"Finish "+ZONES[z-1].name.split(" · ")[0].toLowerCase()+" first":"Solve the earlier sites first";}
-      h+='<div class="leg '+cls+'"><div class="pin"><div class="dot">'+(st.solved?"✓":(i+1))+'</div><div class="wire"></div></div><div class="body"><img class="thumb" src="'+d.img+'" width="960" height="540" alt="" loading="lazy" decoding="async"><div class="txt"><div class="t">'+esc(d.site)+'</div><div class="v">'+esc(d.view)+'</div><div class="s">'+sub+'</div></div>'+btn+'</div></div>';
+      h+='<div class="leg '+cls+(i===SITES.length-1?" last":"")+'"><div class="pin"><div class="dot">'+(st.solved?"✓":(i+1))+'</div><div class="wire"></div></div><div class="body"><img class="thumb" src="'+d.img+'" width="960" height="540" alt="" loading="lazy" decoding="async"><div class="txt"><div class="t">'+esc(d.site)+'</div><div class="v">'+esc(d.view)+'</div><div class="s">'+sub+'</div></div>'+btn+'</div></div>';
     }
   });
-  h+='<div class="leg locked"><div class="pin"><div class="dot">Z3</div></div><div class="body"><div><div class="t">Zone 3 · Selk crater</div><div class="s">Acids, amines, amides and an amino acid. Not built yet.</div></div></div></div>';
   $("route").innerHTML=h;
 }
 $("route").addEventListener("click",function(e){
@@ -645,7 +745,7 @@ function fmt(v,step){var d=step>=1?0:(step>=0.1?1:(step>=0.01?2:3));return v.toF
 function h1Lines(sig){
   var F=400,out=[];
   sig.forEach(function(g){
-    var lines=[{hz:g[0]*F,w:g[1]}],n=g[2],J=g[3];
+    var lines=[{hz:g[0]*F,w:g[1]}],n=g[2],J=g[3],lw=(g[5]||1.1)/F;
     for(var k=0;k<n;k++){
       var nx=[];
       lines.forEach(function(l){nx.push({hz:l.hz-J/2,w:l.w/2},{hz:l.hz+J/2,w:l.w/2});});
@@ -654,12 +754,12 @@ function h1Lines(sig){
       lines=[];
       nx.forEach(function(l){var p=lines[lines.length-1];if(p&&Math.abs(p.hz-l.hz)<1e-6)p.w+=l.w;else lines.push(l);});
     }
-    lines.forEach(function(l){out.push({x:l.hz/F,w:l.w});});
+    lines.forEach(function(l){out.push({x:l.hz/F,w:l.w,lw:lw});});
   });
   return out;
 }
 function defaultView(kind,d){
-  if(kind==="h1")return [-0.5,10.5];
+  if(kind==="h1")return [-0.5,d.h1.some(function(g){return g[0]>10;})?13.5:10.5];
   if(kind==="c13")return [-10,230];
   if(kind==="ir")return [400,4000];
   var mx=Math.max.apply(null,d.ms.map(function(p){return p[0];}));
@@ -685,12 +785,12 @@ function drawChart(host,kind,d,opts){
   var base=m.t+ph, f, evalAt, integ, integPct, path="", i;
   if(kind==="h1"||kind==="c13"){
     var F=kind==="h1"?400:100, lw=(kind==="h1"?1.1:1.6)/F;
-    var lines=kind==="h1"?h1Lines(d.h1):d.c13.map(function(p){return {x:p[0],w:p[1]};});
-    f=function(v){var a=0;for(var k=0;k<lines.length;k++){var q=2*(v-lines[k].x)/lw;a+=lines[k].w/(1+q*q);}return a;};
+    var lines=kind==="h1"?h1Lines(d.h1):d.c13.map(function(p){return {x:p[0],w:p[1],lw:lw};});
+    f=function(v){var a=0;for(var k=0;k<lines.length;k++){var L=lines[k],q=2*(v-L.x)/L.lw;a+=L.w*(lw/L.lw)/(1+q*q);}return a;};
     var xs=[],dx=(hi-lo)/(pw*2);
     for(i=0;i<=pw*2;i++)xs.push(lo+i*dx);
     var offs=[0,.25,.5,1,2,4,8,16];
-    lines.forEach(function(l){offs.forEach(function(o){[l.x-o*lw,l.x+o*lw].forEach(function(v){if(v>lo&&v<hi)xs.push(v);});});});
+    lines.forEach(function(l){offs.forEach(function(o){[l.x-o*l.lw,l.x+o*l.lw].forEach(function(v){if(v>lo&&v<hi)xs.push(v);});});});
     xs.sort(function(a,b){return a-b;});
     var ys=xs.map(f), mx=Math.max.apply(null,ys);
     var all=Math.max.apply(null,lines.map(function(l){return f(l.x);}));
@@ -704,7 +804,7 @@ function drawChart(host,kind,d,opts){
     if(kind==="h1"){
       /* integration line: running area from left to right; each step's height is proportional to the number of H */
       var tot=lines.reduce(function(a,l){return a+l.w;},0);
-      integ=function(v){var a=0;for(var k=0;k<lines.length;k++)a+=lines[k].w*(0.5+Math.atan(2*(lines[k].x-v)/lw)/Math.PI);return a;};
+      integ=function(v){var a=0;for(var k=0;k<lines.length;k++)a+=lines[k].w*(0.5+Math.atan(2*(lines[k].x-v)/lines[k].lw)/Math.PI);return a;};
       var i0=integ(hi), span=integ(lo)-i0; if(span<tot*0.02)span=tot;
       var ip2=[];
       for(i=0;i<xs.length;i++)ip2.push(X(xs[i]).toFixed(2)+","+(base-ph*0.08-Math.max(0,Math.min(1,(integ(xs[i])-i0)/span))*ph*0.62).toFixed(2));
@@ -769,15 +869,15 @@ function h1Groups(sig){
   function gcd(a,b){return b?gcd(b,a%b):a;}
   var out=[], by={};
   sig.forEach(function(g){
-    var half=g[2]*g[3]/2/400, G=g[4]&&by[g[4]];
-    if(G){G.nH+=g[1];G.lo=Math.min(G.lo,g[0]-half);G.hi=Math.max(G.hi,g[0]+half);G.multi=true;}
-    else{G={nH:g[1],lo:g[0]-half,hi:g[0]+half,shift:g[0],n:g[2],multi:false};if(g[4])by[g[4]]=G;out.push(G);}
+    var half=g[2]*g[3]/2/400, pad=(g[5]||0)*1.5/400, G=g[4]&&by[g[4]];
+    if(G){G.nH+=g[1];G.lo=Math.min(G.lo,g[0]-half);G.hi=Math.max(G.hi,g[0]+half);G.pad=Math.max(G.pad,pad);G.multi=true;G.broad=G.broad&&!!g[5];}
+    else{G={nH:g[1],lo:g[0]-half,hi:g[0]+half,pad:pad,shift:g[0],n:g[2],multi:false,broad:!!g[5]};if(g[4])by[g[4]]=G;out.push(G);}
   });
   var all=out.reduce(function(a,G){return gcd(a,G.nH);},0);
   out.forEach(function(G){
     G.area=G.nH/all;
     G.label=G.multi?G.lo.toFixed(2)+"–"+G.hi.toFixed(2):G.shift.toFixed(2);
-    G.mult=G.multi?"multiplet":MULT[G.n];
+    G.mult=G.multi?(G.broad?"two broad peaks":"multiplet"):(G.broad?"broad singlet":MULT[G.n]);
   });
   return out;
 }
@@ -820,7 +920,7 @@ function renderPaper(){
     var G=h1Groups(d.h1);
     h+='<div class="chips"><span>Signals:</span>'+G.map(function(g,i){return '<button type="button" class="chip" data-z="'+i+'" aria-pressed="'+(view.zsel===i)+'">δ '+g.label+(SHOW_AREAS?' · '+(G.length>1?"area "+g.area:"only signal"):"")+'</button>';}).join("")+(view.zoom?'<button type="button" class="chip" data-z="full">Full spectrum</button>':"")+'</div>';
     list=G.map(function(g){return "<li>δ "+g.label+" ppm: "+g.mult+(G.length>1?", relative area "+g.area:"")+"</li>";}).join("");
-    tip='<span class="sw"></span> The green stepped line is the integral. The height of each step is proportional to the number of hydrogens in that signal; point at the spectrum to read it as a percentage. Tap a signal to expand it, or drag across to zoom.';
+    tip=(d.h1note?d.h1note+" ":"")+'<span class="sw"></span> The green stepped line is the integral. The height of each step is proportional to the number of hydrogens in that signal; point at the spectrum to read it as a percentage. Tap a signal to expand it, or drag across to zoom.';
   }else if(k==="c13"){
     h+='<div class="chips"><span>Peaks:</span>'+d.c13.map(function(g,i){return '<button type="button" class="chip" data-z="'+i+'" aria-pressed="'+(view.zsel===i)+'">δ '+g[0].toFixed(1)+'</button>';}).join("")+(view.zoom?'<button type="button" class="chip" data-z="full">Full spectrum</button>':"")+'</div>';
     list=d.c13.map(function(g){return "<li>δ "+g[0].toFixed(1)+" ppm</li>";}).join("");
@@ -829,7 +929,7 @@ function renderPaper(){
     var bands=d.ir.filter(function(b){return b[1]>=.25;}).map(function(b){return b[0];});
     h+='<div class="chips"><span>Main bands:</span><span class="data" style="color:var(--ink)">'+bands.join(" · ")+' cm⁻¹</span>'+(view.zoom?'<button type="button" class="chip" data-z="full">Full spectrum</button>':"")+'</div>';
     list=d.ir.map(function(b){return "<li>"+b[0]+" cm⁻¹, "+(b[1]>=.7?"strong":(b[1]>=.4?"medium":"weak"))+"</li>";}).join("");
-    tip="Band positions are real; band shapes are simplified. Drag to zoom.";
+    tip="Band shapes are simplified. Drag across the spectrum to zoom.";
   }else{
     var top=d.ms.slice().sort(function(a,b){return b[1]-a[1];})[0];
     h+='<div class="chips"><span>Molecular ion:</span><span class="data" style="color:var(--ink)">m/z '+d.mass+'</span><span>· tallest peak:</span><span class="data" style="color:var(--ink)">m/z '+top[0]+'</span></div>';
@@ -845,7 +945,7 @@ $("paper").addEventListener("click",function(e){
   var b=e.target.closest("[data-z]"); if(!b)return;
   var d=SITES[S.site], z=b.dataset.z;
   if(z==="full"){view.zoom=null;view.zsel=null;}
-  else if(view.inst==="h1"){var g=h1Groups(d.h1)[+z];view.zoom=[g.lo-14/400,g.hi+14/400];view.zsel=+z;}
+  else if(view.inst==="h1"){var g=h1Groups(d.h1)[+z];view.zoom=[g.lo-g.pad-14/400,g.hi+g.pad+14/400];view.zsel=+z;}
   else if(view.inst==="c13"){var c=d.c13[+z][0];view.zoom=[c-1.5,c+1.5];view.zsel=+z;}
   renderPaper();
 });
@@ -950,6 +1050,10 @@ function describe(mol){
   var f=keys.map(function(k){mass+=(AM[k]||0)*c[k];return k+(c[k]>1?c[k]:"");}).join("");
   return {formula:f,mass:mass};
 }
+function neutral(smi){   /* an amino acid drawn as its ions is accepted as the same molecule */
+  if(/\[NH[23]?\+\]/.test(smi)&&/\[O-\]/.test(smi))return smi.replace(/\[NH3\+\]|\[NH2\+\]/g,"N").replace(/\[O-\]/g,"O");
+  return smi;
+}
 function canon(R,smi){var m=R.get_mol(smi);if(!m)return null;var o=m.get_smiles();m.delete();return o;}
 function checkDrawn(){
   var d=SITES[S.site];
@@ -965,7 +1069,7 @@ function checkDrawn(){
       else settle(false,null,"That structure does not match the sample. The mass spectrometer finds the molecular ion at m/z "+d.mass+".");
       return;
     }
-    var mol=R.get_mol(smi);
+    var mol=R.get_mol(neutral(smi));
     if(!mol){feedback("bad","Not a valid structure","Check that no atom has too many bonds.");return;}
     var can=mol.get_smiles(), info=describe(mol); mol.delete();
     if(can===canon(R,d.smiles)){settle(true,null);return;}
@@ -1006,7 +1110,7 @@ function renderDone(){
   $("done-total-label").textContent=training?"run complete":"flight reserve banked in this zone, of a possible "+(n*(100-COST.ms));
   var msg;
   if(training)msg="Every sample identified. Switch to Mission power to fly it again with the battery counting.";
-  else if(t>=n*68)msg="Long-range reserve. You chose your spectra carefully, and Dragonfly has the power to reach Selk crater.";
+  else if(t>=n*68)msg="Long-range reserve. You chose your spectra carefully, and Dragonfly has power to spare.";
   else if(t>=n*48)msg="Solid reserve. Next time, ask which single spectrum would separate the candidates before you run all three.";
   else msg="The samples are identified, but the battery took a beating. Rejected proposals are the costly part: let the spectra narrow it down first.";
   $("done-rating").textContent=msg+(misses?" Rejected proposals: "+misses+".":"");
@@ -1016,7 +1120,7 @@ function renderDone(){
     h+="<tr><td>"+(i+1)+"</td><td>"+(st.solved?esc(d.name):"not solved")+"</td><td>"+used+"</td><td class=\"num\">"+st.tries.length+"</td>"+(training?"":"<td class=\"num\">"+st.banked+"</td>")+"</tr>";
   }
   $("done-table").innerHTML=h+"</tbody>";
-  $("done-note").textContent=z+1<ZONES.length?"Next: "+ZONES[z+1].name+", "+ZONES[z+1].about+". It is open on the site map.":"Zone 3, Selk crater, is not built yet. It will bring acids, amines, amides and an amino acid.";
+  $("done-note").textContent=z+1<ZONES.length?"Next: "+ZONES[z+1].name+", "+ZONES[z+1].about+". It is open on the site map.":"That was the last zone. Dragonfly has crossed the dunes and worked its way into Selk crater.";
   $("btn-done-reset").textContent="Fly "+Z.name.split(" · ")[0].toLowerCase()+" again";
 }
 

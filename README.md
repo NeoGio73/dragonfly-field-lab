@@ -6,10 +6,14 @@ Titan, record 1H NMR, 13C NMR and IR spectra of a sample, propose a structure
 Nothing is graded or sent anywhere; progress is kept only in the student's own
 browser.
 
-Zone 1 (five small molecules detected in Titan's atmosphere) and zone 2 (five
-larger molecules: aromatic rings and isomer pairs) are built. Zone 3 is a
-placeholder on the site map. Each molecule's debrief says whether it has been
-detected on Titan, is predicted there, or is a stand-in for practice.
+All three zones are built, fifteen sites in all:
+
+- Zone 1, Shangri-La dunes: five small molecules detected in Titan's atmosphere.
+- Zone 2, crater approach: aromatic rings and isomer pairs.
+- Zone 3, Selk crater: an amine, a carboxylic acid, an amide and two amino acids.
+
+Each molecule's debrief says whether it has been detected on Titan, is
+predicted there, is a mission target, or is a stand-in for practice.
 
 ## Files
 
@@ -63,10 +67,15 @@ and `view` in its `SITES` entry in `index.html`.
 
 - 1H and 13C shifts for ethane, propane, benzene, acetonitrile and toluene:
   Fulmer et al., Organometallics 2010, 29, 2176 (values in CDCl3).
-- NMR shifts for propanenitrile, ethylbenzene, 1,4-dimethylbenzene, butanenitrile
-  and 2-methylpropanenitrile, all IR band positions, and all mass-spectrum peak
-  heights were entered from memory of standard reference spectra and should be
-  checked against SDBS or the NIST WebBook before students rely on them.
+- NMR shifts for propanenitrile, ethylbenzene, 1,4-dimethylbenzene, butanenitrile,
+  2-methylpropanenitrile and all five zone 3 molecules, all IR band positions,
+  and all mass-spectrum peak heights were entered from memory of standard
+  reference spectra and should be checked against SDBS or the NIST WebBook
+  before students rely on them.
+- The two amino acids are shown as they would appear in D2O (hydrogens on N and
+  O not seen), with IR spectra of the solid, which is made of ions. Their shifts
+  depend on pH, so treat them as typical values.
+- Hydrogens on N and O in the amine, acid and amide are drawn as broad peaks.
 - The aromatic hydrogens of toluene and ethylbenzene are drawn as three
   overlapping first-order patterns, which gives a realistic-looking multiplet
   but not an exact one.
@@ -92,7 +101,9 @@ Each sample is one entry in the `SITES` list in `index.html`:
 - `smiles` / `jsme`: the answer (the second is the editor's own canonical form,
   used only if RDKit cannot load)
 - 1H signals that share a fifth value (for example `"ar"`) are shown to the
-  student as one overlapping multiplet
+  student as one overlapping multiplet; a sixth value makes a peak broad
+  (its width in Hz), for hydrogens on N or O
+- `h1note` adds a sentence under the 1H spectrum (used for the D2O samples)
 - an option shows either `f` (a typed formula) or, with `draw:1`, a ring drawing
   taken from the `STRUCT` list; `gen_struct.js` in the project sources made those
 - `ZONES` lists which sites belong to which zone
