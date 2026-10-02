@@ -6,8 +6,10 @@ Titan, record 1H NMR, 13C NMR and IR spectra of a sample, propose a structure
 Nothing is graded or sent anywhere; progress is kept only in the student's own
 browser.
 
-Zone 1 (five small molecules detected in Titan's atmosphere) is built.
-Zones 2 and 3 are placeholders on the site map.
+Zone 1 (five small molecules detected in Titan's atmosphere) and zone 2 (five
+larger molecules: aromatic rings and isomer pairs) are built. Zone 3 is a
+placeholder on the site map. Each molecule's debrief says whether it has been
+detected on Titan, is predicted there, or is a stand-in for practice.
 
 ## Files
 
@@ -59,11 +61,15 @@ and `view` in its `SITES` entry in `index.html`.
 
 ## Where the spectral data come from
 
-- 1H and 13C shifts for ethane, propane, benzene and acetonitrile: Fulmer et al.,
-  Organometallics 2010, 29, 2176 (values in CDCl3).
-- Propanenitrile NMR shifts, all IR band positions, and all mass-spectrum peak
+- 1H and 13C shifts for ethane, propane, benzene, acetonitrile and toluene:
+  Fulmer et al., Organometallics 2010, 29, 2176 (values in CDCl3).
+- NMR shifts for propanenitrile, ethylbenzene, 1,4-dimethylbenzene, butanenitrile
+  and 2-methylpropanenitrile, all IR band positions, and all mass-spectrum peak
   heights were entered from memory of standard reference spectra and should be
   checked against SDBS or the NIST WebBook before students rely on them.
+- The aromatic hydrogens of toluene and ethylbenzene are drawn as three
+  overlapping first-order patterns, which gives a realistic-looking multiplet
+  but not an exact one.
 - The 1H spectrum carries an integration line (the green stepped curve), and the
   signal buttons show only the chemical shift, so students read the relative
   areas from the steps. To show "area" numbers on the buttons instead, set
@@ -85,6 +91,11 @@ Each sample is one entry in the `SITES` list in `index.html`:
   nominal mass, and a `why` sentence shown when that wrong answer is proposed
 - `smiles` / `jsme`: the answer (the second is the editor's own canonical form,
   used only if RDKit cannot load)
+- 1H signals that share a fifth value (for example `"ar"`) are shown to the
+  student as one overlapping multiplet
+- an option shows either `f` (a typed formula) or, with `draw:1`, a ring drawing
+  taken from the `STRUCT` list; `gen_struct.js` in the project sources made those
+- `ZONES` lists which sites belong to which zone
 
 ## Credits
 

@@ -110,6 +110,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .leg .body .v{font-size:.95rem;max-width:52ch}
 @media (max-width:560px){.leg .thumb{width:100%}}
 .zonehead{padding:4px 0 12px 58px}
+.leg+.zonehead{margin-top:10px;padding-top:16px;border-top:1px solid var(--line)}
 
 /* instruments */
 .rack{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
@@ -152,6 +153,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .opt{background:var(--raised);border:1px solid var(--line);border-radius:4px;padding:10px;display:flex;flex-direction:column;gap:4px;align-items:center;text-align:center;min-height:92px;justify-content:center}
 .opt .f{font-family:var(--font-data);font-size:1rem;color:var(--fg)}
 .opt .f svg{display:block;margin:0 auto}
+.opt .f svg path{fill:none;stroke:currentColor;stroke-width:1.5px;stroke-linecap:round}
 .opt .nm{font-size:.86rem;color:var(--muted)}
 .opt[aria-pressed="true"]{border-color:var(--haze);box-shadow:inset 0 0 0 1px var(--haze)}
 .opt.out{opacity:.45;text-decoration:line-through;cursor:not-allowed}
@@ -321,8 +323,8 @@ sub{font-size:.72em}
 
 <!-- 5 · zone complete -->
 <section id="s-done" class="stack" hidden>
-  <p class="eyebrow">Zone 1 complete</p>
-  <h2>Mission log: Shangri-La dunes</h2>
+  <p class="eyebrow" id="done-eyebrow">Zone complete</p>
+  <h2 id="done-title">Mission log</h2>
   <div class="panel">
     <div class="row" style="gap:28px;align-items:flex-end">
       <div><div class="big" id="done-total"></div><div class="eyebrow" id="done-total-label">Flight reserve banked</div></div>
@@ -330,10 +332,10 @@ sub{font-size:.72em}
     </div>
     <div class="scroll"><table class="log" id="done-table"></table></div>
   </div>
-  <p class="prose credit">Zones 2 and 3 are not built yet. Zone 2 moves to larger molecules in the dune organics; zone 3 reaches Selk crater, where liquid water once mixed with them.</p>
+  <p class="prose credit" id="done-note"></p>
   <div class="row">
     <button class="btn primary" id="btn-done-map" type="button">Back to the site map</button>
-    <button class="btn" id="btn-done-reset" type="button">Fly zone 1 again</button>
+    <button class="btn" id="btn-done-reset" type="button">Fly this zone again</button>
   </div>
 </section>
 
@@ -444,15 +446,123 @@ var SITES=[
     ms:"M⁺ at m/z 55 is odd, so the molecule has an odd number of nitrogens. It is weak here; M – 1 at m/z 54 is much stronger.",
     titan:"Propanenitrile (ethyl cyanide) was identified in Titan's atmosphere with the ALMA radio telescope array in 2015."}
 }
+/* ---- Zone 2 · Crater approach: aromatic rings and isomer pairs ---- */
+,{ id:"toluene", img:"media/site6.webp", view:"Streaks of dark organic sand cross a paler plain.", site:"Site 6 · Dark streak", flavor:"A glassy brown solid, scraped from one of the dark streaks.",
+  name:"Toluene", smiles:"Cc1ccccc1", jsme:"Cc1ccccc1", formula:"C7H8", mass:92, tag:"Predicted, not yet detected",
+  h1:[[7.25,2,2,7.5,"ar"],[7.17,2,1,7.5,"ar"],[7.15,1,2,7.5,"ar"],[2.36,3,0,0]],
+  c13:[[137.9,.3],[129.1,1],[128.3,1],[125.3,.55],[21.5,.6]],
+  ir:[[3087,.25,12],[3062,.35,12],[3028,.5,14],[2921,.42,22],[2872,.22,18],[1605,.4,10],[1496,.62,10],[1460,.42,14],[1380,.22,10],[1081,.3,10],[1030,.35,8],[729,.92,14],[695,.85,10]],
+  ms:[[93,5],[92,72],[91,100],[65,12],[63,8],[51,8],[50,5],[39,11]],
+  options:[
+    {id:"toluene",name:"toluene",draw:1,smiles:"Cc1ccccc1",mass:92},
+    {id:"benzene",name:"benzene",draw:1,smiles:"c1ccccc1",mass:78,why:"Benzene has no CH"+s(3)+" group. Its six hydrogens give a single aromatic peak, and its M⁺ is at m/z 78."},
+    {id:"cht",name:"cyclohepta-1,3,5-triene",draw:1,smiles:"C1=CC=CCC=C1",mass:92,why:"Cyclohepta-1,3,5-triene has the same formula, but it is not aromatic. Its ring hydrogens appear between 5.3 and 6.6 ppm, its CH"+s(2)+" gives a 2H signal near 2.2 ppm, and nothing in its spectrum is a 3H singlet."},
+    {id:"ethylbenzene",name:"ethylbenzene",draw:1,smiles:"CCc1ccccc1",mass:106,why:"Ethylbenzene would show an ethyl pattern, a triplet near 1.2 ppm and a quartet near 2.6 ppm, instead of a singlet. Its M⁺ is at m/z 106."}
+  ],
+  isomer:"A singlet near 2.4 ppm is a CH"+s(3)+" on an aromatic ring, and five hydrogens between 7.1 and 7.3 ppm are a ring with one substituent.",
+  debrief:{h1:"A singlet at 2.36 ppm (relative area 3) and a multiplet at 7.1 to 7.3 ppm (area 5). The singlet is a CH"+s(3)+" attached to an aromatic ring. Five aromatic hydrogens mean the ring carries one substituent.",
+    c13:"Five peaks: the CH"+s(3)+" at 21.5 ppm and four aromatic carbons between 125 and 138 ppm. A ring with one substituent has four kinds of ring carbon. The small peak at 137.9 ppm is the carbon that carries the CH"+s(3)+"; it has no hydrogen of its own.",
+    ir:"C–H stretches on both sides of 3000 cm⁻¹: aromatic above, CH"+s(3)+" below. Ring stretches near 1605 and 1496 cm⁻¹, and two strong bands at 729 and 695 cm⁻¹ that mark a benzene ring with one substituent.",
+    ms:"M⁺ at m/z 92. The tallest peak, m/z 91, is M – 1: losing one hydrogen leaves the very stable C"+s(7)+"H"+s(7)+"⁺ ion, the signature of an alkylbenzene.",
+    titan:"Toluene has not been detected on Titan. A model of Titan's atmospheric chemistry predicts it to be one of the more abundant aromatic molecules there after benzene."}
+},
+{ id:"ethylbenzene", img:"media/site7.webp", view:"The flank of a very tall dune rises on the left, catching the low sun.", site:"Site 7 · Dune flank", flavor:"A second solid of the same family, drilled from the foot of the dune.",
+  name:"Ethylbenzene", smiles:"CCc1ccccc1", jsme:"CCc1ccccc1", formula:"C8H10", mass:106, tag:"Predicted, not yet detected",
+  h1:[[7.29,2,2,7.5,"ar"],[7.20,2,1,7.5,"ar"],[7.18,1,2,7.5,"ar"],[2.65,2,3,7.6],[1.24,3,2,7.6]],
+  c13:[[144.2,.3],[128.3,1],[127.8,1],[125.6,.55],[28.9,.6],[15.6,.6]],
+  ir:[[3085,.25,12],[3063,.35,12],[3027,.5,14],[2966,.7,18],[2932,.5,18],[2874,.38,16],[1605,.35,10],[1496,.55,10],[1453,.55,14],[1376,.25,10],[1030,.3,8],[746,.8,14],[697,.9,10]],
+  ms:[[107,3],[106,31],[105,7],[92,8],[91,100],[79,6],[78,7],[77,9],[65,10],[51,11],[39,7]],
+  options:[
+    {id:"ethylbenzene",name:"ethylbenzene",draw:1,smiles:"CCc1ccccc1",mass:106},
+    {id:"oxylene",name:"1,2-dimethylbenzene",draw:1,smiles:"Cc1ccccc1C",mass:106,why:"1,2-Dimethylbenzene (o-xylene) has two equivalent CH"+s(3)+" groups: a 6H singlet near 2.3 ppm and only four aromatic hydrogens, with no triplet or quartet. It would show four <sup>13</sup>C peaks, not six."},
+    {id:"mxylene",name:"1,3-dimethylbenzene",draw:1,smiles:"Cc1cccc(C)c1",mass:106,why:"1,3-Dimethylbenzene (m-xylene) has a 6H singlet near 2.3 ppm and four aromatic hydrogens, with no triplet or quartet. It would show five <sup>13</sup>C peaks."},
+    {id:"pxylene",name:"1,4-dimethylbenzene",draw:1,smiles:"Cc1ccc(C)cc1",mass:106,why:"1,4-Dimethylbenzene (p-xylene) shows just two singlets, 6H near 2.3 ppm and 4H near 7.1 ppm, and only three <sup>13</sup>C peaks."}
+  ],
+  isomer:"The triplet and quartet are an ethyl group, and five aromatic hydrogens mean one substituent on the ring.",
+  debrief:{h1:"A triplet at 1.24 ppm (relative area 3) and a quartet at 2.65 ppm (area 2): an ethyl group. The CH"+s(2)+" is shifted to 2.65 ppm because it sits on the ring. The multiplet at 7.1 to 7.3 ppm (area 5) is a ring with one substituent.",
+    c13:"Six peaks: CH"+s(3)+" at 15.6 ppm, CH"+s(2)+" at 28.9 ppm, and four aromatic carbons. The dimethylbenzenes show fewer, because their two CH"+s(3)+" groups are equivalent.",
+    ir:"Aromatic C–H stretches above 3000 cm⁻¹, sp³ C–H below, and the pair of strong bands at 746 and 697 cm⁻¹ that marks one substituent on the ring.",
+    ms:"M⁺ at m/z 106. The tallest peak, m/z 91, is loss of CH"+s(3)+" (15), which again leaves C"+s(7)+"H"+s(7)+"⁺.",
+    titan:"Ethylbenzene has not been detected on Titan either. The same model that predicts toluene predicts ethylbenzene alongside it."}
+},
+{ id:"pxylene", img:"media/site8.webp", view:"Blocks of water ice, as hard as rock at 94 K, lie scattered over dark sand.", site:"Site 8 · Boulder field", flavor:"White crystals, collected in the lee of an ice boulder.",
+  name:"1,4-Dimethylbenzene (p-xylene)", smiles:"Cc1ccc(C)cc1", jsme:"Cc1ccc(C)cc1", formula:"C8H10", mass:106, tag:"Stand-in for practice",
+  h1:[[7.06,4,0,0],[2.31,6,0,0]],
+  c13:[[134.7,.4],[129.0,1],[20.9,.6]],
+  ir:[[3045,.3,14],[3020,.4,14],[2923,.62,22],[2868,.38,18],[1890,.1,20],[1516,.8,10],[1455,.3,14],[1379,.25,10],[1120,.2,10],[1043,.25,10],[795,.93,14]],
+  ms:[[107,5],[106,62],[105,28],[103,5],[92,8],[91,100],[79,8],[77,12],[65,7],[51,8],[39,8]],
+  options:[
+    {id:"ethylbenzene",name:"ethylbenzene",draw:1,smiles:"CCc1ccccc1",mass:106,why:"Ethylbenzene would show a triplet and a quartet for its ethyl group, five aromatic hydrogens, and six <sup>13</sup>C peaks."},
+    {id:"oxylene",name:"1,2-dimethylbenzene",draw:1,smiles:"Cc1ccccc1C",mass:106,why:"1,2-Dimethylbenzene also gives one 6H singlet, but its four ring hydrogens are of two kinds and give a multiplet, not one sharp peak. It would show four <sup>13</sup>C peaks, and its strong IR band falls near 740 cm⁻¹."},
+    {id:"mxylene",name:"1,3-dimethylbenzene",draw:1,smiles:"Cc1cccc(C)c1",mass:106,why:"1,3-Dimethylbenzene has three kinds of ring hydrogen, so its aromatic region is a multiplet, and it would show five <sup>13</sup>C peaks. Its IR has strong bands near 770 and 690 cm⁻¹."},
+    {id:"pxylene",name:"1,4-dimethylbenzene",draw:1,smiles:"Cc1ccc(C)cc1",mass:106}
+  ],
+  isomer:"Count the <sup>13</sup>C peaks. Only the most symmetrical way of placing two CH"+s(3)+" groups on the ring gives three.",
+  debrief:{h1:"Two singlets: one at 2.31 ppm (relative area 3) and one at 7.06 ppm (area 2), which is 6H and 4H. Two equivalent CH"+s(3)+" groups on a ring, and four ring hydrogens that are all equivalent. Only the 1,4 arrangement makes all four the same.",
+    c13:"Only three peaks, at 20.9, 129.0 and 134.7 ppm. The 1,4 isomer is the most symmetrical and has three kinds of carbon. The 1,2 isomer would show four peaks and the 1,3 isomer five.",
+    ir:"One strong out-of-plane C–H band at 795 cm⁻¹, typical of a 1,4-disubstituted ring, and no band near 700 cm⁻¹.",
+    ms:"M⁺ at m/z 106, the same as ethylbenzene: mass cannot tell isomers apart. The tallest peak, m/z 91, is loss of CH"+s(3)+".",
+    titan:"A stand-in. This molecule has not been detected on Titan. It is here because it is an isomer of ethylbenzene."}
+},
+{ id:"butanenitrile", img:"media/site9.webp", view:"A dry channel winds between its banks, the bed lined with rounded cobbles.", site:"Site 9 · Dry channel", flavor:"An ice from the bed of the channel, where liquid methane once ran.",
+  name:"Butanenitrile", smiles:"CCCC#N", jsme:"CCCC#N", formula:"C4H7N", mass:69, tag:"Stand-in for practice",
+  h1:[[2.34,2,2,7.1],[1.70,2,5,7.3],[1.08,3,2,7.4]],
+  c13:[[119.8,.35],[19.3,1],[19.0,.95],[13.3,.9]],
+  ir:[[2968,.72,20],[2939,.55,18],[2880,.45,16],[2249,.7,12],[1463,.5,14],[1427,.42,12],[1386,.3,10]],
+  ms:[[69,1],[68,4],[54,4],[42,5],[41,100],[40,9],[39,14],[29,63],[28,12],[27,38],[26,8]],
+  options:[
+    {id:"butanenitrile",name:"butanenitrile",f:"CH"+s(3)+"CH"+s(2)+"CH"+s(2)+"–C≡N",smiles:"CCCC#N",mass:69},
+    {id:"isobutyronitrile",name:"2-methylpropanenitrile",f:"(CH"+s(3)+")"+s(2)+"CH–C≡N",smiles:"CC(C)C#N",mass:69,why:"2-Methylpropanenitrile has the same formula, but its (CH"+s(3)+")"+s(2)+"CH group gives only two signals: a 6H doublet and a 1H septet."},
+    {id:"propanenitrile",name:"propanenitrile",f:"CH"+s(3)+"CH"+s(2)+"–C≡N",smiles:"CCC#N",mass:55,why:"Propanenitrile has only two <sup>1</sup>H signals, a quartet and a triplet, and its M⁺ is at m/z 55."},
+    {id:"pentanenitrile",name:"pentanenitrile",f:"CH"+s(3)+"(CH"+s(2)+")"+s(3)+"–C≡N",smiles:"CCCCC#N",mass:83,why:"Pentanenitrile has one more CH"+s(2)+": four <sup>1</sup>H signals, and M⁺ at m/z 83."}
+  ],
+  isomer:"Three signals with areas 2 : 2 : 3, and a sextet in the middle, mean an unbranched CH"+s(3)+"–CH"+s(2)+"–CH"+s(2)+" chain.",
+  debrief:{h1:"Three signals with relative areas 2 : 2 : 3. A triplet at 2.34 ppm (the CH"+s(2)+" next to C≡N), a sextet at 1.70 ppm (the middle CH"+s(2)+", with 2 + 3 = 5 neighbours), and a triplet at 1.08 ppm (CH"+s(3)+").",
+    c13:"Four peaks: the nitrile carbon at 119.8 ppm, two CH"+s(2)+" carbons almost on top of each other at 19.3 and 19.0 ppm, and the CH"+s(3)+" at 13.3 ppm.",
+    ir:"A sharp C≡N stretch at 2249 cm⁻¹, with sp³ C–H stretches below 3000 cm⁻¹.",
+    ms:"M⁺ at m/z 69 is odd, so there is one nitrogen, and it is very weak, as it often is for alkyl nitriles. M – 1 at m/z 68 is easier to see. The tallest peak is m/z 41.",
+    titan:"A stand-in. Butanenitrile has not been detected on Titan, though smaller nitriles have. It has been found in interstellar space, in the Sagittarius B2 cloud."}
+},
+{ id:"isobutyronitrile", img:"media/site10.webp", view:"Dusk. The rim of Selk crater fills the horizon, and the sun sinks toward it.", site:"Site 10 · Crater rim in sight", flavor:"The last sample before the crater, taken as the long Titan day ends.",
+  name:"2-Methylpropanenitrile (isobutyronitrile)", smiles:"CC(C)C#N", jsme:"CC(C)C#N", formula:"C4H7N", mass:69, tag:"Stand-in for practice",
+  h1:[[2.72,1,6,7.0],[1.33,6,1,7.0]],
+  c13:[[123.7,.35],[19.9,1],[19.8,.6]],
+  ir:[[2985,.7,18],[2942,.5,18],[2882,.4,16],[2245,.68,12],[1470,.5,14],[1390,.38,8],[1371,.36,8]],
+  ms:[[69,2],[68,37],[54,22],[53,5],[52,5],[42,100],[41,22],[39,9],[28,30],[27,19],[15,5]],
+  options:[
+    {id:"butanenitrile",name:"butanenitrile",f:"CH"+s(3)+"CH"+s(2)+"CH"+s(2)+"–C≡N",smiles:"CCCC#N",mass:69,why:"Butanenitrile has the same formula, but its unbranched chain gives three signals: a triplet, a sextet and a triplet."},
+    {id:"isobutyronitrile",name:"2-methylpropanenitrile",f:"(CH"+s(3)+")"+s(2)+"CH–C≡N",smiles:"CC(C)C#N",mass:69},
+    {id:"pivalonitrile",name:"2,2-dimethylpropanenitrile",f:"(CH"+s(3)+")"+s(3)+"C–C≡N",smiles:"CC(C)(C)C#N",mass:83,why:"2,2-Dimethylpropanenitrile has nine equivalent hydrogens and no CH: a single 9H singlet, and M⁺ at m/z 83."},
+    {id:"propanenitrile",name:"propanenitrile",f:"CH"+s(3)+"CH"+s(2)+"–C≡N",smiles:"CCC#N",mass:55,why:"Propanenitrile shows an ethyl pattern, a quartet and a triplet with areas 2 : 3, and M⁺ at m/z 55."}
+  ],
+  isomer:"A doublet with six times the area of a septet is an isopropyl group, (CH"+s(3)+")"+s(2)+"CH.",
+  debrief:{h1:"A doublet at 1.33 ppm (relative area 6) and a septet at 2.72 ppm (area 1): an isopropyl group. Six equivalent CH"+s(3)+" hydrogens are split by one neighbour, and the single CH is split by six.",
+    c13:"Three peaks: the nitrile carbon at 123.7 ppm, and the CH and CH"+s(3)+" carbons almost on top of each other at 19.8 and 19.9 ppm. Its straight-chain isomer shows four.",
+    ir:"A C≡N stretch at 2245 cm⁻¹. The CH"+s(3)+" bending band is split in two, near 1390 and 1371 cm⁻¹, a sign of two CH"+s(3)+" groups on one carbon.",
+    ms:"M⁺ at m/z 69 is weak, and it is the same mass as butanenitrile. The tallest peak here is m/z 42, where butanenitrile's is m/z 41, so the fragments help where the mass cannot.",
+    titan:"A stand-in for Titan, where it has not been detected. In 2014 the ALMA telescope found it in the Sagittarius B2 cloud, the first branched carbon chain seen in interstellar space."}
+}
 ];
+var ZONES=[
+  {name:"Zone 1 · Shangri-La dunes", about:"small molecules from the atmosphere", place:"Shangri-La dunes", from:0, to:5},
+  {name:"Zone 2 · Crater approach", about:"aromatic rings and isomer pairs", place:"the crater approach", from:5, to:10}
+];
+function zoneOf(i){for(var z=0;z<ZONES.length;z++){if(i<ZONES[z].to)return z;}return ZONES.length-1;}
+var STRUCT=/*STRUCT*/{"Cc1ccccc1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 83.5,35.6 L 59.5,35.6'/><path d='M 59.5,35.6 L 47.5,56.4'/><path d='M 55.4,35.6 L 45.4,52.8'/><path d='M 47.5,56.4 L 23.5,56.4'/><path d='M 23.5,56.4 L 11.5,35.6'/><path d='M 25.6,52.8 L 15.7,35.6'/><path d='M 11.5,35.6 L 23.5,14.9'/><path d='M 23.5,14.9 L 47.5,14.9'/><path d='M 25.6,18.5 L 45.4,18.5'/><path d='M 47.5,14.9 L 59.5,35.6'/><path d='M 48.1,55.4 L 47.5,56.4 L 46.3,56.4'/><path d='M 24.7,56.4 L 23.5,56.4 L 22.9,55.4'/><path d='M 12.1,36.7 L 11.5,35.6 L 12.1,34.6'/><path d='M 22.9,15.9 L 23.5,14.9 L 24.7,14.9'/><path d='M 46.3,14.9 L 47.5,14.9 L 48.1,15.9'/></svg>", "C1=CC=CCC=C1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 73.8,35.6 L 63.4,14.0'/><path d='M 69.8,35.6 L 60.9,17.1'/><path d='M 63.4,14.0 L 40.0,8.6'/><path d='M 40.0,8.6 L 21.2,23.6'/><path d='M 40.9,12.5 L 24.8,25.4'/><path d='M 21.2,23.6 L 21.2,47.7'/><path d='M 21.2,47.7 L 40.0,62.6'/><path d='M 40.0,62.6 L 63.4,57.3'/><path d='M 40.9,58.7 L 60.9,54.2'/><path d='M 63.4,57.3 L 73.8,35.6'/><path d='M 73.3,34.6 L 73.8,35.6 L 73.3,36.7'/><path d='M 63.9,15.1 L 63.4,14.0 L 62.2,13.7'/><path d='M 41.2,8.9 L 40.0,8.6 L 39.0,9.4'/><path d='M 22.1,22.9 L 21.2,23.6 L 21.2,24.8'/><path d='M 21.2,46.5 L 21.2,47.7 L 22.1,48.4'/><path d='M 39.0,61.9 L 40.0,62.6 L 41.2,62.4'/><path d='M 62.2,57.6 L 63.4,57.3 L 63.9,56.2'/></svg>", "CCc1ccccc1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 11.5,29.8 L 25.1,44.4'/><path d='M 25.1,44.4 L 44.6,40.0'/><path d='M 44.6,40.0 L 50.5,21.0'/><path d='M 47.9,39.3 L 52.8,23.5'/><path d='M 50.5,21.0 L 70.0,16.6'/><path d='M 70.0,16.6 L 83.5,31.2'/><path d='M 68.9,19.9 L 80.1,32.0'/><path d='M 83.5,31.2 L 77.6,50.3'/><path d='M 77.6,50.3 L 58.1,54.7'/><path d='M 75.2,47.8 L 59.1,51.4'/><path d='M 58.1,54.7 L 44.6,40.0'/><path d='M 24.4,43.7 L 25.1,44.4 L 26.0,44.2'/><path d='M 50.2,21.9 L 50.5,21.0 L 51.5,20.7'/><path d='M 69.0,16.8 L 70.0,16.6 L 70.7,17.3'/><path d='M 82.8,30.5 L 83.5,31.2 L 83.2,32.2'/><path d='M 77.9,49.4 L 77.6,50.3 L 76.6,50.5'/><path d='M 59.1,54.5 L 58.1,54.7 L 57.4,54.0'/></svg>", "Cc1ccccc1C": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 82.6,62.6 L 59.2,49.1'/><path d='M 59.2,49.1 L 35.8,62.6'/><path d='M 55.2,46.8 L 35.8,58.0'/><path d='M 35.8,62.6 L 12.4,49.1'/><path d='M 12.4,49.1 L 12.4,22.1'/><path d='M 16.5,46.8 L 16.5,24.5'/><path d='M 12.4,22.1 L 35.8,8.6'/><path d='M 35.8,8.6 L 59.2,22.1'/><path d='M 35.8,13.3 L 55.2,24.5'/><path d='M 59.2,22.1 L 82.6,8.6'/><path d='M 59.2,22.1 L 59.2,49.1'/><path d='M 37.0,62.0 L 35.8,62.6 L 34.7,62.0'/><path d='M 13.6,49.8 L 12.4,49.1 L 12.4,47.8'/><path d='M 12.4,23.5 L 12.4,22.1 L 13.6,21.5'/><path d='M 34.7,9.3 L 35.8,8.6 L 37.0,9.3'/></svg>", "Cc1cccc(C)c1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 11.5,56.4 L 29.5,46.0'/><path d='M 29.5,46.0 L 29.5,25.2'/><path d='M 29.5,25.2 L 47.5,14.9'/><path d='M 32.6,27.0 L 47.5,18.5'/><path d='M 47.5,14.9 L 65.5,25.2'/><path d='M 65.5,25.2 L 65.5,46.0'/><path d='M 62.4,27.0 L 62.4,44.2'/><path d='M 65.5,46.0 L 83.5,56.4'/><path d='M 65.5,46.0 L 47.5,56.4'/><path d='M 47.5,56.4 L 29.5,46.0'/><path d='M 47.5,52.8 L 32.6,44.2'/><path d='M 29.5,26.3 L 29.5,25.2 L 30.4,24.7'/><path d='M 46.6,15.4 L 47.5,14.9 L 48.4,15.4'/><path d='M 64.6,24.7 L 65.5,25.2 L 65.5,26.3'/><path d='M 48.4,55.9 L 47.5,56.4 L 46.6,55.9'/></svg>", "Cc1ccc(C)cc1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 83.5,35.6 L 65.5,35.6'/><path d='M 65.5,35.6 L 56.5,51.2'/><path d='M 56.5,51.2 L 38.5,51.2'/><path d='M 55.0,48.5 L 40.1,48.5'/><path d='M 38.5,51.2 L 29.5,35.6'/><path d='M 29.5,35.6 L 11.5,35.6'/><path d='M 29.5,35.6 L 38.5,20.1'/><path d='M 32.6,35.6 L 40.1,22.8'/><path d='M 38.5,20.1 L 56.5,20.1'/><path d='M 56.5,20.1 L 65.5,35.6'/><path d='M 55.0,22.8 L 62.4,35.6'/><path d='M 57.0,50.4 L 56.5,51.2 L 55.6,51.2'/><path d='M 39.4,51.2 L 38.5,51.2 L 38.1,50.4'/><path d='M 38.1,20.8 L 38.5,20.1 L 39.4,20.1'/><path d='M 55.6,20.1 L 56.5,20.1 L 57.0,20.8'/></svg>", "c1ccccc1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 78.7,35.6 L 63.1,62.6'/><path d='M 63.1,62.6 L 31.9,62.6'/><path d='M 60.4,58.0 L 34.6,58.0'/><path d='M 31.9,62.6 L 16.3,35.6'/><path d='M 16.3,35.6 L 31.9,8.6'/><path d='M 21.7,35.6 L 34.6,13.3'/><path d='M 31.9,8.6 L 63.1,8.6'/><path d='M 63.1,8.6 L 78.7,35.6'/><path d='M 60.4,13.3 L 73.3,35.6'/><path d='M 77.9,37.0 L 78.7,35.6 L 77.9,34.3'/><path d='M 63.9,61.3 L 63.1,62.6 L 61.5,62.6'/><path d='M 33.5,62.6 L 31.9,62.6 L 31.2,61.3'/><path d='M 17.1,37.0 L 16.3,35.6 L 17.1,34.3'/><path d='M 31.2,10.0 L 31.9,8.6 L 33.5,8.6'/><path d='M 61.5,8.6 L 63.1,8.6 L 63.9,10.0'/></svg>"}/*END*/;   /* ring structures for the answer cards, drawn by gen_struct.js */
 var MULT=["singlet","doublet","triplet","quartet","quintet","sextet","septet","octet","nonet"];
 
 /* ---------------------------------------------------------------- state */
 var KEY="dragonfly-field-lab-v1";
 function freshSite(){return {spent:0,runs:{},tries:[],solved:false,banked:0,misses:0};}
-function fresh(){return {v:1,screen:"open",answer:"mc",power:"mission",site:0,sites:SITES.map(freshSite)};}
+function fresh(){return {v:1,screen:"open",answer:"mc",power:"mission",site:0,doneZone:0,sites:SITES.map(freshSite)};}
 var S=fresh();
-function load(d){ if(d&&d.v===1&&d.sites&&d.sites.length===SITES.length){S=d;} }
+function load(d){   /* progress saved before a zone was added is kept; the new sites start fresh */
+  if(!(d&&d.v===1&&d.sites&&d.sites.length<=SITES.length))return;
+  while(d.sites.length<SITES.length)d.sites.push(freshSite());
+  if(!(d.site>=0&&d.site<SITES.length))d.site=0;
+  if(!(d.doneZone>=0&&d.doneZone<ZONES.length))d.doneZone=0;
+  S=d;
+}
 try{ load(JSON.parse(localStorage.getItem(KEY))); }catch(e){}
 function save(){ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
 var view={inst:null,zoom:null,pick:null};   /* per-visit UI state, not saved */
@@ -502,24 +612,27 @@ document.addEventListener("click",function(e){
 
 /* ---------------------------------------------------------------- map */
 function nextOpen(){for(var i=0;i<SITES.length;i++){if(!S.sites[i].solved)return i;}return -1;}
+function zoneDone(z){for(var i=ZONES[z].from;i<ZONES[z].to;i++){if(!S.sites[i].solved)return false;}return true;}
 function renderMap(){
-  var now=nextOpen(), h='<div class="zonehead"><span class="eyebrow">Zone 1 · Shangri-La dunes · small molecules from the atmosphere</span></div>';
-  SITES.forEach(function(d,i){
-    var st=S.sites[i], cls=st.solved?"done":(i===now?"now":"locked"), sub, btn="";
-    if(st.solved){sub=esc(d.name)+(S.power==="mission"?" · banked "+st.banked:"");btn='<button class="btn small" data-site="'+i+'" type="button">Review</button>';}
-    else if(i===now){sub="Sample waiting";btn='<button class="btn primary small" data-site="'+i+'" type="button">'+(st.spent||st.tries.length?"Resume":"Land here")+'</button>';}
-    else{sub="Solve the earlier sites first";}
-    h+='<div class="leg '+cls+'"><div class="pin"><div class="dot">'+(st.solved?"✓":(i+1))+'</div><div class="wire"></div></div><div class="body"><img class="thumb" src="'+d.img+'" width="960" height="540" alt="" loading="lazy" decoding="async"><div class="txt"><div class="t">'+esc(d.site)+'</div><div class="v">'+esc(d.view)+'</div><div class="s">'+sub+'</div></div>'+btn+'</div></div>';
+  var now=nextOpen(), h="";
+  ZONES.forEach(function(Z,z){
+    h+='<div class="zonehead row" style="justify-content:space-between"><span class="eyebrow">'+esc(Z.name)+' · '+esc(Z.about)+'</span>'+(zoneDone(z)?'<button class="btn small" data-log="'+z+'" type="button">Mission log</button>':"")+'</div>';
+    for(var i=Z.from;i<Z.to;i++){
+      var d=SITES[i], st=S.sites[i], cls=st.solved?"done":(i===now?"now":"locked"), sub, btn="";
+      if(st.solved){sub=esc(d.name)+(S.power==="mission"?" · banked "+st.banked:"");btn='<button class="btn small" data-site="'+i+'" type="button">Review</button>';}
+      else if(i===now){sub="Sample waiting";btn='<button class="btn primary small" data-site="'+i+'" type="button">'+(st.spent||st.tries.length?"Resume":"Land here")+'</button>';}
+      else{sub=(z>0&&!zoneDone(z-1))?"Finish "+ZONES[z-1].name.split(" · ")[0].toLowerCase()+" first":"Solve the earlier sites first";}
+      h+='<div class="leg '+cls+'"><div class="pin"><div class="dot">'+(st.solved?"✓":(i+1))+'</div><div class="wire"></div></div><div class="body"><img class="thumb" src="'+d.img+'" width="960" height="540" alt="" loading="lazy" decoding="async"><div class="txt"><div class="t">'+esc(d.site)+'</div><div class="v">'+esc(d.view)+'</div><div class="s">'+sub+'</div></div>'+btn+'</div></div>';
+    }
   });
-  h+='<div class="leg locked"><div class="pin"><div class="dot">Z2</div><div class="wire"></div></div><div class="body"><div><div class="t">Zone 2 · Dune organics</div><div class="s">Aromatic rings and isomers. Not built yet.</div></div></div></div>';
   h+='<div class="leg locked"><div class="pin"><div class="dot">Z3</div></div><div class="body"><div><div class="t">Zone 3 · Selk crater</div><div class="s">Acids, amines, amides and an amino acid. Not built yet.</div></div></div></div>';
-  if(now===-1)h+='<div class="row" style="padding-left:58px"><button class="btn primary small" id="btn-log" type="button">Open the mission log</button></div>';
   $("route").innerHTML=h;
 }
 $("route").addEventListener("click",function(e){
   var b=e.target.closest("[data-site]");
   if(b){S.site=+b.dataset.site;view={inst:null,zoom:null,pick:null};go("site");return;}
-  if(e.target.id==="btn-log")go("done");
+  b=e.target.closest("[data-log]");
+  if(b){S.doneZone=+b.dataset.log;go("done");}
 });
 
 /* ---------------------------------------------------------------- charts */
@@ -618,7 +731,7 @@ function drawChart(host,kind,d,opts){
     d.ms.slice().sort(function(a,b){return b[1]-a[1];}).forEach(function(p){
       var x=X(p[0]), top=Ym(p[1]);
       svg+='<line class="st" x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+base+'" y2="'+top.toFixed(1)+'"/>';
-      if(p[0]===d.mass){svg+='<text class="lab" x="'+(x+5).toFixed(1)+'" y="'+(top+9).toFixed(1)+'" text-anchor="start">'+p[0]+' M⁺</text>';return;}
+      if(p[0]===d.mass){svg+='<text class="lab" x="'+(x+5).toFixed(1)+'" y="'+Math.min(top+9,base-6).toFixed(1)+'" text-anchor="start">'+p[0]+' M⁺</text>';return;}
       if(p[1]>=15&&!placed.some(function(q){return Math.abs(q-x)<19;})){
         placed.push(x);
         svg+='<text class="lab" x="'+x.toFixed(1)+'" y="'+(top-5).toFixed(1)+'" text-anchor="middle">'+p[0]+'</text>';
@@ -651,10 +764,22 @@ function drawChart(host,kind,d,opts){
   host.onpointercancel=function(){down=null;sel.setAttribute("visibility","hidden");};
   host.ondblclick=function(){if(view.zoom){view.zoom=null;view.zsel=null;renderPaper();}};
 }
-function ratio(sig){
-  function g(a,b){return b?g(b,a%b):a;}
-  var all=sig.reduce(function(a,x){return g(a,x[1]);},0);
-  return sig.map(function(x){return x[1]/all;});
+/* 1H signals as the student sees them: entries that share a group name (5th value) overlap into one multiplet */
+function h1Groups(sig){
+  function gcd(a,b){return b?gcd(b,a%b):a;}
+  var out=[], by={};
+  sig.forEach(function(g){
+    var half=g[2]*g[3]/2/400, G=g[4]&&by[g[4]];
+    if(G){G.nH+=g[1];G.lo=Math.min(G.lo,g[0]-half);G.hi=Math.max(G.hi,g[0]+half);G.multi=true;}
+    else{G={nH:g[1],lo:g[0]-half,hi:g[0]+half,shift:g[0],n:g[2],multi:false};if(g[4])by[g[4]]=G;out.push(G);}
+  });
+  var all=out.reduce(function(a,G){return gcd(a,G.nH);},0);
+  out.forEach(function(G){
+    G.area=G.nH/all;
+    G.label=G.multi?G.lo.toFixed(2)+"–"+G.hi.toFixed(2):G.shift.toFixed(2);
+    G.mult=G.multi?"multiplet":MULT[G.n];
+  });
+  return out;
 }
 
 /* ---------------------------------------------------------------- site */
@@ -664,7 +789,7 @@ function renderSite(reset){
   if(reset){view.zoom=null;view.pick=null;view.inst=null;
     ["h1","c13","ir","ms"].some(function(id){if(unlocked(id)){view.inst=id;return true;}return false;});
     $("feedback").innerHTML="";}
-  $("site-eyebrow").textContent="Zone 1 · Shangri-La dunes"+(st.solved?" · solved":"");
+  $("site-eyebrow").textContent=ZONES[zoneOf(S.site)].name+(st.solved?" · solved":"");
   $("site-title").textContent=d.site;
   $("site-flavor").textContent=d.flavor;
   renderRack(); renderPaper(); renderAnswer(); renderDebrief(); renderBar();
@@ -692,9 +817,9 @@ function renderPaper(){
   var titles={h1:["<sup>1</sup>H NMR","400 MHz"],c13:["<sup>13</sup>C NMR","100 MHz · proton-decoupled"],ir:["Infrared","transmittance"],ms:["Mass spectrum","electron ionisation"]};
   var h='<div class="head"><span><b>'+titles[k][0]+'</b> · '+titles[k][1]+'</span><span>Sample '+(S.site+1)+'</span></div><div class="plot" id="plot"></div>', list="", tip="";
   if(k==="h1"){
-    var r=ratio(d.h1);
-    h+='<div class="chips"><span>Signals:</span>'+d.h1.map(function(g,i){return '<button type="button" class="chip" data-z="'+i+'" aria-pressed="'+(view.zsel===i)+'">δ '+g[0].toFixed(2)+(SHOW_AREAS?' · '+(d.h1.length>1?"area "+r[i]:"only signal"):"")+'</button>';}).join("")+(view.zoom?'<button type="button" class="chip" data-z="full">Full spectrum</button>':"")+'</div>';
-    list=d.h1.map(function(g,i){return "<li>δ "+g[0].toFixed(2)+" ppm: "+MULT[g[2]]+(d.h1.length>1?", relative area "+r[i]:"")+"</li>";}).join("");
+    var G=h1Groups(d.h1);
+    h+='<div class="chips"><span>Signals:</span>'+G.map(function(g,i){return '<button type="button" class="chip" data-z="'+i+'" aria-pressed="'+(view.zsel===i)+'">δ '+g.label+(SHOW_AREAS?' · '+(G.length>1?"area "+g.area:"only signal"):"")+'</button>';}).join("")+(view.zoom?'<button type="button" class="chip" data-z="full">Full spectrum</button>':"")+'</div>';
+    list=G.map(function(g){return "<li>δ "+g.label+" ppm: "+g.mult+(G.length>1?", relative area "+g.area:"")+"</li>";}).join("");
     tip='<span class="sw"></span> The green stepped line is the integral. The height of each step is proportional to the number of hydrogens in that signal; point at the spectrum to read it as a percentage. Tap a signal to expand it, or drag across to zoom.';
   }else if(k==="c13"){
     h+='<div class="chips"><span>Peaks:</span>'+d.c13.map(function(g,i){return '<button type="button" class="chip" data-z="'+i+'" aria-pressed="'+(view.zsel===i)+'">δ '+g[0].toFixed(1)+'</button>';}).join("")+(view.zoom?'<button type="button" class="chip" data-z="full">Full spectrum</button>':"")+'</div>';
@@ -720,7 +845,7 @@ $("paper").addEventListener("click",function(e){
   var b=e.target.closest("[data-z]"); if(!b)return;
   var d=SITES[S.site], z=b.dataset.z;
   if(z==="full"){view.zoom=null;view.zsel=null;}
-  else if(view.inst==="h1"){var g=d.h1[+z],half=(g[2]*g[3]/2+14)/400;view.zoom=[g[0]-half,g[0]+half];view.zsel=+z;}
+  else if(view.inst==="h1"){var g=h1Groups(d.h1)[+z];view.zoom=[g.lo-14/400,g.hi+14/400];view.zsel=+z;}
   else if(view.inst==="c13"){var c=d.c13[+z][0];view.zoom=[c-1.5,c+1.5];view.zsel=+z;}
   renderPaper();
 });
@@ -738,7 +863,7 @@ function renderAnswer(){
   $("opts").hidden=!mc; $("draw-wrap").hidden=mc||st.solved;
   $("opts").innerHTML=d.options.map(function(o){
     var out=st.tries.indexOf(o.id)>=0&&o.id!==d.id, right=st.solved&&o.id===d.id;
-    return '<button type="button" class="opt'+(out?" out":"")+(right?" right":"")+'" data-opt="'+o.id+'" aria-pressed="'+(view.pick===o.id)+'"'+((out||st.solved)?" disabled":"")+'><span class="f">'+(o.ring?ringSVG(o.ring[0],o.ring[1]):o.f)+'</span><span class="nm">'+o.name+(out?" · rejected":"")+'</span></button>';
+    return '<button type="button" class="opt'+(out?" out":"")+(right?" right":"")+'" data-opt="'+o.id+'" aria-pressed="'+(view.pick===o.id)+'"'+((out||st.solved)?" disabled":"")+'><span class="f">'+(o.ring?ringSVG(o.ring[0],o.ring[1]):(o.draw?(STRUCT[o.smiles]||""):o.f))+'</span><span class="nm">'+o.name+(out?" · rejected":"")+'</span></button>';
   }).join("");
   $("btn-propose").hidden=st.solved;
   $("btn-propose").disabled=mc&&!view.pick;
@@ -857,7 +982,7 @@ function checkDrawn(){
 function renderDebrief(){
   var d=SITES[S.site], st=S.sites[S.site], D=$("debrief");
   D.hidden=!st.solved; if(!st.solved)return;
-  var last=S.site===SITES.length-1, b=d.debrief;
+  var last=S.site===ZONES[zoneOf(S.site)].to-1, b=d.debrief;
   D.innerHTML='<div class="row" style="justify-content:space-between"><h3>Debrief: '+esc(d.name)+'</h3><span class="badge">'+esc(d.tag)+'</span></div>'+
     '<p class="credit">All four spectra are now unlocked above. Compare each one with the notes below.</p>'+
     '<dl><dt><sup>1</sup>H</dt><dd>'+b.h1+'</dd><dt><sup>13</sup>C</dt><dd>'+b.c13+'</dd><dt>IR</dt><dd>'+b.ir+'</dd><dt>MS</dt><dd>'+b.ms+'</dd><dt>Titan</dt><dd>'+b.titan+'</dd></dl>'+
@@ -865,7 +990,7 @@ function renderDebrief(){
 }
 $("debrief").addEventListener("click",function(e){
   if(e.target.id!=="btn-next")return;
-  if(S.site===SITES.length-1){go("done");return;}
+  if(S.site===ZONES[zoneOf(S.site)].to-1){S.doneZone=zoneOf(S.site);go("done");return;}
   S.site++; view={inst:null,zoom:null,pick:null};
   if(applet){try{applet.reset();}catch(_){}}
   go("site");
@@ -873,21 +998,26 @@ $("debrief").addEventListener("click",function(e){
 
 /* ---------------------------------------------------------------- zone complete */
 function renderDone(){
-  var training=S.power==="training", t=total();
+  var z=S.doneZone||0, Z=ZONES[z], training=S.power==="training", t=0, misses=0, n=Z.to-Z.from, i;
+  for(i=Z.from;i<Z.to;i++){t+=S.sites[i].banked||0;misses+=S.sites[i].misses;}
+  $("done-eyebrow").textContent=Z.name.split(" · ")[0]+(zoneDone(z)?" complete":" in progress");
+  $("done-title").textContent="Mission log: "+Z.place;
   $("done-total").textContent=training?"Training":t;
-  $("done-total-label").textContent=training?"run complete":"flight reserve banked, of a possible "+(SITES.length*(100-COST.ms));
-  var misses=S.sites.reduce(function(a,x){return a+x.misses;},0), msg;
+  $("done-total-label").textContent=training?"run complete":"flight reserve banked in this zone, of a possible "+(n*(100-COST.ms));
+  var msg;
   if(training)msg="Every sample identified. Switch to Mission power to fly it again with the battery counting.";
-  else if(t>=340)msg="Long-range reserve. You chose your spectra carefully, and Dragonfly has the power to reach Selk crater.";
-  else if(t>=240)msg="Solid reserve. Next time, ask which single spectrum would separate the candidates before you run all three.";
+  else if(t>=n*68)msg="Long-range reserve. You chose your spectra carefully, and Dragonfly has the power to reach Selk crater.";
+  else if(t>=n*48)msg="Solid reserve. Next time, ask which single spectrum would separate the candidates before you run all three.";
   else msg="The samples are identified, but the battery took a beating. Rejected proposals are the costly part: let the spectra narrow it down first.";
   $("done-rating").textContent=msg+(misses?" Rejected proposals: "+misses+".":"");
   var h="<thead><tr><th>Site</th><th>Sample</th><th>Instruments run</th><th class=\"num\">Proposals</th>"+(training?"":"<th class=\"num\">Banked</th>")+"</tr></thead><tbody>";
-  SITES.forEach(function(d,i){
-    var st=S.sites[i], used=INST.filter(function(I){return st.runs[I.id];}).map(function(I){return I.name;}).join(", ")||"none";
+  for(i=Z.from;i<Z.to;i++){
+    var d=SITES[i], st=S.sites[i], used=INST.filter(function(I){return st.runs[I.id];}).map(function(I){return I.name;}).join(", ")||"none";
     h+="<tr><td>"+(i+1)+"</td><td>"+(st.solved?esc(d.name):"not solved")+"</td><td>"+used+"</td><td class=\"num\">"+st.tries.length+"</td>"+(training?"":"<td class=\"num\">"+st.banked+"</td>")+"</tr>";
-  });
+  }
   $("done-table").innerHTML=h+"</tbody>";
+  $("done-note").textContent=z+1<ZONES.length?"Next: "+ZONES[z+1].name+", "+ZONES[z+1].about+". It is open on the site map.":"Zone 3, Selk crater, is not built yet. It will bring acids, amines, amides and an amino acid.";
+  $("btn-done-reset").textContent="Fly "+Z.name.split(" · ")[0].toLowerCase()+" again";
 }
 
 /* ---------------------------------------------------------------- opening scene */
@@ -977,7 +1107,12 @@ function resetAll(){var a=S.answer,p=S.power;S=fresh();S.answer=a;S.power=p;if(a
 $("btn-reset").addEventListener("click",function(){$("reset-confirm").hidden=false;});
 $("btn-reset-no").addEventListener("click",function(){$("reset-confirm").hidden=true;});
 $("btn-reset-yes").addEventListener("click",resetAll);
-$("btn-done-reset").addEventListener("click",resetAll);
+$("btn-done-reset").addEventListener("click",function(){
+  var Z=ZONES[S.doneZone||0];
+  for(var i=Z.from;i<Z.to;i++)S.sites[i]=freshSite();
+  if(applet){try{applet.reset();}catch(_){}}
+  go("map");
+});
 
 /* ---------------------------------------------------------------- boot */
 function start(d){
