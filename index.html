@@ -1,0 +1,969 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dragonfly Field Lab</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a flight console. Dark haze-coloured cockpit around one pale strip-chart "paper" where the spectra print. */
+:root{
+  color-scheme: dark;
+  --bg:#1e140c; --surface:#2a1c11; --raised:#372515; --line:#5b4028;
+  --fg:#f3e6d2; --muted:#c9af8d;
+  --haze:#f0a23c; --haze-ink:#2a1706;
+  --methane:#7fd0cb;
+  --good:#9ad48c; --bad:#ff9a82;
+  --paper:#f4ecdd; --ink:#2a1d12; --ink-muted:#6b5740; --grid:#dccfb8; --trace:#1d2f63; --cross:#b4521a;
+  --font-display:"Saira Condensed","Arial Narrow","Roboto Condensed",sans-serif;
+  --font-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --font-data:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.5}
+[hidden]{display:none!important}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:14px 48px;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--font-display);font-weight:700;letter-spacing:.02em;text-transform:uppercase;line-height:1.05;margin:0;text-wrap:balance}
+h1{font-size:clamp(2.2rem,7vw,4rem)}
+h2{font-size:1.7rem}
+h3{font-size:1.15rem;letter-spacing:.06em;color:var(--muted)}
+p{margin:0}
+a{color:var(--methane)}
+.eyebrow{font-family:var(--font-data);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.data{font-family:var(--font-data);font-variant-numeric:tabular-nums}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.prose{max-width:65ch}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--methane);outline-offset:2px}
+.btn{background:var(--raised);border:1px solid var(--line);color:var(--fg);padding:10px 16px;border-radius:4px;font-family:var(--font-display);font-weight:600;font-size:1.05rem;letter-spacing:.05em;text-transform:uppercase;min-height:44px}
+.btn:hover{border-color:var(--haze)}
+.btn.primary{background:var(--haze);border-color:var(--haze);color:var(--haze-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.small{padding:6px 12px;font-size:.95rem;min-height:36px}
+
+/* status bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:-16px;padding:8px 16px;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;justify-content:space-between}
+.bar .name{font-family:var(--font-display);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:1.1rem}
+.bar .name span{color:var(--muted);font-weight:500}
+.gauges{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+.gauge{display:flex;align-items:center;gap:8px;font-family:var(--font-data);font-size:.82rem;color:var(--muted)}
+.gauge b{color:var(--fg);font-weight:500}
+.cell{width:86px;height:12px;border:1px solid var(--muted);border-radius:2px;padding:1px;position:relative}
+.cell::after{content:"";position:absolute;right:-5px;top:2px;width:3px;height:6px;background:var(--muted)}
+.cell i{display:block;height:100%;background:var(--methane);width:100%;transition:width .4s}
+.cell.low i{background:var(--bad)}
+
+/* opening */
+.stage{position:relative;aspect-ratio:16/9;max-width:100%;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#3b2513}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stage video{position:absolute;inset:0;width:100%;height:100%;background:#000}
+.craft{position:absolute;right:9%;top:18%;width:min(30%,300px);animation:hover 6s ease-in-out infinite}
+@keyframes hover{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(10px) rotate(1deg)}}
+.craft.off{display:none}
+.craft3d{position:absolute;right:1%;top:2%;width:47%;height:60%;opacity:0;pointer-events:none;transition:opacity .6s}
+.craft3d.on{opacity:1;pointer-events:auto}
+.rotor{animation:spin .5s linear infinite;transform-box:fill-box;transform-origin:center}
+@keyframes spin{0%{transform:scaleX(1)}50%{transform:scaleX(.25)}100%{transform:scaleX(1)}}
+@media (prefers-reduced-motion:reduce){.craft,.rotor{animation:none}.craft3d{transition:none}.cell i{transition:none}}
+.stage-copy{pointer-events:none;position:absolute;left:0;bottom:0;right:0;padding:clamp(14px,4vw,34px);background:linear-gradient(to top,rgba(20,12,6,.86),rgba(20,12,6,0));display:flex;flex-direction:column;gap:10px}
+.stage-copy>*{pointer-events:auto;align-self:flex-start}
+.stage-copy p.lede{max-width:44ch;color:var(--fg)}
+.playbig{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);width:84px;height:84px;border-radius:50%;border:2px solid var(--fg);background:rgba(20,12,6,.55);display:grid;place-items:center}
+.playbig:hover{background:var(--haze);border-color:var(--haze)}
+.playbig:hover svg path{fill:var(--haze-ink)}
+.credit{font-size:.85rem;color:var(--muted)}
+@media (max-width:620px){.stage{aspect-ratio:4/5}.craft{right:6%;top:8%;width:46%}.playbig{display:none}.craft3d{right:0;top:1%;width:72%;height:38%}}
+
+/* panels */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.cols{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:900px){.cols{grid-template-columns:minmax(0,1fr)}}
+.kit{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.kit div{border-left:3px solid var(--line);padding:2px 0 2px 12px}
+.kit div.added{border-left-color:var(--haze)}
+.kit b{font-family:var(--font-display);text-transform:uppercase;letter-spacing:.05em;font-size:1.05rem;display:block}
+.kit span{color:var(--muted);font-size:.92rem}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.seg button{background:transparent;border:0;padding:8px 14px;font-family:var(--font-display);font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);min-height:40px}
+.seg button[aria-pressed="true"]{background:var(--haze);color:var(--haze-ink)}
+.setting{display:flex;flex-direction:column;gap:6px}
+.setting small{color:var(--muted)}
+
+/* map */
+.route{display:flex;flex-direction:column;gap:0}
+.leg{display:grid;grid-template-columns:44px minmax(0,1fr);gap:0 14px;align-items:stretch}
+.leg .pin{display:flex;flex-direction:column;align-items:center}
+.leg .dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-family:var(--font-data);font-size:.85rem;color:var(--muted);background:var(--bg);flex:none}
+.leg .wire{flex:1;width:0;border-left:2px dashed var(--line);min-height:14px}
+.leg.done .dot{border-color:var(--good);color:var(--good)}
+.leg.now .dot{border-color:var(--haze);background:var(--haze);color:var(--haze-ink)}
+.leg .body{padding-bottom:16px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between}
+.leg .body .t{font-family:var(--font-display);font-size:1.2rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.leg .body .s{color:var(--muted);font-size:.92rem}
+.leg.locked .t{color:var(--muted)}
+.zonehead{padding:4px 0 12px 58px}
+
+/* instruments */
+.rack{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:560px){.rack{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.inst{background:var(--raised);border:1px solid var(--line);border-radius:4px;padding:8px 10px;text-align:left;display:flex;flex-direction:column;gap:2px;min-height:58px}
+.inst .n{font-family:var(--font-display);font-weight:700;font-size:1.1rem;letter-spacing:.04em;text-transform:uppercase}
+.inst .c{font-family:var(--font-data);font-size:.74rem;color:var(--muted)}
+.inst[aria-pressed="true"]{border-color:var(--haze);box-shadow:inset 0 -3px 0 var(--haze)}
+.inst.ran .c{color:var(--methane)}
+.inst:disabled{cursor:not-allowed;opacity:.65}
+.paper{background:var(--paper);color:var(--ink);border-radius:4px;padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.paper .head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-family:var(--font-data);font-size:.78rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em}
+.paper .head b{color:var(--ink);font-weight:500}
+.paper .empty{padding:36px 8px;text-align:center;color:var(--ink-muted);max-width:46ch;margin:0 auto}
+.plot{position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.plot svg{display:block;width:100%;height:auto;overflow:visible}
+.plot text{font-family:var(--font-data);font-size:11px;fill:var(--ink-muted)}
+.plot .ax{stroke:var(--ink-muted);stroke-width:1;fill:none}
+.plot .gr{stroke:var(--grid);stroke-width:1;fill:none}
+.plot .tr{stroke:var(--trace);stroke-width:1.6;fill:none;stroke-linejoin:round}
+.plot .st{stroke:var(--trace);stroke-width:2.5;stroke-linecap:butt}
+.plot .lab{fill:var(--ink);font-size:10.5px}
+.plot .cross{stroke:var(--cross);stroke-width:1;stroke-dasharray:3 3}
+.plot .read{fill:var(--cross);font-size:12px;font-weight:500}
+.plot .sel{fill:var(--cross);opacity:.14}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.85rem;color:var(--ink-muted)}
+.chip{background:transparent;border:1px solid var(--ink-muted);color:var(--ink);border-radius:999px;padding:4px 11px;font-family:var(--font-data);font-size:.8rem;min-height:30px}
+.chip:hover,.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.paper :focus-visible{outline-color:var(--cross)}
+.paper details{font-size:.88rem;color:var(--ink-muted)}
+.paper details summary{cursor:pointer}
+.paper details ul{margin:6px 0 0;padding-left:20px}
+.paper .note{font-size:.8rem;color:var(--ink-muted)}
+
+/* answers */
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:420px){.opts{grid-template-columns:minmax(0,1fr)}}
+.opt{background:var(--raised);border:1px solid var(--line);border-radius:4px;padding:10px;display:flex;flex-direction:column;gap:4px;align-items:center;text-align:center;min-height:92px;justify-content:center}
+.opt .f{font-family:var(--font-data);font-size:1rem;color:var(--fg)}
+.opt .f svg{display:block;margin:0 auto}
+.opt .nm{font-size:.86rem;color:var(--muted)}
+.opt[aria-pressed="true"]{border-color:var(--haze);box-shadow:inset 0 0 0 1px var(--haze)}
+.opt.out{opacity:.45;text-decoration:line-through;cursor:not-allowed}
+.opt.right{border-color:var(--good);box-shadow:inset 0 0 0 1px var(--good)}
+#jsme-host{background:#fff;border-radius:4px;overflow:hidden;min-height:330px;color:#000}
+.fb{border-left:3px solid var(--line);padding:4px 0 4px 12px;display:flex;flex-direction:column;gap:6px}
+.fb.bad{border-left-color:var(--bad)}
+.fb.good{border-left-color:var(--good)}
+.fb .tag{font-family:var(--font-data);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase}
+.fb.bad .tag{color:var(--bad)}
+.fb.good .tag{color:var(--good)}
+.debrief dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 12px}
+.debrief dt{font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--haze);white-space:nowrap}
+.debrief dd{margin:0}
+.badge{display:inline-block;font-family:var(--font-data);font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--methane);color:var(--methane);border-radius:999px;padding:2px 10px}
+table.log{width:100%;border-collapse:collapse;font-size:.95rem}
+table.log th,table.log td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+table.log th{font-family:var(--font-display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+table.log td.num,table.log th.num{text-align:right;font-family:var(--font-data);font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto}
+.big{font-family:var(--font-display);font-weight:700;font-size:2.6rem;line-height:1;color:var(--haze)}
+sub{font-size:.72em}
+</style>
+
+<div class="wrap">
+
+<!-- status bar (hidden on the opening screen) -->
+<div class="bar" id="bar" hidden>
+  <div class="name">Dragonfly Field Lab <span id="bar-where"></span></div>
+  <div class="gauges">
+    <div class="gauge" id="g-batt"><span>Battery</span><div class="cell" id="batt-cell"><i id="batt-fill"></i></div><b id="batt-num">100%</b></div>
+    <div class="gauge" id="g-res"><span>Flight reserve</span><b id="res-num">0</b></div>
+    <div class="gauge" id="g-train" hidden><b>Training run</b><span>instruments are free</span></div>
+    <button class="btn small" id="btn-map" type="button">Site map</button>
+  </div>
+</div>
+
+<!-- 1 · opening -->
+<section id="s-open" class="stack">
+  <div class="stage" id="stage">
+    <canvas id="dunes" aria-hidden="true"></canvas>
+    <svg class="craft" id="craft2d" viewBox="0 0 300 150" aria-hidden="true">
+      <g fill="#140c06">
+        <ellipse class="rotor" cx="40" cy="32" rx="38" ry="3"/><ellipse class="rotor" cx="40" cy="44" rx="38" ry="3"/>
+        <ellipse class="rotor" cx="260" cy="32" rx="38" ry="3"/><ellipse class="rotor" cx="260" cy="44" rx="38" ry="3"/>
+        <ellipse class="rotor" cx="110" cy="24" rx="30" ry="2.5"/><ellipse class="rotor" cx="110" cy="34" rx="30" ry="2.5"/>
+        <ellipse class="rotor" cx="200" cy="24" rx="30" ry="2.5"/><ellipse class="rotor" cx="200" cy="34" rx="30" ry="2.5"/>
+        <rect x="37" y="30" width="6" height="34"/><rect x="257" y="30" width="6" height="34"/>
+        <rect x="107" y="22" width="5" height="40"/><rect x="198" y="22" width="5" height="40"/>
+        <rect x="36" y="58" width="230" height="8" rx="3"/>
+        <rect x="78" y="56" width="140" height="46" rx="10"/>
+        <rect x="204" y="44" width="62" height="20" rx="9" transform="rotate(-14 235 54)"/>
+        <ellipse cx="128" cy="46" rx="26" ry="7"/><rect x="125" y="46" width="6" height="12"/>
+        <rect x="92" y="100" width="5" height="26"/><rect x="198" y="100" width="5" height="26"/>
+        <rect x="70" y="124" width="62" height="5" rx="2.5"/><rect x="170" y="124" width="62" height="5" rx="2.5"/>
+      </g>
+    </svg>
+    <div class="craft3d" id="craft3d"></div>
+    <button class="playbig" id="btn-play" type="button" aria-label="Play NASA's landing animation, 2 minutes 18 seconds">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path d="M8 4l18 11L8 26z" fill="#f3e6d2"/></svg>
+    </button>
+    <div class="stage-copy" id="stage-copy">
+      <p class="eyebrow">Shangri-La dune field · Titan · 94 K</p>
+      <h1>Dragonfly Field Lab</h1>
+      <p class="lede">A rotorcraft has landed on Saturn's largest moon. Its instruments are yours. Work out what the sand is made of.</p>
+      <div class="row">
+        <button class="btn primary" id="btn-begin" type="button">Begin mission</button>
+        <button class="btn" id="btn-play2" type="button">Watch the landing · 2:18</button>
+      </div>
+    </div>
+  </div>
+  <p class="credit" id="video-msg" hidden></p>
+  <p class="credit">Landing animation “Touchdown on Titan”: NASA/Johns Hopkins APL. <span id="model-credit" hidden>3D model: <a href="https://sketchfab.com/3d-models/nasa-dragonfly-quadcopter-fa2d23cbce6642598f5e6e6f65b8b312" target="_blank" rel="noopener">“NASA Dragonfly Quadcopter” by Emil van Dam</a>, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, converted and compressed for the web. Drag it to look around. </span>This is a classroom exercise and is not affiliated with NASA or Johns Hopkins APL.</p>
+</section>
+
+<!-- 2 · briefing -->
+<section id="s-brief" class="stack" hidden>
+  <p class="eyebrow">Mission briefing</p>
+  <h2>Identify what the drill brings up</h2>
+  <div class="stack prose">
+    <p>Titan's atmosphere turns methane and nitrogen into a rain of organic molecules that settles on the surface. At each landing site Dragonfly collects a sample. Record its spectra, propose a structure, and the mass spectrometer will confirm or reject it.</p>
+    <p>Every instrument run draws on the battery. Whatever is left when you solve a sample is banked as flight reserve, so choose the spectrum that will tell you the most.</p>
+  </div>
+  <div class="panel">
+    <h3>Instruments on board</h3>
+    <div class="kit">
+      <div><b>Mass spectrometer</b><span>Real. Dragonfly carries one, called DraMS. Here it checks the mass of the structure you propose.</span></div>
+      <div class="added"><b><sup>1</sup>H NMR</b><span>Added for this exercise. The real craft has no NMR.</span></div>
+      <div class="added"><b><sup>13</sup>C NMR</b><span>Added for this exercise.</span></div>
+      <div class="added"><b>Infrared</b><span>Added for this exercise. The real craft has no IR spectrometer.</span></div>
+    </div>
+    <p class="credit">The real payload also has a gamma-ray and neutron spectrometer, a weather and seismic package, and cameras. NMR shifts here are literature values for a room-temperature solution at 400 MHz; IR and mass spectra are simplified.</p>
+  </div>
+  <div class="panel">
+    <h3>How do you want to fly it?</h3>
+    <div class="row" style="gap:22px;align-items:flex-start">
+      <div class="setting"><span class="eyebrow">Answers</span>
+        <div class="seg" role="group" aria-label="Answer mode">
+          <button type="button" data-set="answer" data-val="mc">Multiple choice</button>
+          <button type="button" data-set="answer" data-val="draw">Draw it</button>
+        </div>
+        <small id="set-answer-help"></small>
+      </div>
+      <div class="setting"><span class="eyebrow">Power</span>
+        <div class="seg" role="group" aria-label="Power mode">
+          <button type="button" data-set="power" data-val="mission">Mission</button>
+          <button type="button" data-set="power" data-val="training">Training</button>
+        </div>
+        <small id="set-power-help"></small>
+      </div>
+    </div>
+  </div>
+  <div class="row"><button class="btn primary" id="btn-to-map" type="button">Open the site map</button></div>
+</section>
+
+<!-- 3 · map -->
+<section id="s-map" class="stack" hidden>
+  <p class="eyebrow">Flight plan</p>
+  <h2>From the dunes toward Selk crater</h2>
+  <div class="panel"><div class="route" id="route"></div></div>
+  <div class="row">
+    <button class="btn" id="btn-brief" type="button">Briefing and settings</button>
+    <button class="btn" id="btn-reset" type="button">Restart mission</button>
+    <span class="credit" id="reset-confirm" hidden>Erase all progress? <button class="btn small" id="btn-reset-yes" type="button">Yes, restart</button> <button class="btn small" id="btn-reset-no" type="button">Keep going</button></span>
+  </div>
+</section>
+
+<!-- 4 · site -->
+<section id="s-site" class="stack" hidden>
+  <div class="stack" style="gap:4px">
+    <p class="eyebrow" id="site-eyebrow"></p>
+    <h2 id="site-title"></h2>
+    <p class="prose" id="site-flavor"></p>
+  </div>
+  <div class="cols">
+    <div class="panel">
+      <h3>Instruments</h3>
+      <div class="rack" id="rack"></div>
+      <div class="paper" id="paper"></div>
+    </div>
+    <div class="stack">
+      <div class="panel" id="answer-panel">
+        <div class="row" style="justify-content:space-between">
+          <h3>Your proposal</h3>
+          <div class="seg" role="group" aria-label="Answer mode">
+            <button type="button" data-set="answer" data-val="mc">Choices</button>
+            <button type="button" data-set="answer" data-val="draw">Draw</button>
+          </div>
+        </div>
+        <div class="opts" id="opts"></div>
+        <div id="draw-wrap" class="stack" hidden>
+          <div id="jsme-host"></div>
+          <p class="credit" id="draw-status">Loading the structure editor…</p>
+        </div>
+        <div class="row">
+          <button class="btn primary" id="btn-propose" type="button">Propose structure</button>
+          <span class="credit" id="propose-cost"></span>
+        </div>
+        <div id="feedback" aria-live="polite" class="stack"></div>
+      </div>
+      <div class="panel debrief" id="debrief" hidden></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · zone complete -->
+<section id="s-done" class="stack" hidden>
+  <p class="eyebrow">Zone 1 complete</p>
+  <h2>Mission log: Shangri-La dunes</h2>
+  <div class="panel">
+    <div class="row" style="gap:28px;align-items:flex-end">
+      <div><div class="big" id="done-total"></div><div class="eyebrow" id="done-total-label">Flight reserve banked</div></div>
+      <p class="prose" id="done-rating"></p>
+    </div>
+    <div class="scroll"><table class="log" id="done-table"></table></div>
+  </div>
+  <p class="prose credit">Zones 2 and 3 are not built yet. Zone 2 moves to larger molecules in the dune organics; zone 3 reaches Selk crater, where liquid water once mixed with them.</p>
+  <div class="row">
+    <button class="btn primary" id="btn-done-map" type="button">Back to the site map</button>
+    <button class="btn" id="btn-done-reset" type="button">Fly zone 1 again</button>
+  </div>
+</section>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ---------------------------------------------------------------- data */
+var VIDEO_URL="https://science.nasa.gov/wp-content/uploads/2026/01/dragonflyattitan2025.mp4";
+var VIDEO_PAGE="https://science.nasa.gov/video-detail/dragonflyattitan2025/";
+var MODEL_JS="media/dragonfly-model.js";   /* 3D rotorcraft on the opening screen (the model, stored as text) */
+var COST={h1:15,c13:15,ir:10,ms:10,miss:15};
+var INST=[{id:"h1",name:"<sup>1</sup>H NMR",plain:"1H NMR"},{id:"c13",name:"<sup>13</sup>C NMR",plain:"13C NMR"},{id:"ir",name:"Infrared",plain:"Infrared"},{id:"ms",name:"Mass spec",plain:"Mass spec"}];
+function s(n){return "<sub>"+n+"</sub>";}
+
+/* h1: [shift ppm, nH, neighbours, J Hz]   c13: [shift ppm, relative height]
+   ir: [wavenumber, depth 0-1, width cm-1]   ms: [m/z, relative %] */
+var SITES=[
+{ id:"ethane", site:"Site 1 · Touchdown", flavor:"The drill's first cuttings warm in the sample cup, and a volatile boils off into the cold trap.",
+  name:"Ethane", smiles:"CC", jsme:"CC", formula:"C2H6", mass:30, tag:"Detected on Titan",
+  h1:[[0.87,6,0,0]], c13:[[6.9,1]],
+  ir:[[2975,.82,46],[2895,.55,34],[1465,.5,26],[1379,.3,18],[822,.28,22]],
+  ms:[[30,26],[29,21],[28,100],[27,33],[26,23],[25,4],[15,4],[14,3]],
+  options:[
+    {id:"methane",name:"methane",f:"CH"+s(4),smiles:"C",mass:16,why:"Methane also gives a single <sup>1</sup>H peak, but near 0.2 ppm, and its molecular ion is at m/z 16."},
+    {id:"ethane",name:"ethane",f:"CH"+s(3)+"–CH"+s(3),smiles:"CC",mass:30},
+    {id:"ethene",name:"ethene",f:"H"+s(2)+"C=CH"+s(2),smiles:"C=C",mass:28,why:"Ethene's four hydrogens are equivalent too, but they sit on sp² carbons: one <sup>1</sup>H peak near 5.4 ppm, one <sup>13</sup>C peak near 123 ppm, and M⁺ at m/z 28."},
+    {id:"ethyne",name:"ethyne",f:"HC≡CH",smiles:"C#C",mass:26,why:"Ethyne gives one <sup>1</sup>H peak as well, but near 2 ppm, with a <sup>13</sup>C peak near 72 ppm, a sharp ≡C–H stretch near 3300 cm⁻¹, and M⁺ at m/z 26."}
+  ],
+  isomer:"",
+  debrief:{h1:"One peak at 0.87 ppm. All six hydrogens are equivalent, and the shift is in the sp³ C–H (alkane) region. Equivalent hydrogens do not split each other, so it is a singlet.",
+    c13:"One peak at 6.9 ppm: two equivalent sp³ carbons.",
+    ir:"C–H stretches just below 3000 cm⁻¹ and C–H bends near 1465 and 1380 cm⁻¹. Nothing above 3000, so there is no sp² or sp C–H.",
+    ms:"M⁺ at m/z 30 fits C"+s(2)+"H"+s(6)+". The tallest peak, m/z 28, comes from loss of H"+s(2)+".",
+    titan:"Ethane is one of the main products of methane chemistry in Titan's atmosphere, and Cassini identified liquid ethane in the lake Ontario Lacus."}
+},
+{ id:"benzene", site:"Site 2 · Dune crest", flavor:"A waxy organic ice, chipped from the dark sand at the top of a dune.",
+  name:"Benzene", smiles:"c1ccccc1", jsme:"c1ccccc1", formula:"C6H6", mass:78, tag:"Detected on Titan",
+  h1:[[7.36,6,0,0]], c13:[[128.4,1]],
+  ir:[[3091,.38,14],[3071,.5,14],[3036,.62,16],[1960,.12,22],[1815,.14,22],[1479,.78,14],[1035,.5,12],[674,.95,18]],
+  ms:[[79,6.5],[78,100],[77,22],[76,6],[63,3],[52,19],[51,18],[50,16],[39,13],[38,5]],
+  options:[
+    {id:"benzene",name:"benzene",ring:[6,true],smiles:"c1ccccc1",mass:78},
+    {id:"cyclohexane",name:"cyclohexane",ring:[6,false],smiles:"C1CCCCC1",mass:84,why:"Cyclohexane also shows one <sup>1</sup>H peak and one <sup>13</sup>C peak, but in the sp³ region (about 1.4 ppm and 27 ppm), and its molecular ion is at m/z 84."},
+    {id:"24hexadiyne",name:"hexa-2,4-diyne",f:"CH"+s(3)+"–C≡C–C≡C–CH"+s(3),smiles:"CC#CC#CC",mass:78,why:"Hexa-2,4-diyne has the same formula and also one <sup>1</sup>H peak, but for CH"+s(3)+" groups, near 2 ppm. It would show three <sup>13</sup>C peaks, not one, and no C–H stretch above 3000 cm⁻¹."},
+    {id:"15hexadiyne",name:"hexa-1,5-diyne",f:"HC≡C–CH"+s(2)+"CH"+s(2)+"–C≡CH",smiles:"C#CCCC#C",mass:78,why:"Hexa-1,5-diyne has the same formula, but two kinds of hydrogen give two <sup>1</sup>H signals, and the ≡C–H shows a sharp stretch near 3300 cm⁻¹."}
+  ],
+  isomer:"A single <sup>1</sup>H peak above 7 ppm and a single <sup>13</sup>C peak near 128 ppm mean six equivalent CH units on sp² carbons.",
+  debrief:{h1:"One peak at 7.36 ppm. Six equivalent hydrogens, pulled far downfield by the ring current of an aromatic ring.",
+    c13:"One peak at 128.4 ppm: six equivalent carbons in the aromatic region.",
+    ir:"C–H stretches above 3000 cm⁻¹ (sp² C–H) and none below, a ring C=C stretch near 1480 cm⁻¹, and a very strong out-of-plane C–H bend near 675 cm⁻¹.",
+    ms:"M⁺ at m/z 78 is also the tallest peak. Aromatic rings hold together well. m/z 77 is the phenyl cation, formed by loss of H.",
+    titan:"Benzene is the only aromatic molecule confirmed in Titan's atmosphere so far. It may be a step toward the larger molecules that make up the orange haze."}
+},
+{ id:"propane", site:"Site 3 · Interdune flat", flavor:"A second volatile reaches the cold trap, a little heavier than the first.",
+  name:"Propane", smiles:"CCC", jsme:"CCC", formula:"C3H8", mass:44, tag:"Detected on Titan",
+  h1:[[1.32,2,6,7.3],[0.90,6,2,7.3]], c13:[[16.6,1],[16.4,.55]],
+  ir:[[2968,.85,44],[2887,.6,34],[1470,.5,26],[1385,.3,14],[1372,.25,12],[748,.2,18]],
+  ms:[[44,27],[43,23],[42,6],[41,13],[40,3],[39,19],[38,5],[37,3],[29,100],[28,59],[27,42],[26,9],[15,7]],
+  options:[
+    {id:"propane",name:"propane",f:"CH"+s(3)+"–CH"+s(2)+"–CH"+s(3),smiles:"CCC",mass:44},
+    {id:"butane",name:"butane",f:"CH"+s(3)+"CH"+s(2)+"CH"+s(2)+"CH"+s(3),smiles:"CCCC",mass:58,why:"Butane also gives a CH"+s(3)+" triplet and a CH"+s(2)+" multiplet, but with relative areas 3 : 2, <sup>13</sup>C peaks near 13 and 25 ppm, and M⁺ at m/z 58."},
+    {id:"cyclopropane",name:"cyclopropane",ring:[3,false],smiles:"C1CC1",mass:42,why:"Cyclopropane has six equivalent hydrogens: a single <sup>1</sup>H peak, unusually far upfield near 0.2 ppm, and M⁺ at m/z 42."},
+    {id:"isobutane",name:"2-methylpropane",f:"(CH"+s(3)+")"+s(3)+"CH",smiles:"CC(C)C",mass:58,why:"2-Methylpropane has nine equivalent CH"+s(3)+" hydrogens split into a doublet by the single CH, relative areas 9 : 1, and M⁺ at m/z 58."}
+  ],
+  isomer:"",
+  debrief:{h1:"A triplet at 0.90 ppm (relative area 3) and a septet at 1.32 ppm (area 1). The six CH"+s(3)+" hydrogens have two neighbours, so 2 + 1 = 3 lines. The two CH"+s(2)+" hydrogens have six neighbours, so 6 + 1 = 7 lines.",
+    c13:"Two peaks only 0.2 ppm apart, at 16.6 and 16.4 ppm. There are two kinds of carbon (the CH"+s(3)+" pair and the CH"+s(2)+"), and here they happen to land almost on top of each other. Zoom in to see both.",
+    ir:"Only sp³ C–H stretches below 3000 cm⁻¹ and C–H bends. No functional group.",
+    ms:"M⁺ at m/z 44. The tallest peak, m/z 29, is C"+s(2)+"H"+s(5)+"⁺, left after losing CH"+s(3)+" (15).",
+    titan:"Propane was found in Titan's atmosphere by Voyager 1's infrared spectrometer in 1980."}
+},
+{ id:"acetonitrile", site:"Site 4 · Sand sheet", flavor:"Colourless crystals collect on the walls of the sample cup as the sand warms.",
+  name:"Acetonitrile", smiles:"CC#N", jsme:"CC#N", formula:"C2H3N", mass:41, tag:"Detected on Titan",
+  h1:[[2.10,3,0,0]], c13:[[116.4,.35],[1.9,1]],
+  ir:[[3003,.28,22],[2944,.45,24],[2293,.22,12],[2253,.8,12],[1443,.5,30],[1375,.48,16],[1039,.45,18],[918,.4,14]],
+  ms:[[42,3],[41,100],[40,52],[39,19],[38,11],[28,3],[27,2],[26,3],[15,2],[14,9],[13,3],[12,3]],
+  options:[
+    {id:"acetonitrile",name:"acetonitrile",f:"CH"+s(3)+"–C≡N",smiles:"CC#N",mass:41},
+    {id:"meisocyanide",name:"methyl isocyanide",f:"CH"+s(3)+"–N≡C",smiles:"C[N+]#[C-]",mass:41,why:"Methyl isocyanide has the same formula, but its N≡C stretch comes lower, near 2165 cm⁻¹, and a CH"+s(3)+" on nitrogen appears near 3.1 ppm. Its isocyanide carbon shows near 158 ppm."},
+    {id:"propyne",name:"propyne",f:"CH"+s(3)+"–C≡CH",smiles:"CC#C",mass:40,why:"Propyne has no nitrogen, so its molecular ion is even, at m/z 40. It would also show a sharp ≡C–H stretch near 3300 cm⁻¹ and three <sup>13</sup>C peaks."},
+    {id:"ethanamine",name:"ethanamine",f:"CH"+s(3)+"CH"+s(2)+"–NH"+s(2),smiles:"CCN",mass:45,why:"Ethanamine would show an ethyl pattern (a triplet and a quartet), N–H stretches between 3300 and 3400 cm⁻¹, and M⁺ at m/z 45."}
+  ],
+  isomer:"Check where the triple-bond stretch falls in the IR, and how far downfield the CH"+s(3)+" peak is.",
+  debrief:{h1:"One singlet at 2.10 ppm: a CH"+s(3)+" with no hydrogens on the neighbouring atom, pulled downfield from about 0.9 ppm by the C≡N next to it.",
+    c13:"Two peaks. The nitrile carbon is at 116.4 ppm and is small because it carries no hydrogens. The CH"+s(3)+" carbon is at 1.9 ppm, unusually far upfield.",
+    ir:"A sharp C≡N stretch at 2253 cm⁻¹. There is no ≡C–H stretch near 3300 and no N–H stretch.",
+    ms:"M⁺ at m/z 41 is odd. By the nitrogen rule, an odd molecular ion means an odd number of nitrogens. m/z 40 is M – 1.",
+    titan:"Acetonitrile was detected in Titan's atmosphere from Earth with millimetre-wave telescopes, before Cassini arrived."}
+},
+{ id:"propionitrile", site:"Site 5 · Dune field edge", flavor:"A second ice from the same sand, collected where the dunes thin out toward the crater.",
+  name:"Propanenitrile (propionitrile)", smiles:"CCC#N", jsme:"CCC#N", formula:"C3H5N", mass:55, tag:"Detected on Titan",
+  h1:[[2.36,2,3,7.6],[1.30,3,2,7.6]], c13:[[120.8,.35],[10.9,1],[10.6,.9]],
+  ir:[[2990,.42,24],[2950,.4,26],[2890,.22,24],[2249,.8,12],[1462,.5,18],[1431,.45,14],[1386,.25,12],[1319,.2,14],[1076,.42,16],[786,.4,16]],
+  ms:[[55,9],[54,63],[53,8],[52,10],[51,8],[50,3],[40,2],[39,2],[38,3],[29,5],[28,100],[27,18],[26,20],[25,3],[15,5]],
+  options:[
+    {id:"propionitrile",name:"propanenitrile",f:"CH"+s(3)+"CH"+s(2)+"–C≡N",smiles:"CCC#N",mass:55},
+    {id:"etisocyanide",name:"ethyl isocyanide",f:"CH"+s(3)+"CH"+s(2)+"–N≡C",smiles:"CC[N+]#[C-]",mass:55,why:"Ethyl isocyanide has the same formula and also an ethyl pattern, but a CH"+s(2)+" attached to nitrogen appears near 3.4 ppm, and the N≡C stretch comes near 2150 cm⁻¹."},
+    {id:"acrylonitrile",name:"propenenitrile",f:"H"+s(2)+"C=CH–C≡N",smiles:"C=CC#N",mass:53,why:"Propenenitrile (acrylonitrile, also found on Titan) has only alkene hydrogens: three signals between 5.6 and 6.3 ppm and nothing upfield of 5. Its M⁺ is at m/z 53."},
+    {id:"butanenitrile",name:"butanenitrile",f:"CH"+s(3)+"CH"+s(2)+"CH"+s(2)+"–C≡N",smiles:"CCCC#N",mass:69,why:"Butanenitrile would show three <sup>1</sup>H signals (triplet, sextet, triplet; areas 3 : 2 : 2) and M⁺ at m/z 69."}
+  ],
+  isomer:"The IR band near 2250 cm⁻¹ and a CH"+s(2)+" quartet at only 2.4 ppm tell you what the ethyl group is attached to.",
+  debrief:{h1:"A quartet at 2.36 ppm (relative area 2) and a triplet at 1.30 ppm (area 3): an ethyl group. The CH"+s(2)+" is shifted downfield because it sits next to the C≡N.",
+    c13:"Three peaks. The nitrile carbon is at 120.8 ppm. The CH"+s(2)+" and CH"+s(3)+" carbons fall at 10.9 and 10.6 ppm, almost on top of each other. Zoom in to see both.",
+    ir:"A sharp C≡N stretch at 2249 cm⁻¹, with sp³ C–H stretches below 3000 cm⁻¹.",
+    ms:"M⁺ at m/z 55 is odd, so the molecule has an odd number of nitrogens. It is weak here; M – 1 at m/z 54 is much stronger.",
+    titan:"Propanenitrile (ethyl cyanide) was identified in Titan's atmosphere with the ALMA radio telescope array in 2015."}
+}
+];
+var MULT=["singlet","doublet","triplet","quartet","quintet","sextet","septet","octet","nonet"];
+
+/* ---------------------------------------------------------------- state */
+var KEY="dragonfly-field-lab-v1";
+function freshSite(){return {spent:0,runs:{},tries:[],solved:false,banked:0,misses:0};}
+function fresh(){return {v:1,screen:"open",answer:"mc",power:"mission",site:0,sites:SITES.map(freshSite)};}
+var S=fresh();
+function load(d){ if(d&&d.v===1&&d.sites&&d.sites.length===SITES.length){S=d;} }
+try{ load(JSON.parse(localStorage.getItem(KEY))); }catch(e){}
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
+var view={inst:null,zoom:null,pick:null};   /* per-visit UI state, not saved */
+var $=function(id){return document.getElementById(id);};
+function esc(t){return String(t).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+
+/* ---------------------------------------------------------------- screens */
+var SCREENS=["open","brief","map","site","done"];
+function go(screen){
+  S.screen=screen; save();
+  SCREENS.forEach(function(n){$("s-"+n).hidden=(n!==screen);});
+  $("bar").hidden=(screen==="open");
+  if(screen==="brief")renderSettings();
+  if(screen==="map")renderMap();
+  if(screen==="site")renderSite(true);
+  if(screen==="done")renderDone();
+  renderBar();
+  if(screen!=="open"){stopVideo();dropCraft();window.scrollTo(0,0);}else loadCraft();
+}
+function total(){return S.sites.reduce(function(a,x){return a+(x.banked||0);},0);}
+function renderBar(){
+  var onSite=S.screen==="site", st=S.sites[S.site], training=S.power==="training";
+  $("bar-where").textContent=onSite?"· "+SITES[S.site].site:"";
+  $("g-batt").hidden=!onSite||training;
+  $("g-res").hidden=training;
+  $("g-train").hidden=!training;
+  $("btn-map").hidden=(S.screen==="map");
+  var left=Math.max(0,100-st.spent);
+  $("batt-fill").style.width=left+"%";
+  $("batt-num").textContent=left+"%";
+  $("batt-cell").classList.toggle("low",left<=25);
+  $("res-num").textContent=total();
+}
+function renderSettings(){
+  document.querySelectorAll("[data-set]").forEach(function(b){
+    b.setAttribute("aria-pressed",String(S[b.dataset.set]===b.dataset.val));
+  });
+  $("set-answer-help").textContent=S.answer==="mc"?"Pick from four candidate structures.":"Sketch the structure yourself. Harder.";
+  $("set-power-help").textContent=S.power==="mission"?"Runs cost battery. Leftover power is banked.":"Every instrument is free. Nothing is scored.";
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-set]"); if(!b)return;
+  S[b.dataset.set]=b.dataset.val; save(); renderSettings(); renderBar();
+  if(S.screen==="site")renderSite(false);
+});
+
+/* ---------------------------------------------------------------- map */
+function nextOpen(){for(var i=0;i<SITES.length;i++){if(!S.sites[i].solved)return i;}return -1;}
+function renderMap(){
+  var now=nextOpen(), h='<div class="zonehead"><span class="eyebrow">Zone 1 · Shangri-La dunes · small molecules from the atmosphere</span></div>';
+  SITES.forEach(function(d,i){
+    var st=S.sites[i], cls=st.solved?"done":(i===now?"now":"locked"), sub, btn="";
+    if(st.solved){sub=esc(d.name)+(S.power==="mission"?" · banked "+st.banked:"");btn='<button class="btn small" data-site="'+i+'" type="button">Review</button>';}
+    else if(i===now){sub="Sample waiting";btn='<button class="btn primary small" data-site="'+i+'" type="button">'+(st.spent||st.tries.length?"Resume":"Land here")+'</button>';}
+    else{sub="Solve the earlier sites first";}
+    h+='<div class="leg '+cls+'"><div class="pin"><div class="dot">'+(st.solved?"✓":(i+1))+'</div><div class="wire"></div></div><div class="body"><div><div class="t">'+esc(d.site)+'</div><div class="s">'+sub+'</div></div>'+btn+'</div></div>';
+  });
+  h+='<div class="leg locked"><div class="pin"><div class="dot">Z2</div><div class="wire"></div></div><div class="body"><div><div class="t">Zone 2 · Dune organics</div><div class="s">Aromatic rings and isomers. Not built yet.</div></div></div></div>';
+  h+='<div class="leg locked"><div class="pin"><div class="dot">Z3</div></div><div class="body"><div><div class="t">Zone 3 · Selk crater</div><div class="s">Acids, amines, amides and an amino acid. Not built yet.</div></div></div></div>';
+  if(now===-1)h+='<div class="row" style="padding-left:58px"><button class="btn primary small" id="btn-log" type="button">Open the mission log</button></div>';
+  $("route").innerHTML=h;
+}
+$("route").addEventListener("click",function(e){
+  var b=e.target.closest("[data-site]");
+  if(b){S.site=+b.dataset.site;view={inst:null,zoom:null,pick:null};go("site");return;}
+  if(e.target.id==="btn-log")go("done");
+});
+
+/* ---------------------------------------------------------------- charts */
+function niceStep(range,maxTicks){
+  var steps=[0.005,0.01,0.02,0.05,0.1,0.2,0.5,1,2,5,10,20,50,100,200,500,1000];
+  for(var i=0;i<steps.length;i++){if(range/steps[i]<=maxTicks)return steps[i];}
+  return 1000;
+}
+function fmt(v,step){var d=step>=1?0:(step>=0.1?1:(step>=0.01?2:3));return v.toFixed(d);}
+function h1Lines(sig){
+  var F=400,out=[];
+  sig.forEach(function(g){
+    var lines=[{hz:g[0]*F,w:g[1]}],n=g[2],J=g[3];
+    for(var k=0;k<n;k++){
+      var nx=[];
+      lines.forEach(function(l){nx.push({hz:l.hz-J/2,w:l.w/2},{hz:l.hz+J/2,w:l.w/2});});
+      /* merge coincident lines */
+      nx.sort(function(a,b){return a.hz-b.hz;});
+      lines=[];
+      nx.forEach(function(l){var p=lines[lines.length-1];if(p&&Math.abs(p.hz-l.hz)<1e-6)p.w+=l.w;else lines.push(l);});
+    }
+    lines.forEach(function(l){out.push({x:l.hz/F,w:l.w});});
+  });
+  return out;
+}
+function defaultView(kind,d){
+  if(kind==="h1")return [-0.5,10.5];
+  if(kind==="c13")return [-10,230];
+  if(kind==="ir")return [400,4000];
+  var mx=Math.max.apply(null,d.ms.map(function(p){return p[0];}));
+  return [8,Math.ceil((mx+8)/10)*10];
+}
+function drawChart(host,kind,d,opts){
+  opts=opts||{};
+  var W=Math.max(260,Math.floor(host.clientWidth||600)), H=W<480?210:270;
+  var yAxis=(kind==="ir"||kind==="ms");
+  var m={l:yAxis?40:10,r:12,t:20,b:36}, pw=W-m.l-m.r, ph=H-m.t-m.b;
+  var vw=view.zoom||defaultView(kind,d), lo=vw[0], hi=vw[1], rev=(kind!=="ms");
+  function X(v){var f=(v-lo)/(hi-lo);return m.l+(rev?1-f:f)*pw;}
+  function Xinv(px){var f=(px-m.l)/pw;if(rev)f=1-f;return lo+f*(hi-lo);}
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="'+esc(opts.label||"")+'">';
+  /* x ticks */
+  var step=niceStep(hi-lo,Math.max(3,Math.floor(pw/62)));
+  for(var t=Math.ceil(lo/step-1e-9)*step;t<=hi+1e-9;t+=step){
+    var x=X(t); svg+='<line class="gr" x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+m.t+'" y2="'+(m.t+ph)+'"/>';
+    svg+='<text x="'+x.toFixed(1)+'" y="'+(m.t+ph+15)+'" text-anchor="middle">'+fmt(Math.abs(t)<1e-9?0:t,step)+'</text>';
+  }
+  var xl={h1:"δ / ppm",c13:"δ / ppm",ir:"wavenumber / cm⁻¹",ms:"m/z"}[kind];
+  svg+='<text x="'+(m.l+pw/2)+'" y="'+(H-4)+'" text-anchor="middle">'+xl+'</text>';
+  var base=m.t+ph, f, evalAt, path="", i;
+  if(kind==="h1"||kind==="c13"){
+    var F=kind==="h1"?400:100, lw=(kind==="h1"?1.1:1.6)/F;
+    var lines=kind==="h1"?h1Lines(d.h1):d.c13.map(function(p){return {x:p[0],w:p[1]};});
+    f=function(v){var a=0;for(var k=0;k<lines.length;k++){var q=2*(v-lines[k].x)/lw;a+=lines[k].w/(1+q*q);}return a;};
+    var xs=[],dx=(hi-lo)/(pw*2);
+    for(i=0;i<=pw*2;i++)xs.push(lo+i*dx);
+    var offs=[0,.25,.5,1,2,4,8,16];
+    lines.forEach(function(l){offs.forEach(function(o){[l.x-o*lw,l.x+o*lw].forEach(function(v){if(v>lo&&v<hi)xs.push(v);});});});
+    xs.sort(function(a,b){return a-b;});
+    var ys=xs.map(f), mx=Math.max.apply(null,ys);
+    var all=Math.max.apply(null,lines.map(function(l){return f(l.x);}));
+    if(mx<all*0.02)mx=all*0.02;
+    evalAt=function(v){return base-(f(v)/mx)*ph*0.94;};
+    var pts=[];
+    for(i=0;i<xs.length;i++)pts.push(X(xs[i]).toFixed(2)+","+(base-Math.min(1,ys[i]/mx)*ph*0.94).toFixed(2));
+    if(rev)pts.reverse();
+    svg+='<line class="ax" x1="'+m.l+'" x2="'+(m.l+pw)+'" y1="'+base+'" y2="'+base+'"/>';
+    svg+='<polyline class="tr" points="'+pts.join(" ")+'"/>';
+  }else if(kind==="ir"){
+    f=function(v){var a=0;for(var k=0;k<d.ir.length;k++){var b=d.ir[k],q=2*(v-b[0])/b[2];
+      a+=-Math.log(1-b[1])*(0.5*Math.exp(-0.6931*q*q)+0.5/(1+q*q));}return 96*Math.exp(-a);};
+    var Y=function(T){return m.t+(1-T/100)*ph;};
+    [0,50,100].forEach(function(T){svg+='<line class="gr" x1="'+m.l+'" x2="'+(m.l+pw)+'" y1="'+Y(T)+'" y2="'+Y(T)+'"/><text x="'+(m.l-6)+'" y="'+(Y(T)+4)+'" text-anchor="end">'+T+'</text>';});
+    svg+='<text x="12" y="'+(m.t+ph/2)+'" text-anchor="middle" transform="rotate(-90 12 '+(m.t+ph/2)+')">% transmittance</text>';
+    var ip=[];
+    for(i=0;i<=pw*2;i++){var v=lo+(hi-lo)*i/(pw*2);ip.push(X(v).toFixed(2)+","+Y(f(v)).toFixed(2));}
+    svg+='<line class="ax" x1="'+m.l+'" x2="'+(m.l+pw)+'" y1="'+base+'" y2="'+base+'"/><line class="ax" x1="'+m.l+'" x2="'+m.l+'" y1="'+m.t+'" y2="'+base+'"/>';
+    svg+='<polyline class="tr" points="'+ip.join(" ")+'"/>';
+  }else{
+    var Ym=function(p){return m.t+(1-p/108)*ph;};
+    [0,50,100].forEach(function(T){svg+='<line class="gr" x1="'+m.l+'" x2="'+(m.l+pw)+'" y1="'+Ym(T)+'" y2="'+Ym(T)+'"/><text x="'+(m.l-6)+'" y="'+(Ym(T)+4)+'" text-anchor="end">'+T+'</text>';});
+    svg+='<text x="12" y="'+(m.t+ph/2)+'" text-anchor="middle" transform="rotate(-90 12 '+(m.t+ph/2)+')">relative abundance</text>';
+    svg+='<line class="ax" x1="'+m.l+'" x2="'+(m.l+pw)+'" y1="'+base+'" y2="'+base+'"/><line class="ax" x1="'+m.l+'" x2="'+m.l+'" y1="'+m.t+'" y2="'+base+'"/>';
+    var placed=[];
+    d.ms.slice().sort(function(a,b){return b[1]-a[1];}).forEach(function(p){
+      var x=X(p[0]), top=Ym(p[1]);
+      svg+='<line class="st" x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+base+'" y2="'+top.toFixed(1)+'"/>';
+      if(p[0]===d.mass){svg+='<text class="lab" x="'+(x+5).toFixed(1)+'" y="'+(top+9).toFixed(1)+'" text-anchor="start">'+p[0]+' M⁺</text>';return;}
+      if(p[1]>=15&&!placed.some(function(q){return Math.abs(q-x)<19;})){
+        placed.push(x);
+        svg+='<text class="lab" x="'+x.toFixed(1)+'" y="'+(top-5).toFixed(1)+'" text-anchor="middle">'+p[0]+'</text>';
+      }
+    });
+  }
+  svg+='<line class="cross" id="cx" x1="0" x2="0" y1="'+m.t+'" y2="'+base+'" visibility="hidden"/><rect class="sel" id="sel" x="0" y="'+m.t+'" width="0" height="'+ph+'" visibility="hidden"/>';
+  svg+='<text class="read" id="rd" x="'+(m.l+4)+'" y="13"></text></svg>';
+  host.innerHTML=svg;
+  /* hover readout and drag-to-zoom */
+  var el=host.firstChild, cx=el.querySelector("#cx"), rd=el.querySelector("#rd"), sel=el.querySelector("#sel"), down=null;
+  function px(e){var r=el.getBoundingClientRect();return Math.max(m.l,Math.min(m.l+pw,(e.clientX-r.left)*W/r.width));}
+  function readout(x){
+    var v=Xinv(x), txt;
+    if(kind==="h1")txt="δ "+v.toFixed(hi-lo<1?3:2)+" ppm";
+    else if(kind==="c13")txt="δ "+v.toFixed(1)+" ppm";
+    else if(kind==="ir")txt=Math.round(v)+" cm⁻¹ · "+Math.round(f(v))+" %T";
+    else{var best=null;d.ms.forEach(function(p){if(!best||Math.abs(p[0]-v)<Math.abs(best[0]-v))best=p;});
+      if(Math.abs(best[0]-v)<=1.5){x=X(best[0]);txt="m/z "+best[0]+" · "+best[1]+"%"+(best[0]===d.mass?" · M⁺":"");}else txt="m/z "+Math.round(v);}
+    cx.setAttribute("x1",x);cx.setAttribute("x2",x);cx.setAttribute("visibility","visible");rd.textContent=txt;
+  }
+  host.onpointermove=function(e){var x=px(e);readout(x);
+    if(down!==null&&kind!=="ms"&&Math.abs(x-down)>5){sel.setAttribute("x",Math.min(x,down));sel.setAttribute("width",Math.abs(x-down));sel.setAttribute("visibility","visible");}};
+  host.onpointerleave=function(){if(down===null){cx.setAttribute("visibility","hidden");rd.textContent="";}};
+  host.onpointerdown=function(e){down=px(e);try{host.setPointerCapture(e.pointerId);}catch(_){}};
+  host.onpointerup=function(e){
+    if(down===null)return; var x=px(e),a=down;down=null;sel.setAttribute("visibility","hidden");
+    if(kind!=="ms"&&Math.abs(x-a)>10){var v1=Xinv(a),v2=Xinv(x);view.zoom=[Math.min(v1,v2),Math.max(v1,v2)];view.zsel=null;renderPaper();}
+  };
+  host.onpointercancel=function(){down=null;sel.setAttribute("visibility","hidden");};
+  host.ondblclick=function(){if(view.zoom){view.zoom=null;view.zsel=null;renderPaper();}};
+}
+function ratio(sig){
+  function g(a,b){return b?g(b,a%b):a;}
+  var all=sig.reduce(function(a,x){return g(a,x[1]);},0);
+  return sig.map(function(x){return x[1]/all;});
+}
+
+/* ---------------------------------------------------------------- site */
+function unlocked(id){var st=S.sites[S.site];return st.solved||!!st.runs[id]||(id==="ms"&&st.tries.length>0);}
+function renderSite(reset){
+  var d=SITES[S.site], st=S.sites[S.site];
+  if(reset){view.zoom=null;view.pick=null;view.inst=null;
+    ["h1","c13","ir","ms"].some(function(id){if(unlocked(id)){view.inst=id;return true;}return false;});
+    $("feedback").innerHTML="";}
+  $("site-eyebrow").textContent="Zone 1 · Shangri-La dunes"+(st.solved?" · solved":"");
+  $("site-title").textContent=d.site;
+  $("site-flavor").textContent=d.flavor;
+  renderRack(); renderPaper(); renderAnswer(); renderDebrief(); renderBar();
+}
+function renderRack(){
+  var st=S.sites[S.site], training=S.power==="training";
+  $("rack").innerHTML=INST.map(function(I){
+    var open=unlocked(I.id), c;
+    if(open)c=(st.runs[I.id]||I.id==="ms"||st.solved)?"recorded · view":"view";
+    else if(I.id==="ms")c="runs when you propose";
+    else c=training?"run · free":"run · "+COST[I.id]+"% battery";
+    return '<button type="button" class="inst'+(open?" ran":"")+'" data-inst="'+I.id+'" aria-pressed="'+(view.inst===I.id)+'"'+(I.id==="ms"&&!open?" disabled":"")+'><span class="n">'+I.name+'</span><span class="c">'+c+'</span></button>';
+  }).join("");
+}
+$("rack").addEventListener("click",function(e){
+  var b=e.target.closest("[data-inst]"); if(!b||b.disabled)return;
+  var id=b.dataset.inst, st=S.sites[S.site];
+  if(!unlocked(id)){st.runs[id]=true;if(S.power==="mission")st.spent+=COST[id];save();}
+  view.inst=id;view.zoom=null;view.zsel=null;
+  renderRack();renderPaper();renderBar();
+});
+function renderPaper(){
+  var d=SITES[S.site], k=view.inst, P=$("paper");
+  if(!k){P.innerHTML='<p class="empty">No spectra recorded yet. Choose an instrument above to run it on this sample.'+(S.power==="mission"?" Each run draws on the battery, so start with the one that will tell you the most.":"")+'</p>';return;}
+  var titles={h1:["<sup>1</sup>H NMR","400 MHz"],c13:["<sup>13</sup>C NMR","100 MHz · proton-decoupled"],ir:["Infrared","transmittance"],ms:["Mass spectrum","electron ionisation"]};
+  var h='<div class="head"><span><b>'+titles[k][0]+'</b> · '+titles[k][1]+'</span><span>Sample '+(S.site+1)+'</span></div><div class="plot" id="plot"></div>', list="", tip="";
+  if(k==="h1"){
+    var r=ratio(d.h1);
+    h+='<div class="chips"><span>Signals:</span>'+d.h1.map(function(g,i){return '<button type="button" class="chip" data-z="'+i+'" aria-pressed="'+(view.zsel===i)+'">δ '+g[0].toFixed(2)+' · '+(d.h1.length>1?"area "+r[i]:"only signal")+'</button>';}).join("")+(view.zoom?'<button type="button" class="chip" data-z="full">Full spectrum</button>':"")+'</div>';
+    list=d.h1.map(function(g,i){return "<li>δ "+g[0].toFixed(2)+" ppm: "+MULT[g[2]]+(d.h1.length>1?", relative area "+r[i]:"")+"</li>";}).join("");
+    tip="Tap a signal to expand it and count its lines, or drag across the spectrum to zoom.";
+  }else if(k==="c13"){
+    h+='<div class="chips"><span>Peaks:</span>'+d.c13.map(function(g,i){return '<button type="button" class="chip" data-z="'+i+'" aria-pressed="'+(view.zsel===i)+'">δ '+g[0].toFixed(1)+'</button>';}).join("")+(view.zoom?'<button type="button" class="chip" data-z="full">Full spectrum</button>':"")+'</div>';
+    list=d.c13.map(function(g){return "<li>δ "+g[0].toFixed(1)+" ppm</li>";}).join("");
+    tip="Tap a peak to zoom in on it, or drag across the spectrum.";
+  }else if(k==="ir"){
+    var bands=d.ir.filter(function(b){return b[1]>=.25;}).map(function(b){return b[0];});
+    h+='<div class="chips"><span>Main bands:</span><span class="data" style="color:var(--ink)">'+bands.join(" · ")+' cm⁻¹</span>'+(view.zoom?'<button type="button" class="chip" data-z="full">Full spectrum</button>':"")+'</div>';
+    list=d.ir.map(function(b){return "<li>"+b[0]+" cm⁻¹, "+(b[1]>=.7?"strong":(b[1]>=.4?"medium":"weak"))+"</li>";}).join("");
+    tip="Band positions are real; band shapes are simplified. Drag to zoom.";
+  }else{
+    var top=d.ms.slice().sort(function(a,b){return b[1]-a[1];})[0];
+    h+='<div class="chips"><span>Molecular ion:</span><span class="data" style="color:var(--ink)">m/z '+d.mass+'</span><span>· tallest peak:</span><span class="data" style="color:var(--ink)">m/z '+top[0]+'</span></div>';
+    list=d.ms.slice().sort(function(a,b){return b[0]-a[0];}).map(function(p){return "<li>m/z "+p[0]+": "+p[1]+"%"+(p[0]===d.mass?" (molecular ion)":"")+"</li>";}).join("");
+    tip="Peak heights are approximate.";
+  }
+  h+='<p class="note">'+tip+'</p><details><summary>Peak list as text</summary><ul>'+list+'</ul></details>';
+  P.innerHTML=h;
+  var inst=INST.filter(function(I){return I.id===k;})[0];
+  drawChart($("plot"),k,d,{label:inst.plain+" spectrum of sample "+(S.site+1)+". A text peak list follows the chart."});
+}
+$("paper").addEventListener("click",function(e){
+  var b=e.target.closest("[data-z]"); if(!b)return;
+  var d=SITES[S.site], z=b.dataset.z;
+  if(z==="full"){view.zoom=null;view.zsel=null;}
+  else if(view.inst==="h1"){var g=d.h1[+z],half=(g[2]*g[3]/2+14)/400;view.zoom=[g[0]-half,g[0]+half];view.zsel=+z;}
+  else if(view.inst==="c13"){var c=d.c13[+z][0];view.zoom=[c-1.5,c+1.5];view.zsel=+z;}
+  renderPaper();
+});
+var rz;window.addEventListener("resize",function(){clearTimeout(rz);rz=setTimeout(function(){if(S.screen==="site"&&view.inst)renderPaper();if(S.screen==="open")paintDunes();sizeJSME();},150);});
+
+/* ---------------------------------------------------------------- answers */
+function ringSVG(n,arom){
+  var R=20,c=26,p=[],i;
+  for(i=0;i<n;i++){var a=-Math.PI/2+i*2*Math.PI/n;p.push((c+R*Math.cos(a)).toFixed(1)+","+(c+R*Math.sin(a)).toFixed(1));}
+  return '<svg width="52" height="52" viewBox="0 0 52 52" aria-hidden="true"><polygon points="'+p.join(" ")+'" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>'+(arom?'<circle cx="26" cy="26" r="11.5" fill="none" stroke="currentColor" stroke-width="1.6"/>':"")+'</svg>';
+}
+function renderAnswer(){
+  var d=SITES[S.site], st=S.sites[S.site], mc=S.answer==="mc";
+  document.querySelectorAll("#answer-panel [data-set]").forEach(function(b){b.setAttribute("aria-pressed",String(S.answer===b.dataset.val));});
+  $("opts").hidden=!mc; $("draw-wrap").hidden=mc||st.solved;
+  $("opts").innerHTML=d.options.map(function(o){
+    var out=st.tries.indexOf(o.id)>=0&&o.id!==d.id, right=st.solved&&o.id===d.id;
+    return '<button type="button" class="opt'+(out?" out":"")+(right?" right":"")+'" data-opt="'+o.id+'" aria-pressed="'+(view.pick===o.id)+'"'+((out||st.solved)?" disabled":"")+'><span class="f">'+(o.ring?ringSVG(o.ring[0],o.ring[1]):o.f)+'</span><span class="nm">'+o.name+(out?" · rejected":"")+'</span></button>';
+  }).join("");
+  $("btn-propose").hidden=st.solved;
+  $("btn-propose").disabled=mc&&!view.pick;
+  $("propose-cost").hidden=st.solved;
+  $("propose-cost").textContent=S.power==="mission"?"Mass spec check: "+COST.ms+"% battery. A rejected proposal costs "+COST.miss+"% more for a fresh sample.":"The mass spectrometer checks your structure.";
+  if(!mc&&!st.solved)ensureEditor();
+}
+$("opts").addEventListener("click",function(e){
+  var b=e.target.closest("[data-opt]"); if(!b||b.disabled)return;
+  view.pick=b.dataset.opt; renderAnswer();
+});
+function feedback(kind,tag,html){$("feedback").innerHTML='<div class="fb '+kind+'"><span class="tag">'+tag+'</span><div>'+html+'</div></div>';}
+function charge(ok){var st=S.sites[S.site];if(S.power==="mission")st.spent+=COST.ms+(ok?0:COST.miss);}
+function settle(ok,idOrNull,msg){
+  var d=SITES[S.site], st=S.sites[S.site];
+  charge(ok);
+  st.tries.push(idOrNull||"drawn");
+  if(ok){
+    st.solved=true; st.banked=S.power==="mission"?Math.max(0,100-st.spent):0;
+    feedback("good","Confirmed","The molecular ion at m/z "+d.mass+" matches "+fml(d.formula)+", and every spectrum fits. The sample is <b>"+esc(d.name.toLowerCase())+"</b>."+(S.power==="mission"?" Banked "+st.banked+" flight reserve.":""));
+  }else{
+    st.misses++;
+    feedback("bad","Rejected",msg);
+  }
+  view.pick=null; view.inst=view.inst||"ms"; if(!ok)view.inst="ms"; view.zoom=null;
+  save(); renderRack(); renderPaper(); renderAnswer(); renderDebrief(); renderBar();
+  if(ok)$("debrief").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"nearest"});
+}
+function fml(f){return f.replace(/(\d+)/g,"<sub>$1</sub>");}
+function massLine(d,mass,formula){
+  if(mass===d.mass)return "The mass spectrometer finds the molecular ion at m/z "+d.mass+". Your structure"+(formula?", "+fml(formula)+",":"")+" has that mass too, so mass alone cannot rule it out. The other spectra can. ";
+  var parity=(d.mass%2===1&&mass%2===0)?" An odd molecular ion means an odd number of nitrogen atoms.":((d.mass%2===0&&mass%2===1)?" An even molecular ion means no nitrogen, or an even number of them.":"");
+  return "The mass spectrometer finds the molecular ion at m/z "+d.mass+". Your structure"+(formula?", "+fml(formula)+",":"")+" has mass "+mass+"."+parity+" ";
+}
+$("btn-propose").addEventListener("click",function(){
+  var d=SITES[S.site];
+  if(S.answer==="mc"){
+    if(!view.pick)return;
+    var o=d.options.filter(function(x){return x.id===view.pick;})[0];
+    if(o.id===d.id)settle(true,o.id);
+    else settle(false,o.id,massLine(d,o.mass,"")+o.why);
+  }else checkDrawn();
+});
+
+/* ---------------------------------------------------------------- drawing mode */
+var jsmeP=null, applet=null, rdkitP=null;
+function loadScript(src){return new Promise(function(res,rej){var t=document.createElement("script");t.src=src;t.onload=res;t.onerror=function(){rej(new Error("load "+src));};document.head.appendChild(t);});}
+function loadJSME(){
+  if(!jsmeP)jsmeP=new Promise(function(res,rej){
+    window.jsmeOnLoad=function(){res(window.JSApplet);};
+    loadScript("lib/jsme/jsme.nocache.js").catch(rej);
+    setTimeout(function(){rej(new Error("timeout"));},25000);
+  });
+  return jsmeP;
+}
+function loadRDKit(){
+  if(!rdkitP)rdkitP=loadScript("lib/rdkit/RDKit_minimal.js").then(function(){
+    return window.initRDKitModule({locateFile:function(f){return "lib/rdkit/"+f;}});
+  }).catch(function(){return null;});
+  return rdkitP;
+}
+function editorSize(){var w=Math.max(260,Math.floor($("draw-wrap").clientWidth||340));return [w,Math.min(380,Math.max(320,Math.round(w*0.85)))];}
+function sizeJSME(){if(applet&&!$("draw-wrap").hidden){var z=editorSize();try{applet.setSize(z[0]+"px",z[1]+"px");}catch(e){}}}
+function ensureEditor(){
+  loadRDKit();
+  if(applet){sizeJSME();return;}
+  loadJSME().then(function(JS){
+    if(applet)return;
+    var z=editorSize();
+    applet=new JS.JSME("jsme-host",z[0]+"px",z[1]+"px",{options:"newlook,noquery,noreaction,nostereo,nozoom"});
+    $("draw-status").textContent="Draw the structure, then propose it. Hydrogens are filled in for you.";
+  }).catch(function(){
+    $("draw-status").textContent="The structure editor could not load here. Switch to Choices to keep going.";
+  });
+}
+var EL={1:"H",5:"B",6:"C",7:"N",8:"O",9:"F",14:"Si",15:"P",16:"S",17:"Cl",35:"Br",53:"I"}, AM={H:1,B:11,C:12,N:14,O:16,F:19,Si:28,P:31,S:32,Cl:35,Br:79,I:127};
+function describe(mol){
+  var j=JSON.parse(mol.get_json()), df=j.defaults.atom, c={}, mass=0;
+  j.molecules[0].atoms.forEach(function(a){
+    var z=a.z===undefined?df.z:a.z, el=EL[z]||"?", h=a.impHs===undefined?df.impHs:a.impHs;
+    c[el]=(c[el]||0)+1; if(h)c.H=(c.H||0)+h;
+  });
+  var keys=Object.keys(c).sort(function(a,b){var r=function(k){return k==="C"?0:(k==="H"?1:2);};return r(a)-r(b)||(a<b?-1:1);});
+  var f=keys.map(function(k){mass+=(AM[k]||0)*c[k];return k+(c[k]>1?c[k]:"");}).join("");
+  return {formula:f,mass:mass};
+}
+function canon(R,smi){var m=R.get_mol(smi);if(!m)return null;var o=m.get_smiles();m.delete();return o;}
+function checkDrawn(){
+  var d=SITES[S.site];
+  if(!applet){feedback("bad","Not ready","The structure editor is still loading.");return;}
+  var smi=applet.smiles();
+  if(!smi){feedback("bad","Nothing drawn","Sketch a structure in the editor first.");return;}
+  if(smi.indexOf(".")>=0){feedback("bad","Two pieces","The editor holds more than one molecule. Join them or erase the extra piece.");return;}
+  $("btn-propose").disabled=true;
+  loadRDKit().then(function(R){
+    $("btn-propose").disabled=false;
+    if(!R){ /* fallback: the editor's own canonical SMILES */
+      if(smi===d.jsme)settle(true,null);
+      else settle(false,null,"That structure does not match the sample. The mass spectrometer finds the molecular ion at m/z "+d.mass+".");
+      return;
+    }
+    var mol=R.get_mol(smi);
+    if(!mol){feedback("bad","Not a valid structure","Check that no atom has too many bonds.");return;}
+    var can=mol.get_smiles(), info=describe(mol); mol.delete();
+    if(can===canon(R,d.smiles)){settle(true,null);return;}
+    var known=d.options.filter(function(o){return o.id!==d.id&&canon(R,o.smiles)===can;})[0];
+    var msg=massLine(d,info.mass,info.formula);
+    if(known)msg+=known.why;
+    else if(info.formula===d.formula)msg+=(d.isomer||"Right formula, but the atoms are connected differently in the sample.");
+    else if(info.mass===d.mass)msg+="The formula is different from the sample's, even though the nominal mass agrees.";
+    settle(false,null,msg);
+  });
+}
+
+/* ---------------------------------------------------------------- debrief */
+function renderDebrief(){
+  var d=SITES[S.site], st=S.sites[S.site], D=$("debrief");
+  D.hidden=!st.solved; if(!st.solved)return;
+  var last=S.site===SITES.length-1, b=d.debrief;
+  D.innerHTML='<div class="row" style="justify-content:space-between"><h3>Debrief: '+esc(d.name)+'</h3><span class="badge">'+esc(d.tag)+'</span></div>'+
+    '<p class="credit">All four spectra are now unlocked above. Compare each one with the notes below.</p>'+
+    '<dl><dt><sup>1</sup>H</dt><dd>'+b.h1+'</dd><dt><sup>13</sup>C</dt><dd>'+b.c13+'</dd><dt>IR</dt><dd>'+b.ir+'</dd><dt>MS</dt><dd>'+b.ms+'</dd><dt>Titan</dt><dd>'+b.titan+'</dd></dl>'+
+    '<div class="row"><button class="btn primary" id="btn-next" type="button">'+(last?"Open the mission log":"Fly to the next site")+'</button></div>';
+}
+$("debrief").addEventListener("click",function(e){
+  if(e.target.id!=="btn-next")return;
+  if(S.site===SITES.length-1){go("done");return;}
+  S.site++; view={inst:null,zoom:null,pick:null};
+  if(applet){try{applet.reset();}catch(_){}}
+  go("site");
+});
+
+/* ---------------------------------------------------------------- zone complete */
+function renderDone(){
+  var training=S.power==="training", t=total();
+  $("done-total").textContent=training?"Training":t;
+  $("done-total-label").textContent=training?"run complete":"flight reserve banked, of a possible "+(SITES.length*(100-COST.ms));
+  var misses=S.sites.reduce(function(a,x){return a+x.misses;},0), msg;
+  if(training)msg="Every sample identified. Switch to Mission power to fly it again with the battery counting.";
+  else if(t>=340)msg="Long-range reserve. You chose your spectra carefully, and Dragonfly has the power to reach Selk crater.";
+  else if(t>=240)msg="Solid reserve. Next time, ask which single spectrum would separate the candidates before you run all three.";
+  else msg="The samples are identified, but the battery took a beating. Rejected proposals are the costly part: let the spectra narrow it down first.";
+  $("done-rating").textContent=msg+(misses?" Rejected proposals: "+misses+".":"");
+  var h="<thead><tr><th>Site</th><th>Sample</th><th>Instruments run</th><th class=\"num\">Proposals</th>"+(training?"":"<th class=\"num\">Banked</th>")+"</tr></thead><tbody>";
+  SITES.forEach(function(d,i){
+    var st=S.sites[i], used=INST.filter(function(I){return st.runs[I.id];}).map(function(I){return I.name;}).join(", ")||"none";
+    h+="<tr><td>"+(i+1)+"</td><td>"+(st.solved?esc(d.name):"not solved")+"</td><td>"+used+"</td><td class=\"num\">"+st.tries.length+"</td>"+(training?"":"<td class=\"num\">"+st.banked+"</td>")+"</tr>";
+  });
+  $("done-table").innerHTML=h+"</tbody>";
+}
+
+/* ---------------------------------------------------------------- opening scene */
+function paintDunes(){
+  var c=$("dunes"), r=c.getBoundingClientRect(), dpr=Math.min(2,window.devicePixelRatio||1);
+  if(!r.width)return;
+  c.width=Math.round(r.width*dpr); c.height=Math.round(r.height*dpr);
+  var g=c.getContext("2d"), W=c.width, H=c.height, i, x;
+  var sky=g.createLinearGradient(0,0,0,H);
+  sky.addColorStop(0,"#4a2c14");sky.addColorStop(.45,"#b06f2c");sky.addColorStop(.62,"#d9984a");sky.addColorStop(1,"#6b3f1a");
+  g.fillStyle=sky;g.fillRect(0,0,W,H);
+  var sun=g.createRadialGradient(W*.3,H*.2,0,W*.3,H*.2,H*.5);
+  sun.addColorStop(0,"rgba(255,225,170,.5)");sun.addColorStop(1,"rgba(255,225,170,0)");
+  g.fillStyle=sun;g.fillRect(0,0,W,H);
+  var layers=[[.60,"#a8682c",.012,.8],[.68,"#86501f",.02,1.9],[.77,"#5f3716",.03,3.1],[.88,"#3a210d",.05,4.4]];
+  layers.forEach(function(L){
+    g.fillStyle=L[1];g.beginPath();g.moveTo(0,H);
+    for(i=0;i<=80;i++){x=i/80;
+      var y=L[0]-L[2]*(Math.sin(x*6.3*1.1+L[3])+.6*Math.sin(x*6.3*2.7+L[3]*2)+.3*Math.sin(x*6.3*5.3+L[3]*3));
+      g.lineTo(x*W,y*H);}
+    g.lineTo(W,H);g.closePath();g.fill();
+  });
+}
+/* 3D rotorcraft: replaces the flat silhouette once the model has loaded.
+   If WebGL or the model file is unavailable, the silhouette simply stays. */
+var craftState="idle", craft=null;
+function loadCraft(){
+  if(craftState!=="idle")return; craftState="loading";
+  Promise.all([loadScript("lib/craft3d.js"),loadScript(MODEL_JS)]).then(function(){
+    if(craftState==="gone")return;
+    var bin=atob(window.DRAGONFLY_GLB_B64), bytes=new Uint8Array(bin.length), i;
+    for(i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+    window.DRAGONFLY_GLB_B64=null;
+    craft=window.Craft3D.mount($("craft3d"),bytes.buffer,{
+      reducedMotion:matchMedia("(prefers-reduced-motion:reduce)").matches,
+      label:"3D model of the Dragonfly rotorcraft. Drag to turn it.",
+      onReady:function(){
+        if(craftState==="gone")return; craftState="on";
+        $("craft3d").classList.add("on"); $("craft2d").classList.add("off"); $("model-credit").hidden=false;
+      },
+      onError:function(){
+        if(craftState==="gone")return; craftState="failed";
+        $("craft3d").classList.remove("on"); $("craft2d").classList.remove("off"); $("model-credit").hidden=true;
+      }
+    });
+  }).catch(function(){craftState="failed";});
+}
+function dropCraft(){
+  craftState="gone";
+  if(craft){try{craft.dispose();}catch(e){} craft=null;}
+  var h=$("craft3d"); if(h)h.remove();
+}
+var videoEl=null;
+function stopVideo(){if(videoEl){try{videoEl.pause();}catch(e){}videoEl.remove();videoEl=null;$("stage-copy").hidden=false;$("btn-play").hidden=false;if($("craft3d"))$("craft3d").hidden=false;if(craft)craft.resume();}}
+function playVideo(){
+  if(videoEl)return;
+  videoEl=document.createElement("video");
+  videoEl.controls=true;videoEl.playsInline=true;videoEl.preload="metadata";videoEl.src=VIDEO_URL;
+  videoEl.setAttribute("aria-label","Touchdown on Titan, NASA animation of Dragonfly's entry, descent and landing");
+  var fail=function(){
+    stopVideo();
+    var p=$("video-msg");p.hidden=false;
+    p.innerHTML='The animation could not play here. <a href="'+VIDEO_PAGE+'" target="_blank" rel="noopener">Watch it on NASA\'s site</a>, then come back and begin the mission.';
+  };
+  videoEl.addEventListener("error",fail);
+  videoEl.addEventListener("ended",function(){go("brief");});
+  $("stage").appendChild(videoEl);
+  $("stage-copy").hidden=true;$("btn-play").hidden=true;if($("craft3d"))$("craft3d").hidden=true;if(craft)craft.pause();
+  var p=$("video-msg");p.hidden=false;p.innerHTML='Playing from NASA\'s server. <button class="btn small" id="btn-skip" type="button">Skip to the briefing</button>';
+  var pr=videoEl.play();if(pr&&pr.catch)pr.catch(function(){});
+  setTimeout(function(){if(videoEl&&videoEl.readyState===0&&videoEl.networkState===3)fail();},6000);
+}
+$("btn-play").addEventListener("click",playVideo);
+$("btn-play2").addEventListener("click",playVideo);
+$("video-msg").addEventListener("click",function(e){if(e.target.id==="btn-skip")go("brief");});
+$("btn-begin").addEventListener("click",function(){go("brief");});
+$("btn-to-map").addEventListener("click",function(){go("map");});
+$("btn-map").addEventListener("click",function(){go("map");});
+$("btn-brief").addEventListener("click",function(){go("brief");});
+$("btn-done-map").addEventListener("click",function(){go("map");});
+function resetAll(){var a=S.answer,p=S.power;S=fresh();S.answer=a;S.power=p;if(applet){try{applet.reset();}catch(_){}}$("reset-confirm").hidden=true;go("map");}
+$("btn-reset").addEventListener("click",function(){$("reset-confirm").hidden=false;});
+$("btn-reset-no").addEventListener("click",function(){$("reset-confirm").hidden=true;});
+$("btn-reset-yes").addEventListener("click",resetAll);
+$("btn-done-reset").addEventListener("click",resetAll);
+
+/* ---------------------------------------------------------------- boot */
+function start(d){
+  if(d&&d.S)load(d.S);
+  paintDunes();
+  go(S.screen==="open"?"open":S.screen);
+}
+window.__lab={state:function(){return S;},sites:SITES,editor:function(){return applet;}};
+var hot=window.claude&&window.claude.hot;
+if(hot&&hot.snapshot)hot.snapshot(function(){return {S:S};});
+if(hot&&hot.ready)hot.ready(start);else start((hot&&hot.data)||{});
+})();
+</script>
+
+</body>
+</html>
