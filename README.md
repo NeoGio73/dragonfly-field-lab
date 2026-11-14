@@ -69,7 +69,10 @@ load, the game draws a simple dune scene instead.
 
 A zone can have a short video that plays the first time a student lands at its
 first site (zones 2 and 3 have one each: `media/zone2.mp4` and
-`media/zone3.mp4`, supplied by the course author).
+`media/zone3.mp4`, AI-generated with Higgsfield: zone 2 shows the rotorcraft
+flying over the dunes in a slow methane rain shower; zone 3 is a deep-time
+flashback of the Selk impact, its water melt pool mixing with organics and
+freezing, ending with the rotorcraft landing on the crater floor).
 It plays over the page with a Skip button (Esc also skips), then the game
 carries on to the site. Once seen, a "Replay arrival" button appears beside
 that zone on the flight plan. If the file is missing or cannot play, the game
