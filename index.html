@@ -227,7 +227,7 @@ sub{font-size:.72em}
     <div class="stage-copy" id="stage-copy">
       <p class="eyebrow">Titan · surface temperature 94 K</p>
       <h1>Dragonfly Field Lab</h1>
-      <p class="lede">A rotorcraft has landed on Saturn's largest moon. Its instruments are yours. Work out what the sand is made of.</p>
+      <p class="lede">A rotorcraft has landed on Saturn's largest moon. Its instruments, plus a few extra, are yours. Work out what the sand is made of.</p>
       <div class="row">
         <button class="btn primary" id="btn-begin" type="button">Begin mission</button>
         <button class="btn" id="btn-play2" type="button">Watch the landing · 2:18</button>
@@ -237,7 +237,7 @@ sub{font-size:.72em}
   <p class="credit" id="video-msg" hidden></p>
   <div class="panel" id="mission-blurb">
     <h3>The real mission</h3>
-    <p class="prose">Dragonfly is a NASA mission to Titan, Saturn's largest moon. It is a car-sized, nuclear-powered rotorcraft with eight rotors, built to fly from site to site and analyse the surface for the kind of chemistry that comes before life. Launch is planned for no earlier than July 2028, with arrival at Titan in late 2034. Over more than three years it will work its way from the dunes near the equator to Selk crater, the same route this game follows.</p>
+    <p class="prose">Dragonfly is a NASA mission to Titan, Saturn's largest moon. It is a car-sized, nuclear-powered rotorcraft with eight rotors, built to fly from site to site and analyse the surface for the kind of chemistry that comes before life. Launch is planned for no earlier than July 2028, with arrival at Titan in late 2034. Over more than three years it will work its way from the dunes near the equator to Selk crater, the same route this game follows. At each site a drill (DrACO) delivers surface material to a mass spectrometer (DraMS), which heats the sample or hits it with a laser and sorts the molecules that come off by mass.</p>
     <p><a href="https://science.nasa.gov/mission/dragonfly/" target="_blank" rel="noopener">Read about Dragonfly on NASA's mission page</a></p>
   </div>
   <p class="credit">Landing animation “Touchdown on Titan”: NASA/Johns Hopkins APL. <span id="model-credit" hidden>3D model: <a href="https://sketchfab.com/3d-models/nasa-dragonfly-quadcopter-fa2d23cbce6642598f5e6e6f65b8b312" target="_blank" rel="noopener">“NASA Dragonfly Quadcopter” by Emil van Dam</a>, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, converted and compressed for the web. Drag it to look around. </span>This is a classroom exercise and is not affiliated with NASA or Johns Hopkins APL.</p>
@@ -254,12 +254,13 @@ sub{font-size:.72em}
   <div class="panel">
     <h3>Instruments on board</h3>
     <div class="kit">
-      <div><b>Mass spectrometer</b><span>Real. Dragonfly carries one, called DraMS. Here it checks the mass of the structure you propose.</span></div>
+      <div><b>Mass spectrometer</b><span>Real. Dragonfly carries one, called DraMS, and it is the mission's main tool for identifying organic molecules. Here it checks the mass of the structure you propose.</span></div>
       <div class="added"><b><sup>1</sup>H NMR</b><span>Added for this exercise. The real craft has no NMR.</span></div>
       <div class="added"><b><sup>13</sup>C NMR</b><span>Added for this exercise.</span></div>
       <div class="added"><b>Infrared</b><span>Added for this exercise. The real craft has no IR spectrometer.</span></div>
     </div>
-    <p class="credit">The real payload also has a gamma-ray and neutron spectrometer, a weather and seismic package, and cameras. NMR shifts here are literature values for a room-temperature solution at 400 MHz; IR and mass spectra are simplified.</p>
+    <p class="prose">Why add them? Mass alone often cannot tell isomers apart. On Earth, chemists pin down a structure by combining mass spectra with NMR and IR, so this field lab gives you the full set. Watch for the sites where the mass spectrum cannot decide and the other spectra must.</p>
+    <p class="credit">The real payload also has a gamma-ray and neutron spectrometer, a weather and seismic package, and cameras. Spectra are based on reference data (SDBS and NIST): NMR shifts for room-temperature solutions, in CDCl<sub>3</sub> or, for the amino acids, D<sub>2</sub>O, drawn as at 400 MHz; IR band shapes are simplified.</p>
   </div>
   <div class="panel">
     <h3>How do you want to fly it?</h3>
@@ -621,7 +622,7 @@ var SITES=[
     ms:"M⁺ at m/z 73 is odd: one nitrogen. The tallest peak, m/z 44, is the CONH"+s(2)+"⁺ fragment, the mark of a primary amide.",
     titan:"A mission target. Amides have not been detected on Titan. Finding amines and amides together would tell Dragonfly's team about the chemical conditions at the surface, and the team has tested its instrument on both."}
 },
-{ id:"betaalanine", img:"media/site14.webp", view:"A sheet of cracked water ice, where melted ice once pooled after the impact.", site:"Site 14 · Frozen pond", flavor:"A white powder drilled from just under the pond ice. It will not boil off, so the lab dissolves it in heavy water.",
+{ id:"betaalanine", img:"media/site14.webp", view:"A sheet of cracked water ice, where melted ice once pooled after the impact.", site:"Site 14 · Frozen pond", flavor:"A white powder drilled from just under the pond ice. It will not boil off, so for the NMR runs it is dissolved in heavy water.",
   name:"3-Aminopropanoic acid (β-alanine)", smiles:"NCCC(=O)O", jsme:"NCCC(=O)O", formula:"C3H7NO2", mass:89, tag:"Mission target, not yet detected",
   h1note:D2O_NOTE,
   h1:[[3.18,2,2,6.6],[2.56,2,2,6.6]],
