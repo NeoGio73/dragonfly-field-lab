@@ -60,8 +60,9 @@ If a browser cannot show 3D, a flat silhouette of the craft is shown instead.
 
 ## The opening picture
 
-`media/opening.webp` is the background of the opening screen, a picture
-supplied by the course author. To change it, replace that file with another
+`media/opening.webp` is the background of the opening screen: Titan's
+equatorial dune field under the orange haze, where Dragonfly will land
+(AI-generated with Higgsfield). To change it, replace that file with another
 picture of the same name (about 1600 pixels wide works well). If it cannot
 load, the game draws a simple dune scene instead.
 
@@ -70,7 +71,7 @@ load, the game draws a simple dune scene instead.
 A zone can have a short video that plays the first time a student lands at its
 first site (zones 2 and 3 have one each: `media/zone2.mp4` and
 `media/zone3.mp4`, AI-generated with Higgsfield: zone 2 shows the rotorcraft
-flying over the dunes in a slow methane rain shower; zone 3 is a deep-time
+flying over the dunes as a heavy methane rainstorm sweeps in; zone 3 is a deep-time
 flashback of the Selk impact, its water melt pool mixing with organics and
 freezing, ending with the rotorcraft landing on the crater floor).
 It plays over the page with a Skip button (Esc also skips), then the game
