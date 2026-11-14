@@ -237,7 +237,8 @@ sub{font-size:.72em}
   <p class="credit" id="video-msg" hidden></p>
   <div class="panel" id="mission-blurb">
     <h3>The real mission</h3>
-    <p class="prose">Dragonfly is a NASA mission to Titan, Saturn's largest moon. It is a car-sized, nuclear-powered rotorcraft with eight rotors, built to fly from site to site and analyse the surface for the kind of chemistry that comes before life. Launch is planned for no earlier than July 2028, with arrival at Titan in late 2034. Over more than three years it will work its way from the dunes near the equator to Selk crater, the same route this game follows. At each site a drill (DrACO) delivers surface material to a mass spectrometer (DraMS), which heats the sample or hits it with a laser and sorts the molecules that come off by mass.</p>
+    <p class="prose">Dragonfly is a NASA mission to Titan, Saturn's largest moon. It is a car-sized, nuclear-powered rotorcraft with eight rotors, built to fly from site to site and analyse the surface for the kind of chemistry that comes before life. Launch is planned for no earlier than July 2028, with arrival at Titan in late 2034. At each site a drill (DrACO) delivers surface material to a mass spectrometer (DraMS), which heats the sample or hits it with a laser and sorts the molecules that come off by mass.</p>
+    <p class="prose">It will land in Ahmakiq Undae, an equatorial dune field about 810 km (500 miles) across that borders Selk crater, and over more than three years work its way to the crater, the same route this game follows. The International Astronomical Union approved the name in 2026: dune fields on Titan are named after wind gods and goddesses, and Ahmakiq is a Maya spirit people asked to protect their crops from strong winds, the “one who locks up the wind.”</p>
     <p><a href="https://science.nasa.gov/mission/dragonfly/" target="_blank" rel="noopener">Read about Dragonfly on NASA's mission page</a></p>
   </div>
   <p class="credit">Landing animation “Touchdown on Titan”: NASA/Johns Hopkins APL. Background image and zone arrival clips: AI-generated with Higgsfield. <span id="model-credit" hidden>3D model: <a href="https://sketchfab.com/3d-models/nasa-dragonfly-quadcopter-fa2d23cbce6642598f5e6e6f65b8b312" target="_blank" rel="noopener">“NASA Dragonfly Quadcopter” by Emil van Dam</a>, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, converted and compressed for the web. Drag it to look around. </span>This is a classroom exercise and is not affiliated with NASA or Johns Hopkins APL.</p>
@@ -664,7 +665,7 @@ var SITES=[
 }
 ];
 var ZONES=[
-  {name:"Zone 1 · Shangri-La dunes", about:"small molecules from the atmosphere", place:"Shangri-La dunes", from:0, to:5},
+  {name:"Zone 1 · Ahmakiq Undae dunes", about:"small molecules from the atmosphere", place:"Ahmakiq Undae", from:0, to:5},
   {name:"Zone 2 · Crater approach", about:"aromatic rings and isomer pairs", place:"the crater approach", from:5, to:10,
    clip:{src:"media/zone2.mp4", poster:"media/zone2-poster.webp"}},   /* plays once, on the first landing in this zone; add a clip:{...} to any zone */
   {name:"Zone 3 · Selk crater", about:"amines, acids, amides and amino acids", place:"Selk crater", from:10, to:15,

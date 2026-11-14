@@ -8,7 +8,7 @@ browser.
 
 All three zones are built, fifteen sites in all:
 
-- Zone 1, Shangri-La dunes: five small molecules detected in Titan's atmosphere.
+- Zone 1, Ahmakiq Undae dunes (the IAU name, 2026, for Dragonfly's landing dune field): five small molecules detected in Titan's atmosphere.
 - Zone 2, crater approach: aromatic rings and isomer pairs.
 - Zone 3, Selk crater: an amine, a carboxylic acid, an amide and two amino acids.
 
