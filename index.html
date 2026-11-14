@@ -453,7 +453,7 @@ var SITES=[
   name:"Propanenitrile (propionitrile)", smiles:"CCC#N", jsme:"CCC#N", formula:"C3H5N", mass:55, tag:"Detected on Titan",
   h1:[[2.36,2,3,7.6],[1.30,3,2,7.6]], c13:[[120.8,.35],[10.9,1],[10.6,.9]],
   ir:[[2990,.42,24],[2950,.4,26],[2890,.22,24],[2249,.8,12],[1462,.5,18],[1431,.45,14],[1386,.25,12],[1319,.2,14],[1076,.42,16],[786,.4,16]],
-  ms:[[55,9],[54,63],[53,8],[52,10],[51,8],[50,3],[40,2],[39,2],[38,3],[29,5],[28,100],[27,18],[26,20],[25,3],[15,5]],
+  ms:[[55,16],[54,85],[53,9],[52,14],[51,10],[50,3],[40,2],[39,2],[38,3],[29,5],[28,100],[27,18],[26,20],[25,3],[15,5]],
   options:[
     {id:"propionitrile",name:"propanenitrile",f:"CH"+s(3)+"CH"+s(2)+"–C≡N",smiles:"CCC#N",mass:55},
     {id:"etisocyanide",name:"ethyl isocyanide",f:"CH"+s(3)+"CH"+s(2)+"–N≡C",smiles:"CC[N+]#[C-]",mass:55,why:"Ethyl isocyanide has the same formula and also an ethyl pattern, but a CH"+s(2)+" attached to nitrogen appears near 3.4 ppm, and the N≡C stretch comes near 2150 cm⁻¹."},
@@ -530,7 +530,7 @@ var SITES=[
   h1:[[2.34,2,2,7.1],[1.70,2,5,7.3],[1.08,3,2,7.4]],
   c13:[[119.8,.35],[19.3,1],[19.0,.95],[13.3,.9]],
   ir:[[2968,.72,20],[2939,.55,18],[2880,.45,16],[2249,.7,12],[1463,.5,14],[1427,.42,12],[1386,.3,10]],
-  ms:[[69,1],[68,4],[54,4],[42,5],[41,100],[40,9],[39,14],[29,63],[28,12],[27,38],[26,8]],
+  ms:[[69,1],[68,2],[54,2],[42,4],[41,100],[40,4],[39,9],[29,66],[28,6],[27,29],[26,5]],
   options:[
     {id:"butanenitrile",name:"butanenitrile",f:"CH"+s(3)+"CH"+s(2)+"CH"+s(2)+"–C≡N",smiles:"CCCC#N",mass:69},
     {id:"isobutyronitrile",name:"2-methylpropanenitrile",f:"(CH"+s(3)+")"+s(2)+"CH–C≡N",smiles:"CC(C)C#N",mass:69,why:"2-Methylpropanenitrile has the same formula, but its (CH"+s(3)+")"+s(2)+"CH group gives only two signals: a 6H doublet and a 1H septet."},
@@ -549,7 +549,7 @@ var SITES=[
   h1:[[2.72,1,6,7.0],[1.33,6,1,7.0]],
   c13:[[123.7,.35],[19.9,1],[19.8,.6]],
   ir:[[2985,.7,18],[2942,.5,18],[2882,.4,16],[2245,.68,12],[1470,.5,14],[1390,.38,8],[1371,.36,8]],
-  ms:[[69,2],[68,37],[54,22],[53,5],[52,5],[42,100],[41,22],[39,9],[28,30],[27,19],[15,5]],
+  ms:[[69,3],[68,60],[54,29],[53,11],[52,11],[42,100],[41,25],[39,12],[28,23],[27,14],[15,3]],
   options:[
     {id:"butanenitrile",name:"butanenitrile",f:"CH"+s(3)+"CH"+s(2)+"CH"+s(2)+"–C≡N",smiles:"CCCC#N",mass:69,why:"Butanenitrile has the same formula, but its unbranched chain gives three signals: a triplet, a sextet and a triplet."},
     {id:"isobutyronitrile",name:"2-methylpropanenitrile",f:"(CH"+s(3)+")"+s(2)+"CH–C≡N",smiles:"CC(C)C#N",mass:69},
@@ -566,8 +566,8 @@ var SITES=[
 /* ---- Zone 3 · Selk crater: functional groups with O and N ---- */
 ,{ id:"propylamine", img:"media/site11.webp", view:"From the rim, the far wall of Selk crater shows through the haze.", site:"Site 11 · Crater rim", flavor:"A volatile released from icy grit on the rim as the sample cup warms.",
   name:"Propan-1-amine", smiles:"CCCN", jsme:"CCCN", formula:"C3H9N", mass:59, tag:"Mission target, not yet detected",
-  h1:[[2.65,2,2,7.0],[1.45,2,5,7.2],[1.15,2,0,0,0,14],[0.92,3,2,7.4]],
-  c13:[[44.4,1],[27.3,1],[11.4,.9]],
+  h1:[[2.65,2,2,7.0],[1.45,2,5,7.2],[1.24,2,0,0,0,14],[0.92,3,2,7.4]],
+  c13:[[44.4,1],[27.1,1],[11.4,.9]],
   ir:[[3370,.4,40],[3290,.38,45],[2960,.75,24],[2930,.6,22],[2875,.5,20],[1610,.35,50],[1465,.42,16],[1385,.25,12],[1070,.3,30],[810,.4,120]],
   ms:[[59,9],[58,3],[44,3],[42,5],[41,6],[30,100],[29,5],[28,13],[27,6]],
   options:[
@@ -577,8 +577,8 @@ var SITES=[
     {id:"trimethylamine",name:"N,N-dimethylmethanamine",f:"(CH"+s(3)+")"+s(3)+"N",smiles:"CN(C)C",mass:59,why:"N,N-Dimethylmethanamine (trimethylamine) has nine equivalent hydrogens: a single peak near 2.2 ppm. It has no N–H, so no N–H stretch at all."}
   ],
   isomer:"Two N–H stretches mean an NH"+s(2)+" group. The triplet, sextet, triplet pattern is an unbranched three-carbon chain.",
-  debrief:{h1:"Four signals. The triplet at 2.65 ppm (relative area 2) is the CH"+s(2)+" on nitrogen. The sextet at 1.45 ppm (area 2) is the middle CH"+s(2)+", and the triplet at 0.92 ppm (area 3) is the CH"+s(3)+". The broad peak at 1.15 ppm (area 2) is the NH"+s(2)+". Hydrogens on nitrogen swap between molecules, so they appear broad and do not split their neighbours.",
-    c13:"Three peaks, at 44.4, 27.3 and 11.4 ppm. The carbon bonded to nitrogen is the one furthest downfield.",
+  debrief:{h1:"Four signals. The triplet at 2.65 ppm (relative area 2) is the CH"+s(2)+" on nitrogen. The sextet at 1.45 ppm (area 2) is the middle CH"+s(2)+", and the triplet at 0.92 ppm (area 3) is the CH"+s(3)+". The broad peak at 1.24 ppm (area 2) is the NH"+s(2)+". Hydrogens on nitrogen swap between molecules, so they appear broad and do not split their neighbours.",
+    c13:"Three peaks, at 44.4, 27.1 and 11.4 ppm. The carbon bonded to nitrogen is the one furthest downfield.",
     ir:"Two N–H stretches, at 3370 and 3290 cm⁻¹: an NH"+s(2)+" group, so a primary amine. There is an N–H bend near 1610 cm⁻¹, and sp³ C–H stretches below 3000 cm⁻¹.",
     ms:"M⁺ at m/z 59 is odd: one nitrogen. The tallest peak, m/z 30, is CH"+s(2)+"=NH"+s(2)+"⁺, formed when the C–C bond next to nitrogen breaks. It marks a primary amine with a CH"+s(2)+" on the nitrogen.",
     titan:"A mission target. Amines have not been detected on Titan. They could form where liquid water met Titan's organics, and the Dragonfly team has tested its mass spectrometer methods on a range of amines and amides."}
@@ -605,9 +605,9 @@ var SITES=[
 { id:"propanamide", img:"media/site13.webp", view:"Dark sand drifts across the crater floor. The wall stands pale in the distance.", site:"Site 13 · Crater floor", flavor:"Colourless crystals from the pale crust of the crater floor.",
   name:"Propanamide", smiles:"CCC(N)=O", jsme:"CCC(N)=O", formula:"C3H7NO", mass:73, tag:"Mission target, not yet detected",
   h1:[[6.0,1,0,0,"nh",28],[5.5,1,0,0,"nh",28],[2.24,2,3,7.6],[1.15,3,2,7.6]],
-  c13:[[177.0,.35],[29.0,1],[9.7,.9]],
+  c13:[[177.7,.35],[29.0,1],[9.8,.9]],
   ir:[[3360,.6,70],[3190,.58,80],[2975,.35,20],[2940,.28,20],[1660,.92,30],[1630,.7,24],[1465,.35,16],[1420,.5,22]],
-  ms:[[73,38],[72,4],[57,26],[45,6],[44,100],[29,48],[28,28],[27,20]],
+  ms:[[73,48],[72,10],[57,18],[45,5],[44,100],[29,34],[28,15],[27,19]],
   options:[
     {id:"propanamide",name:"propanamide",f:"CH"+s(3)+"CH"+s(2)+"–CO–NH"+s(2),smiles:"CCC(N)=O",mass:73},
     {id:"nmethylacetamide",name:"N-methylethanamide",f:"CH"+s(3)+"–CO–NH–CH"+s(3),smiles:"CNC(C)=O",mass:73,why:"N-Methylethanamide has the same formula, but only one N–H: a single N–H stretch instead of two. It shows two CH"+s(3)+" signals, near 2.0 and 2.8 ppm, and no ethyl pattern."},
@@ -616,7 +616,7 @@ var SITES=[
   ],
   isomer:"Two N–H stretches mean an NH"+s(2)+" group, and a C=O near 1660 cm⁻¹ makes it an amide. The quartet and triplet are an ethyl group.",
   debrief:{h1:"A quartet at 2.24 ppm (relative area 2) and a triplet at 1.15 ppm (area 3): an ethyl group next to a C=O. The two broad peaks near 5.5 and 6.0 ppm (together area 2) are the NH"+s(2)+". The two N–H hydrogens differ because the C–N bond of an amide does not rotate freely.",
-    c13:"Three peaks. The C=O carbon is at 177.0 ppm, and the ethyl carbons are at 29.0 and 9.7 ppm.",
+    c13:"Three peaks. The C=O carbon is at 177.7 ppm, and the ethyl carbons are at 29.0 and 9.8 ppm.",
     ir:"Two N–H stretches, at 3360 and 3190 cm⁻¹: an NH"+s(2)+" group. The C=O stretch is at 1660 cm⁻¹, lower than in a ketone or an acid, which is typical of amides. Beside it, near 1630 cm⁻¹, is an N–H bend.",
     ms:"M⁺ at m/z 73 is odd: one nitrogen. The tallest peak, m/z 44, is the CONH"+s(2)+"⁺ fragment, the mark of a primary amide.",
     titan:"A mission target. Amides have not been detected on Titan. Finding amines and amides together would tell Dragonfly's team about the chemical conditions at the surface, and the team has tested its instrument on both."}
@@ -626,8 +626,8 @@ var SITES=[
   h1note:D2O_NOTE,
   h1:[[3.18,2,2,6.6],[2.56,2,2,6.6]],
   c13:[[178.9,.35],[37.4,1],[34.4,1]],
-  ir:[[3050,.55,520],[2130,.14,90],[1630,.6,26],[1575,.88,34],[1505,.5,22],[1400,.7,26],[1335,.4,18]],
-  ms:[[89,8],[71,10],[70,24],[45,10],[44,20],[43,30],[42,25],[30,100],[28,24]],
+  ir:[[3050,.55,520],[2207,.14,90],[1630,.6,26],[1575,.88,34],[1505,.5,22],[1400,.7,26],[1335,.4,18]],
+  ms:[[89,4],[70,5],[45,3],[44,5],[43,11],[42,7],[30,100],[28,11]],
   options:[
     {id:"betaalanine",name:"3-aminopropanoic acid",f:"H"+s(2)+"N–CH"+s(2)+"CH"+s(2)+"–COOH",smiles:"NCCC(=O)O",mass:89},
     {id:"alanine",name:"2-aminopropanoic acid",f:"CH"+s(3)+"–CH(NH"+s(2)+")–COOH",smiles:"CC(N)C(=O)O",mass:89,why:"2-Aminopropanoic acid (alanine) has the same formula, but its CH"+s(3)+"–CH unit gives a 3H doublet and a 1H quartet, not two triplets."},
@@ -645,9 +645,9 @@ var SITES=[
   name:"2-Aminopropanoic acid (alanine)", smiles:"CC(N)C(=O)O", jsme:"CC(N)C(=O)O", formula:"C3H7NO2", mass:89, tag:"Mission target, not yet detected",
   h1note:D2O_NOTE,
   h1:[[3.78,1,3,7.2],[1.48,3,1,7.2]],
-  c13:[[176.5,.35],[51.3,1],[16.9,.9]],
+  c13:[[176.6,.35],[51.7,1],[17.3,.9]],
   ir:[[3080,.55,520],[2110,.14,90],[1620,.62,24],[1590,.88,32],[1520,.5,22],[1455,.4,16],[1412,.68,22],[1360,.45,16],[1307,.42,16]],
-  ms:[[89,1],[74,2],[45,5],[44,100],[42,10],[28,12]],
+  ms:[[89,1],[74,2],[45,3],[44,100],[42,21],[28,16]],
   options:[
     {id:"alanine",name:"2-aminopropanoic acid",f:"CH"+s(3)+"–CH(NH"+s(2)+")–COOH",smiles:"CC(N)C(=O)O",mass:89},
     {id:"betaalanine",name:"3-aminopropanoic acid",f:"H"+s(2)+"N–CH"+s(2)+"CH"+s(2)+"–COOH",smiles:"NCCC(=O)O",mass:89,why:"3-Aminopropanoic acid (β-alanine) has the same formula, but its two CH"+s(2)+" groups give two triplets of equal area."},
@@ -656,7 +656,7 @@ var SITES=[
   ],
   isomer:"A doublet with three times the area of a quartet is a CH"+s(3)+"–CH unit.",
   debrief:{h1:"A doublet at 1.48 ppm (relative area 3) and a quartet at 3.78 ppm (area 1): a CH"+s(3)+" next to a single CH. The CH is far downfield because it carries both the nitrogen and the carboxyl group. Run in D"+s(2)+"O, so the hydrogens on N and O are not seen.",
-    c13:"Three peaks: the carboxyl carbon at 176.5 ppm, the CH at 51.3 ppm and the CH"+s(3)+" at 16.9 ppm.",
+    c13:"Three peaks: the carboxyl carbon at 176.6 ppm, the CH at 51.7 ppm and the CH"+s(3)+" at 17.3 ppm.",
     ir:"The same pattern as the last sample: a broad N–H band from the –NH"+s(3)+"⁺ group and a strong carboxylate band near 1590 cm⁻¹.",
     ms:"M⁺ at m/z 89 is very weak. The tallest peak, m/z 44, is what is left after the COOH group (45) is lost: CH"+s(3)+"–CH=NH"+s(2)+"⁺.",
     titan:"A mission target, and one of the amino acids of life on Earth. Alanine has not been detected on Titan. It comes in left- and right-handed forms, and Dragonfly's gas chromatograph carries a column that can separate the two. An excess of one hand would be a striking find."}
