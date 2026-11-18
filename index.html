@@ -153,6 +153,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .paper details{font-size:.88rem;color:var(--ink-muted)}
 .paper details summary{cursor:pointer}
 .sources summary{cursor:pointer}
+.rules{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.hint summary{cursor:pointer;color:var(--trace);font-weight:600}
 .sources ul{margin:6px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 .paper details ul{margin:6px 0 0;padding-left:20px}
 .paper .note{font-size:.8rem;color:var(--ink-muted)}
@@ -192,7 +194,7 @@ sub{font-size:.72em}
 
 <!-- status bar (hidden on the opening screen) -->
 <div class="bar" id="bar" hidden>
-  <div class="name">Dragonfly Field Lab <span id="bar-where"></span></div>
+  <div class="name"><span id="bar-name">Dragonfly Field Lab</span> <span id="bar-where"></span></div>
   <div class="gauges">
     <div class="gauge" id="g-batt"><span>Battery</span><div class="cell" id="batt-cell"><i id="batt-fill"></i></div><b id="batt-num">100%</b></div>
     <div class="gauge" id="g-res"><span>Flight reserve</span><b id="res-num">0</b></div>
@@ -227,9 +229,9 @@ sub{font-size:.72em}
       <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path d="M8 4l18 11L8 26z" fill="#f3e6d2"/></svg>
     </button>
     <div class="stage-copy" id="stage-copy">
-      <p class="eyebrow">Titan · surface temperature 94 K</p>
+      <p class="eyebrow" id="open-eyebrow">Titan · surface temperature 94 K</p>
       <h1>Dragonfly Field Lab</h1>
-      <p class="lede">A rotorcraft has landed on Saturn's largest moon. Its instruments, plus a few extra, are yours. Work out what the sand is made of.</p>
+      <p class="lede" id="open-lede">A rotorcraft has landed on Saturn's largest moon. Its instruments, plus a few extra, are yours. Work out what the sand is made of.</p>
       <div class="row">
         <button class="btn primary" id="btn-begin" type="button">Begin mission</button>
         <button class="btn" id="btn-play2" type="button">Watch the landing · 2:18</button>
@@ -250,11 +252,11 @@ sub{font-size:.72em}
 <section id="s-brief" class="stack" hidden>
   <p class="eyebrow">Mission briefing</p>
   <h2>Identify what the drill brings up</h2>
-  <div class="stack prose">
+  <div class="stack prose" id="brief-intro">
     <p>Titan's atmosphere turns methane and nitrogen into a rain of organic molecules that settles on the surface. At each landing site Dragonfly collects a sample. Record its spectra, propose a structure, and the mass spectrometer will confirm or reject it.</p>
     <p>Every instrument run draws on the battery. Whatever is left when you solve a sample is banked as flight reserve, so choose the spectrum that will tell you the most.</p>
   </div>
-  <div class="panel">
+  <div class="panel" id="brief-kit">
     <h3>Instruments on board</h3>
     <div class="kit">
       <div><b>Mass spectrometer</b><span>Real. Dragonfly carries one, called DraMS, and it is the mission's main tool for identifying organic molecules. Here it checks the mass of the structure you propose.</span></div>
@@ -268,7 +270,7 @@ sub{font-size:.72em}
   <div class="panel">
     <h3>How do you want to fly it?</h3>
     <div class="row" style="gap:22px;align-items:flex-start">
-      <div class="setting"><span class="eyebrow">Answers</span>
+      <div class="setting" id="set-answer-wrap"><span class="eyebrow">Answers</span>
         <div class="seg" role="group" aria-label="Answer mode">
           <button type="button" data-set="answer" data-val="mc">Multiple choice</button>
           <button type="button" data-set="answer" data-val="draw">Draw it</button>
@@ -293,7 +295,7 @@ sub{font-size:.72em}
   <h2>From the dunes toward Selk crater</h2>
   <div class="panel"><div class="route" id="route"></div></div>
   <p class="credit">The site pictures are illustrations of what Titan's surface might look like, painted for this game. They are not photographs.</p>
-  <details class="credit sources"><summary>Sources for the Titan notes</summary><ul><li>Titan's surface temperature (94 K): Fulchignoni, M. et al. (2005) <i>Nature</i> 438, 785–791 (Huygens probe).</li><li>Ethane in Ontario Lacus: Brown, R. H. et al. (2008) <i>Nature</i> 454, 607–610.</li><li>Propane: Maguire, W. C. et al. (1981) <i>Nature</i> 292, 683–686 (Voyager 1 infrared spectrometer).</li><li>Benzene: Coustenis, A. et al. (2003) <i>Icarus</i> 161, 383–403; Vuitton, V., Yelle, R. V. &amp; Cui, J. (2008) <i>J. Geophys. Res.</i> 113, E05007.</li><li>Acetonitrile: Bézard, B., Marten, A. &amp; Paubert, G. (1993), first millimetre-wave detection; Marten, A. et al. (2002) <i>Icarus</i> 158, 532–544.</li><li>Propanenitrile: Cordiner, M. A. et al. (2015) <i>Astrophys. J. Lett.</i> 800, L14. Propenenitrile: Palmer, M. Y. et al. (2017) <i>Sci. Adv.</i> 3, e1700022.</li><li>Toluene and ethylbenzene: Waite, J. H. et al. (2007) <i>Science</i> 316, 870–875 (Cassini mass spectra); Loison, J.-C. et al. (2019) <i>Icarus</i> 329, 55–71 (model).</li><li>Butanenitrile and 2-methylpropanenitrile in Sagittarius B2: Belloche, A. et al. (2009) <i>Astron. Astrophys.</i> 499, 215–232; Belloche, A. et al. (2014) <i>Science</i> 345, 1584–1587.</li><li>Amines and amides: Teinturier, S. et al., amines and amides analysed with Dragonfly-like GCMS methods; Boulesteix, D. et al. (2024) <i>J. Chromatogr. A</i> 1722, 464860 (chiral analysis with DraMS).</li><li>Alanine and β-alanine at Selk crater: Madan, I. &amp; Pearce, B. K. D. (2025) arXiv:2511.09636. Butanoic acid: Madan, I. &amp; Pearce, B. K. D. (2026) <i>Planet. Sci. J.</i>, arXiv:2604.16249.</li><li>The mission: Barnes, J. W. et al. (2021) <i>Planet. Sci. J.</i> 2, 130. Ahmakiq Undae: NASA Dragonfly blog, 2 September 2026.</li></ul></details>
+  <details class="credit sources"><summary>Sources for the Titan notes</summary><ul><li>Titan's surface temperature (94 K): Fulchignoni, M. et al. (2005) <i>Nature</i> 438, 785–791 (Huygens probe).</li><li>Ethane in Ontario Lacus: Brown, R. H. et al. (2008) <i>Nature</i> 454, 607–610.</li><li>Propane: Maguire, W. C. et al. (1981) <i>Nature</i> 292, 683–686 (Voyager 1 infrared spectrometer).</li><li>Benzene: Coustenis, A. et al. (2003) <i>Icarus</i> 161, 383–403; Vuitton, V., Yelle, R. V. &amp; Cui, J. (2008) <i>J. Geophys. Res.</i> 113, E05007.</li><li>Acetonitrile: first detected with the IRAM 30-m radio telescope in the early 1990s; Marten, A. et al. (2002) <i>Icarus</i> 158, 532–544.</li><li>Propanenitrile: Cordiner, M. A. et al. (2015) <i>Astrophys. J. Lett.</i> 800, L14. Propenenitrile: Palmer, M. Y. et al. (2017) <i>Sci. Adv.</i> 3, e1700022.</li><li>Toluene and ethylbenzene: Waite, J. H. et al. (2007) <i>Science</i> 316, 870–875 (Cassini mass spectra); Loison, J.-C. et al. (2019) <i>Icarus</i> 329, 55–71 (model).</li><li>Butanenitrile and 2-methylpropanenitrile in Sagittarius B2: Belloche, A. et al. (2009) <i>Astron. Astrophys.</i> 499, 215–232; Belloche, A. et al. (2014) <i>Science</i> 345, 1584–1587.</li><li>Amines and amides: Freissinet, C. et al. (2024) <i>ACS Earth Space Chem.</i> 8, 1832–1846; Boulesteix, D. et al. (2024) <i>J. Chromatogr. A</i> 1722, 464860 (chiral analysis with DraMS).</li><li>Alanine and β-alanine at Selk crater: Madan, I. &amp; Pearce, B. K. D. (2025) arXiv:2511.09636. Butanoic acid: Madan, I. &amp; Pearce, B. K. D. (2026) <i>Planet. Sci. J.</i>, arXiv:2604.16249.</li><li>The mission: Barnes, J. W. et al. (2021) <i>Planet. Sci. J.</i> 2, 130. Ahmakiq Undae: NASA Dragonfly blog, 2 September 2026.</li></ul></details>
   <div class="row">
     <button class="btn" id="btn-brief" type="button">Briefing and settings</button>
     <button class="btn" id="btn-open" type="button">Opening screen</button>
@@ -319,7 +321,7 @@ sub{font-size:.72em}
       <div class="panel" id="answer-panel">
         <div class="row" style="justify-content:space-between">
           <h3>Your proposal</h3>
-          <div class="seg" role="group" aria-label="Answer mode">
+          <div class="seg" role="group" aria-label="Answer mode" id="answer-seg">
             <button type="button" data-set="answer" data-val="mc">Choices</button>
             <button type="button" data-set="answer" data-val="draw">Draw</button>
           </div>
@@ -674,12 +676,89 @@ var ZONES=[
   {name:"Zone 3 · Selk crater", about:"amines, acids, amides and amino acids", place:"Selk crater", from:10, to:15,
    clip:{src:"media/zone3.mp4", poster:"media/zone3-poster.webp"}}
 ];
+/* ---------------------------------------------------------------- astronomy edition
+   Opened with ?course=astronomy (or astronomy.html). Mass spectrum only: each site has its own candidate list, shown
+   as names and formulas, with distractors that the mass spectrum alone can rule out, a hint, and sometimes a note. */
+var ASTRO=/[?&#]course=astro/i.test(location.search+location.hash);
+var ASTRO_SITES={
+ethane:{hint:"The tallest peak is not always the whole molecule. The molecular ion is the heaviest real peak, so look at the right-hand end of the spectrum.",
+  opts:[{id:"methane",name:"methane",formula:"CH4",why:"Nothing in methane's spectrum could be heavier than m/z 16."},
+    {id:"ethene",name:"ethene",formula:"C2H4",why:"The tallest peak here is at m/z 28, ethene's mass, but the spectrum goes on to 29 and 30. A molecule cannot break into a piece heavier than itself, so the sample is heavier than ethene and the 28 peak is a fragment."},
+    {id:"ethyne",name:"ethyne",formula:"C2H2",why:"Nothing in ethyne's spectrum could be heavier than m/z 26."}]},
+benzene:{hint:"Find the molecular ion, then look just to its right. A small peak one unit heavier comes from molecules that contain one carbon-13 atom, and each carbon adds about 1.1% to it.",
+  opts:[{id:"cyclohexane",name:"cyclohexane",formula:"C6H12",why:"This spectrum has nothing near m/z 84."},
+    {id:"pyridine",name:"pyridine",formula:"C5H5N",why:"There is a small peak at 79, but it is only 6.5% as tall as the 78 peak, and pyridine's molecular ion would be its tallest peak. A peak at M + 1 that is about 6.6% of M is what six carbon atoms give (6 × 1.1%)."},
+    {id:"toluene",name:"toluene",formula:"C7H8",why:"Nothing here is heavier than m/z 79."}]},
+propane:{hint:"The molecular ion is small here. Subtract the tallest peak from it: the difference tells you which piece broke off. A loss of 15 is a CH<sub>3</sub> group.",
+  opts:[{id:"co2",name:"carbon dioxide",formula:"CO2",why:"Carbon dioxide has no hydrogen. It holds together well, so its own 44 peak would be the tallest, with a CO⁺ fragment at 28. The tallest peak here, m/z 29, is 15 less than 44: a CH<sub>3</sub> group broke off, and carbon dioxide has none."},
+    {id:"butane",name:"butane",formula:"C4H10",why:"Nothing in this spectrum is near m/z 58."},
+    {id:"cyclopropane",name:"cyclopropane",formula:"C3H6",why:"This spectrum has peaks at 43 and 44, heavier than cyclopropane itself."}]},
+acetonitrile:{hint:"The heaviest peak is at an odd m/z. Check the nitrogen rule in the briefing.",
+  opts:[{id:"propyne",name:"propyne",formula:"C3H4",why:"Nothing in propyne's spectrum could be heavier than 40, but the tallest peak here is at 41."},
+    {id:"ethanamine",name:"ethanamine",formula:"C2H7N",why:"Nothing here is as heavy as 45."},
+    {id:"propene",name:"propene",formula:"C3H6",why:"Propene's tallest peak is also at 41, from losing one hydrogen, but its own molecular ion at 42 would be strong. Here 42 is only 3%, the carbon-13 copy of the 41 peak."}]},
+propionitrile:{hint:"Compare this spectrum with site 4's. Both molecular ions are odd, and both molecules lose a hydrogen easily, giving a strong M − 1 peak. What does 14 more mass mean?",
+  opts:[{id:"propenenitrile",name:"propenenitrile (acrylonitrile)",formula:"C3H3N",why:"This spectrum has peaks at 54 and 55, heavier than propenenitrile itself."},
+    {id:"butene",name:"but-1-ene",formula:"C4H8",why:"But-1-ene has no nitrogen."},
+    {id:"acetonitrile",name:"acetonitrile",formula:"C2H3N",why:"Acetonitrile was the sample at site 4. This one is 14 heavier: one more CH<sub>2</sub> group."}]},
+toluene:{hint:"The tallest peak is one less than the molecular ion. The ion at m/z 91, C<sub>7</sub>H<sub>7</sub>⁺, is unusually stable, and it turns up whenever a benzene ring carries a carbon chain.",
+  opts:[{id:"benzene",name:"benzene",formula:"C6H6",why:"Benzene was the sample at site 2, and its spectrum ends at 79. This one goes up to 93."},
+    {id:"picoline",name:"2-methylpyridine",formula:"C6H7N",why:"Its molecular ion, at an odd m/z 93, would be its tallest peak. The small 93 peak here is the carbon-13 copy of the molecular ion at 92."},
+    {id:"ethylbenzene",name:"ethylbenzene",formula:"C8H10",why:"Nothing in this spectrum is near m/z 106."}]},
+ethylbenzene:{hint:"The same tallest peak as site 6, m/z 91. Find the molecular ion and work out what broke off to leave 91.",
+  note:"Mass alone cannot settle everything. Three dimethylbenzenes have the same formula, C<sub>8</sub>H<sub>10</sub>, and the same mass; site 8 is one of them. On Dragonfly, a gas chromatograph separates molecules like these before they reach the mass spectrometer, because they take different times to pass through its column.",
+  opts:[{id:"toluene",name:"toluene",formula:"C7H8",why:"Toluene gives the same tallest peak, 91, but its molecular ion would be at 92 and nearly as tall (72% at site 6). Here 92 is small and the molecular ion is at 106: 106 − 91 = 15, a CH<sub>3</sub> group."},
+    {id:"styrene",name:"styrene",formula:"C8H8",why:"Styrene's molecular ion at 104 would be its tallest peak. There is no peak at 104 here."},
+    {id:"propylbenzene",name:"propylbenzene",formula:"C9H12",why:"Nothing here is near m/z 120."}]},
+pxylene:{hint:"The same mass as site 7 and the same tallest peak, 91. Compare the heights of the 106 and 105 peaks with site 7's.",
+  note:"1,4-Dimethylbenzene has two isomers, 1,2- and 1,3-dimethylbenzene, whose mass spectra are almost the same as this one. A mass spectrometer alone cannot tell them apart. In the organic chemistry edition of this game, NMR does; on Dragonfly, the gas chromatograph would separate them first.",
+  opts:[{id:"ethylbenzene",name:"ethylbenzene",formula:"C8H10",why:"Ethylbenzene, the sample at site 7, breaks almost only one way: it loses CH<sub>3</sub> to give 91. Its molecular ion was 31% and its 105 peak 7%. Here the molecular ion is 62% and 105 is 28%: losing a single hydrogen is common, as it was for toluene at site 6, a ring carrying a methyl group."},
+    {id:"toluene",name:"toluene (methylbenzene)",formula:"C7H8",why:"Toluene was the sample at site 6, and its spectrum ends at 93."},
+    {id:"mesitylene",name:"1,3,5-trimethylbenzene (mesitylene)",formula:"C9H12",why:"Nothing here is near m/z 120."}]},
+butanenitrile:{hint:"The molecular ion here is tiny. Open the peak list as text below the spectrum to find it, then check whether it is odd or even.",
+  note:"A weak molecular ion is common for straight chains, which break easily. Butanenitrile has a branched isomer with the same mass: the sample at site 10.",
+  opts:[{id:"propanenitrile",name:"propanenitrile",formula:"C3H5N",why:"Propanenitrile was the sample at site 5. This one is 14 heavier: one more CH<sub>2</sub>."},
+    {id:"pentanenitrile",name:"pentanenitrile",formula:"C5H9N",why:"Nothing here is near m/z 83."},
+    {id:"cyclopentane",name:"cyclopentane",formula:"C5H10",why:"Cyclopentane has no nitrogen, and as a ring it would hold together and give a strong molecular ion. The heaviest peak here is a tiny one at 69."}]},
+isobutyronitrile:{hint:"The same mass as site 9, but a very different pattern. Look at the peaks 1 and 15 below the molecular ion.",
+  opts:[{id:"butanenitrile",name:"butanenitrile (butyronitrile)",formula:"C4H7N",why:"Butanenitrile, site 9, has the same mass, but its tallest peak is 41 and it barely loses a hydrogen (68 was 2%) or a CH<sub>3</sub> group (54 was 2%). Here 68 is 60% and 54 is 29%. A branched chain gives up a CH<sub>3</sub> group from its branch point much more easily."},
+    {id:"tbucn",name:"2,2-dimethylpropanenitrile (pivalonitrile)",formula:"C5H9N",why:"Nothing here is near m/z 83."},
+    {id:"propanenitrile",name:"propanenitrile (propionitrile)",formula:"C3H5N",why:"Propanenitrile was the sample at site 5. This one is 14 heavier."}]},
+propylamine:{hint:"The odd molecular ion means nitrogen. Molecules with an NH<sub>2</sub> group usually break at the bond next to the carbon that carries the nitrogen. Which piece is left at the tallest peak?",
+  opts:[{id:"ipa",name:"propan-2-amine",formula:"C3H9N",why:"Propan-2-amine has the same mass, but the carbon carrying its nitrogen also carries two CH<sub>3</sub> groups. It breaks by losing one, which leaves its tallest peak at 44 (59 − 15). Here 44 is only 3%. The tallest peak, 30, is what is left when an ethyl group (29) breaks off."},
+    {id:"tma",name:"N,N-dimethylmethanamine (trimethylamine)",formula:"C3H9N",why:"It has the same mass, but its three CH<sub>3</sub> groups all sit on the nitrogen. It loses a hydrogen easily, so its tallest peak would be 58. Here 58 is 3%."},
+    {id:"butane",name:"butane",formula:"C4H10",why:"Butane has no nitrogen."}]},
+butanoicacid:{hint:"The tallest peak is not the molecular ion. Find the heaviest peak first; the peak list as text helps.",
+  opts:[{id:"aceticacid",name:"ethanoic acid (acetic acid)",formula:"C2H4O2",why:"Ethanoic acid's mass is 60, the tallest peak here, but the spectrum goes on to 73 and 88. A molecule cannot break into a piece heavier than itself."},
+    {id:"etoac",name:"ethyl ethanoate",formula:"C4H8O2",why:"Ethyl ethanoate has the same mass, but it breaks next to its C=O and gives its tallest peak at 43 (CH<sub>3</sub>CO⁺), without the strong 60 and 73 peaks seen here."},
+    {id:"pentanoicacid",name:"pentanoic acid",formula:"C5H10O2",why:"Nothing here is near m/z 102."}]},
+propanamide:{hint:"An odd molecular ion: one nitrogen. The tallest peak, 44, is the piece O=C–NH<sub>2</sub>⁺. What is 73 − 44?",
+  opts:[{id:"dmf",name:"N,N-dimethylmethanamide",formula:"C3H7NO",why:"It has the same mass and formula, but its molecular ion at 73 would be its tallest peak. Here the tallest peak is 44, the O=C–NH<sub>2</sub> part of the molecule, left after an ethyl group (29) breaks off."},
+    {id:"propanoicacid",name:"propanoic acid",formula:"C3H6O2",why:"Propanoic acid has no nitrogen."},
+    {id:"acetamide",name:"ethanamide",formula:"C2H5NO",why:"Nothing in ethanamide's spectrum could be heavier than 59. This sample is 14 heavier: one more CH<sub>2</sub>."}]},
+betaalanine:{hint:"The molecular ion is tiny, as it often is for amino acids; find it in the peak list. The tallest peak, 30, is CH<sub>2</sub>=NH<sub>2</sub>⁺: a CH<sub>2</sub> carrying an NH<sub>2</sub> group.",
+  note:"β-Alanine's NH<sub>2</sub> is on the end carbon, so the bond next to that carbon breaks and leaves CH<sub>2</sub>=NH<sub>2</sub>⁺ at 30. Its isomer alanine breaks differently: the sample at site 15.",
+  opts:[{id:"alanine",name:"2-aminopropanoic acid (alanine)",formula:"C3H7NO2",why:"Alanine has the same mass, but its NH<sub>2</sub> sits on a carbon that also carries CH<sub>3</sub> and COOH. It loses COOH (45) and leaves its tallest peak at 44. Here 44 is only 5%."},
+    {id:"glycine",name:"glycine",formula:"C2H5NO2",why:"Glycine also gives a tallest peak at 30, CH<sub>2</sub>=NH<sub>2</sub>⁺, but its molecular ion would be at 75. This sample's is at 89, 14 heavier: one more CH<sub>2</sub>."},
+    {id:"lactic",name:"2-hydroxypropanoic acid (lactic acid)",formula:"C3H6O3",why:"Lactic acid has no nitrogen."}]},
+alanine:{hint:"Amino acids lose their COOH group (mass 45) easily. Find the molecular ion in the peak list and subtract 45.",
+  note:"Alanine's left- and right-handed forms give identical mass spectra, so a mass spectrometer alone cannot tell them apart. That is why Dragonfly's mass spectrometer works with a gas chromatograph set up to separate the two hands.",
+  opts:[{id:"betaalanine",name:"3-aminopropanoic acid (β-alanine)",formula:"C3H7NO2",why:"β-Alanine, site 14, has the same mass, but its NH<sub>2</sub> is on the end carbon, so its tallest peak is CH<sub>2</sub>=NH<sub>2</sub>⁺ at 30. This spectrum has nothing at 30. Its tallest peak is 44 = 89 − 45: CH<sub>3</sub>CH=NH<sub>2</sub>⁺, after the loss of COOH."},
+    {id:"glycine",name:"glycine",formula:"C2H5NO2",why:"Glycine's molecular ion would be at 75. This sample's is 14 heavier."},
+    {id:"aba",name:"2-aminobutanoic acid",formula:"C4H9NO2",why:"It would lose COOH too, but that would leave its tallest peak at 58 (103 − 45). The tallest peak here is 44."}]}
+};
+function nominal(f){var m=0,re=/([A-Z][a-z]?)(\d*)/g,x,W={C:12,H:1,N:14,O:16};while((x=re.exec(f)))if(x[1])m+=W[x[1]]*(x[2]?+x[2]:1);return m;}
+function astroOpts(d){
+  var A=ASTRO_SITES[d.id];
+  return [{id:d.id,name:d.name.replace(/^([\d,\-]*)([A-Z])/,function(m,x,y){return x+y.toLowerCase();}),formula:d.formula,mass:d.mass}].concat(A.opts.map(function(o){return {id:o.id,name:o.name,formula:o.formula,mass:nominal(o.formula),why:o.why};}));
+}
+function siteOpts(d){return ASTRO?astroOpts(d):d.options;}
 function zoneOf(i){for(var z=0;z<ZONES.length;z++){if(i<ZONES[z].to)return z;}return ZONES.length-1;}
 var STRUCT=/*STRUCT*/{"Cc1ccccc1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 83.5,35.6 L 59.5,35.6'/><path d='M 59.5,35.6 L 47.5,56.4'/><path d='M 55.4,35.6 L 45.4,52.8'/><path d='M 47.5,56.4 L 23.5,56.4'/><path d='M 23.5,56.4 L 11.5,35.6'/><path d='M 25.6,52.8 L 15.7,35.6'/><path d='M 11.5,35.6 L 23.5,14.9'/><path d='M 23.5,14.9 L 47.5,14.9'/><path d='M 25.6,18.5 L 45.4,18.5'/><path d='M 47.5,14.9 L 59.5,35.6'/><path d='M 48.1,55.4 L 47.5,56.4 L 46.3,56.4'/><path d='M 24.7,56.4 L 23.5,56.4 L 22.9,55.4'/><path d='M 12.1,36.7 L 11.5,35.6 L 12.1,34.6'/><path d='M 22.9,15.9 L 23.5,14.9 L 24.7,14.9'/><path d='M 46.3,14.9 L 47.5,14.9 L 48.1,15.9'/></svg>", "C1=CC=CCC=C1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 73.8,35.6 L 63.4,14.0'/><path d='M 69.8,35.6 L 60.9,17.1'/><path d='M 63.4,14.0 L 40.0,8.6'/><path d='M 40.0,8.6 L 21.2,23.6'/><path d='M 40.9,12.5 L 24.8,25.4'/><path d='M 21.2,23.6 L 21.2,47.7'/><path d='M 21.2,47.7 L 40.0,62.6'/><path d='M 40.0,62.6 L 63.4,57.3'/><path d='M 40.9,58.7 L 60.9,54.2'/><path d='M 63.4,57.3 L 73.8,35.6'/><path d='M 73.3,34.6 L 73.8,35.6 L 73.3,36.7'/><path d='M 63.9,15.1 L 63.4,14.0 L 62.2,13.7'/><path d='M 41.2,8.9 L 40.0,8.6 L 39.0,9.4'/><path d='M 22.1,22.9 L 21.2,23.6 L 21.2,24.8'/><path d='M 21.2,46.5 L 21.2,47.7 L 22.1,48.4'/><path d='M 39.0,61.9 L 40.0,62.6 L 41.2,62.4'/><path d='M 62.2,57.6 L 63.4,57.3 L 63.9,56.2'/></svg>", "CCc1ccccc1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 11.5,29.8 L 25.1,44.4'/><path d='M 25.1,44.4 L 44.6,40.0'/><path d='M 44.6,40.0 L 50.5,21.0'/><path d='M 47.9,39.3 L 52.8,23.5'/><path d='M 50.5,21.0 L 70.0,16.6'/><path d='M 70.0,16.6 L 83.5,31.2'/><path d='M 68.9,19.9 L 80.1,32.0'/><path d='M 83.5,31.2 L 77.6,50.3'/><path d='M 77.6,50.3 L 58.1,54.7'/><path d='M 75.2,47.8 L 59.1,51.4'/><path d='M 58.1,54.7 L 44.6,40.0'/><path d='M 24.4,43.7 L 25.1,44.4 L 26.0,44.2'/><path d='M 50.2,21.9 L 50.5,21.0 L 51.5,20.7'/><path d='M 69.0,16.8 L 70.0,16.6 L 70.7,17.3'/><path d='M 82.8,30.5 L 83.5,31.2 L 83.2,32.2'/><path d='M 77.9,49.4 L 77.6,50.3 L 76.6,50.5'/><path d='M 59.1,54.5 L 58.1,54.7 L 57.4,54.0'/></svg>", "Cc1ccccc1C": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 82.6,62.6 L 59.2,49.1'/><path d='M 59.2,49.1 L 35.8,62.6'/><path d='M 55.2,46.8 L 35.8,58.0'/><path d='M 35.8,62.6 L 12.4,49.1'/><path d='M 12.4,49.1 L 12.4,22.1'/><path d='M 16.5,46.8 L 16.5,24.5'/><path d='M 12.4,22.1 L 35.8,8.6'/><path d='M 35.8,8.6 L 59.2,22.1'/><path d='M 35.8,13.3 L 55.2,24.5'/><path d='M 59.2,22.1 L 82.6,8.6'/><path d='M 59.2,22.1 L 59.2,49.1'/><path d='M 37.0,62.0 L 35.8,62.6 L 34.7,62.0'/><path d='M 13.6,49.8 L 12.4,49.1 L 12.4,47.8'/><path d='M 12.4,23.5 L 12.4,22.1 L 13.6,21.5'/><path d='M 34.7,9.3 L 35.8,8.6 L 37.0,9.3'/></svg>", "Cc1cccc(C)c1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 11.5,56.4 L 29.5,46.0'/><path d='M 29.5,46.0 L 29.5,25.2'/><path d='M 29.5,25.2 L 47.5,14.9'/><path d='M 32.6,27.0 L 47.5,18.5'/><path d='M 47.5,14.9 L 65.5,25.2'/><path d='M 65.5,25.2 L 65.5,46.0'/><path d='M 62.4,27.0 L 62.4,44.2'/><path d='M 65.5,46.0 L 83.5,56.4'/><path d='M 65.5,46.0 L 47.5,56.4'/><path d='M 47.5,56.4 L 29.5,46.0'/><path d='M 47.5,52.8 L 32.6,44.2'/><path d='M 29.5,26.3 L 29.5,25.2 L 30.4,24.7'/><path d='M 46.6,15.4 L 47.5,14.9 L 48.4,15.4'/><path d='M 64.6,24.7 L 65.5,25.2 L 65.5,26.3'/><path d='M 48.4,55.9 L 47.5,56.4 L 46.6,55.9'/></svg>", "Cc1ccc(C)cc1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 83.5,35.6 L 65.5,35.6'/><path d='M 65.5,35.6 L 56.5,51.2'/><path d='M 56.5,51.2 L 38.5,51.2'/><path d='M 55.0,48.5 L 40.1,48.5'/><path d='M 38.5,51.2 L 29.5,35.6'/><path d='M 29.5,35.6 L 11.5,35.6'/><path d='M 29.5,35.6 L 38.5,20.1'/><path d='M 32.6,35.6 L 40.1,22.8'/><path d='M 38.5,20.1 L 56.5,20.1'/><path d='M 56.5,20.1 L 65.5,35.6'/><path d='M 55.0,22.8 L 62.4,35.6'/><path d='M 57.0,50.4 L 56.5,51.2 L 55.6,51.2'/><path d='M 39.4,51.2 L 38.5,51.2 L 38.1,50.4'/><path d='M 38.1,20.8 L 38.5,20.1 L 39.4,20.1'/><path d='M 55.6,20.1 L 56.5,20.1 L 57.0,20.8'/></svg>", "c1ccccc1": "<svg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='96px' height='72px' viewBox='0 0 96 72'><path d='M 78.7,35.6 L 63.1,62.6'/><path d='M 63.1,62.6 L 31.9,62.6'/><path d='M 60.4,58.0 L 34.6,58.0'/><path d='M 31.9,62.6 L 16.3,35.6'/><path d='M 16.3,35.6 L 31.9,8.6'/><path d='M 21.7,35.6 L 34.6,13.3'/><path d='M 31.9,8.6 L 63.1,8.6'/><path d='M 63.1,8.6 L 78.7,35.6'/><path d='M 60.4,13.3 L 73.3,35.6'/><path d='M 77.9,37.0 L 78.7,35.6 L 77.9,34.3'/><path d='M 63.9,61.3 L 63.1,62.6 L 61.5,62.6'/><path d='M 33.5,62.6 L 31.9,62.6 L 31.2,61.3'/><path d='M 17.1,37.0 L 16.3,35.6 L 17.1,34.3'/><path d='M 31.2,10.0 L 31.9,8.6 L 33.5,8.6'/><path d='M 61.5,8.6 L 63.1,8.6 L 63.9,10.0'/></svg>"}/*END*/;   /* ring structures for the answer cards, drawn by gen_struct.js */
 var MULT=["singlet","doublet","triplet","quartet","quintet","sextet","septet","octet","nonet"];
 
 /* ---------------------------------------------------------------- state */
-var KEY="dragonfly-field-lab-v1";
+var KEY=ASTRO?"dragonfly-field-lab-astro-v1":"dragonfly-field-lab-v1";
 function freshSite(){return {spent:0,runs:{},tries:[],solved:false,banked:0,misses:0};}
 function fresh(){return {v:1,screen:"open",answer:"mc",power:"mission",site:0,doneZone:0,sites:SITES.map(freshSite)};}
 var S=fresh();
@@ -893,7 +972,7 @@ function drawChart(host,kind,d,opts){
     d.ms.slice().sort(function(a,b){return b[1]-a[1];}).forEach(function(p){
       var x=X(p[0]), top=Ym(p[1]);
       svg+='<line class="st" x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+base+'" y2="'+top.toFixed(1)+'"/>';
-      if(p[0]===d.mass){svg+='<text class="lab" x="'+(x+5).toFixed(1)+'" y="'+Math.min(top+9,base-6).toFixed(1)+'" text-anchor="start">'+p[0]+' M⁺</text>';return;}
+      if(p[0]===d.mass&&!(ASTRO&&!S.sites[S.site].solved)){svg+='<text class="lab" x="'+(x+5).toFixed(1)+'" y="'+Math.min(top+9,base-6).toFixed(1)+'" text-anchor="start">'+p[0]+' M⁺</text>';return;}
       if(p[1]>=15&&!placed.some(function(q){return Math.abs(q-x)<19;})){
         placed.push(x);
         svg+='<text class="lab" x="'+x.toFixed(1)+'" y="'+(top-5).toFixed(1)+'" text-anchor="middle">'+p[0]+'</text>';
@@ -912,7 +991,7 @@ function drawChart(host,kind,d,opts){
     else if(kind==="c13")txt="δ "+v.toFixed(1)+" ppm";
     else if(kind==="ir")txt=Math.round(v)+" cm⁻¹ · "+Math.round(f(v))+" %T";
     else{var best=null;d.ms.forEach(function(p){if(!best||Math.abs(p[0]-v)<Math.abs(best[0]-v))best=p;});
-      if(Math.abs(best[0]-v)<=1.5){x=X(best[0]);txt="m/z "+best[0]+" · "+best[1]+"%"+(best[0]===d.mass?" · M⁺":"");}else txt="m/z "+Math.round(v);}
+      if(Math.abs(best[0]-v)<=1.5){x=X(best[0]);txt="m/z "+best[0]+" · "+best[1]+"%"+(best[0]===d.mass&&!(ASTRO&&!S.sites[S.site].solved)?" · M⁺":"");}else txt="m/z "+Math.round(v);}
     cx.setAttribute("x1",x);cx.setAttribute("x2",x);cx.setAttribute("visibility","visible");rd.textContent=txt;
   }
   host.onpointermove=function(e){var x=px(e);readout(x);
@@ -969,12 +1048,12 @@ function renderSite(reset){
 }
 function renderRack(){
   var st=S.sites[S.site], training=S.power==="training";
-  $("rack").innerHTML=INST.map(function(I){
+  $("rack").innerHTML=INST.filter(function(I){return !ASTRO||I.id==="ms";}).map(function(I){
     var open=unlocked(I.id), c;
     if(open)c=(st.runs[I.id]||I.id==="ms"||st.solved)?"recorded · view":"view";
-    else if(I.id==="ms")c="runs when you propose";
+    else if(I.id==="ms"&&!ASTRO)c="runs when you propose";
     else c=training?"run · free":"run · "+COST[I.id]+"% battery";
-    return '<button type="button" class="inst'+(open?" ran":"")+'" data-inst="'+I.id+'" aria-pressed="'+(view.inst===I.id)+'"'+(I.id==="ms"&&!open?" disabled":"")+'><span class="n">'+I.name+'</span><span class="c">'+c+'</span></button>';
+    return '<button type="button" class="inst'+(open?" ran":"")+'" data-inst="'+I.id+'" aria-pressed="'+(view.inst===I.id)+'"'+(I.id==="ms"&&!open&&!ASTRO?" disabled":"")+'><span class="n">'+I.name+'</span><span class="c">'+c+'</span></button>';
   }).join("");
 }
 $("rack").addEventListener("click",function(e){
@@ -982,11 +1061,11 @@ $("rack").addEventListener("click",function(e){
   var id=b.dataset.inst, st=S.sites[S.site];
   if(!unlocked(id)){st.runs[id]=true;if(S.power==="mission")st.spent+=COST[id];save();}
   view.inst=id;view.zoom=null;view.zsel=null;
-  renderRack();renderPaper();renderBar();
+  renderRack();renderPaper();renderBar();if(ASTRO)renderAnswer();
 });
 function renderPaper(){
   var d=SITES[S.site], k=view.inst, P=$("paper");
-  if(!k){P.innerHTML='<p class="empty">No spectra recorded yet. Choose an instrument above to run it on this sample.'+(S.power==="mission"?" Each run draws on the battery, so start with the one that will tell you the most.":"")+'</p>';return;}
+  if(!k){P.innerHTML='<p class="empty">'+(ASTRO?"No spectrum recorded yet. Run the mass spectrometer on this sample.":"No spectra recorded yet. Choose an instrument above to run it on this sample.")+''+(S.power==="mission"&&!ASTRO?" Each run draws on the battery, so start with the one that will tell you the most.":"")+'</p>';return;}
   var titles={h1:["<sup>1</sup>H NMR","400 MHz"],c13:["<sup>13</sup>C NMR","100 MHz · proton-decoupled"],ir:["Infrared","transmittance"],ms:["Mass spectrum","electron ionisation"]};
   var h='<div class="head"><span><b>'+titles[k][0]+'</b> · '+titles[k][1]+'</span><span>Sample '+(S.site+1)+'</span></div><div class="plot" id="plot"></div>', list="", tip="";
   if(k==="h1"){
@@ -1005,11 +1084,13 @@ function renderPaper(){
     tip="Band shapes are simplified. Drag across the spectrum to zoom.";
   }else{
     var top=d.ms.slice().sort(function(a,b){return b[1]-a[1];})[0];
-    h+='<div class="chips"><span>Molecular ion:</span><span class="data" style="color:var(--ink)">m/z '+d.mass+'</span><span>· tallest peak:</span><span class="data" style="color:var(--ink)">m/z '+top[0]+'</span></div>';
-    list=d.ms.slice().sort(function(a,b){return b[0]-a[0];}).map(function(p){return "<li>m/z "+p[0]+": "+p[1]+"%"+(p[0]===d.mass?" (molecular ion)":"")+"</li>";}).join("");
-    tip="Peak heights are approximate.";
+    var hideM=ASTRO&&!S.sites[S.site].solved;   /* in the astronomy edition, finding the molecular ion is the student's job */
+    if(!hideM)h+='<div class="chips"><span>Molecular ion:</span><span class="data" style="color:var(--ink)">m/z '+d.mass+'</span><span>· tallest peak:</span><span class="data" style="color:var(--ink)">m/z '+top[0]+'</span></div>';
+    list=d.ms.slice().sort(function(a,b){return b[0]-a[0];}).map(function(p){return "<li>m/z "+p[0]+": "+p[1]+"%"+(p[0]===d.mass&&!hideM?" (molecular ion)":"")+"</li>";}).join("");
+    tip="Peak heights are approximate, as a percentage of the tallest peak."+(ASTRO?" Small peaks are easier to read in the text list below.":"");
   }
   h+='<p class="note">'+tip+'</p><details><summary>Peak list as text</summary><ul>'+list+'</ul></details>';
+  if(ASTRO&&k==="ms"&&!S.sites[S.site].solved)h+='<details class="hint"><summary>Need a hint?</summary><p class="note">'+ASTRO_SITES[d.id].hint+'</p></details>';
   P.innerHTML=h;
   var inst=INST.filter(function(I){return I.id===k;})[0];
   drawChart($("plot"),k,d,{label:inst.plain+" spectrum of sample "+(S.site+1)+". A text peak list follows the chart."});
@@ -1034,7 +1115,7 @@ function ringSVG(n,arom){
    right answer is dealt from a shuffled deck of slots, so over a zone it lands in every position about equally often. */
 function shuffled(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function optOrder(i){
-  var d=SITES[i], st=S.sites[i], ids=d.options.map(function(o){return o.id;}), k;
+  var d=SITES[i], st=S.sites[i], ids=siteOpts(d).map(function(o){return o.id;}), k;
   var ok=st.order&&st.order.length===ids.length&&ids.every(function(id){return st.order.indexOf(id)>=0;});
   if(!ok){
     if(!(S.slots&&S.slots.length===SITES.length)){
@@ -1046,20 +1127,21 @@ function optOrder(i){
     st.order.splice(Math.min(S.slots[i],st.order.length),0,d.id);
     save();
   }
-  return st.order.map(function(id){for(k=0;k<d.options.length;k++)if(d.options[k].id===id)return d.options[k];});
+  var O=siteOpts(d);return st.order.map(function(id){for(k=0;k<O.length;k++)if(O[k].id===id)return O[k];});
 }
 function renderAnswer(){
+  if(ASTRO)S.answer="mc";
   var d=SITES[S.site], st=S.sites[S.site], mc=S.answer==="mc";
   document.querySelectorAll("#answer-panel [data-set]").forEach(function(b){b.setAttribute("aria-pressed",String(S.answer===b.dataset.val));});
   $("opts").hidden=!mc; $("draw-wrap").hidden=mc||st.solved;
   $("opts").innerHTML=optOrder(S.site).map(function(o){
     var out=st.tries.indexOf(o.id)>=0&&o.id!==d.id, right=st.solved&&o.id===d.id;
-    return '<button type="button" class="opt'+(out?" out":"")+(right?" right":"")+'" data-opt="'+o.id+'" aria-pressed="'+(view.pick===o.id)+'"'+((out||st.solved)?" disabled":"")+'><span class="f">'+(o.ring?ringSVG(o.ring[0],o.ring[1]):(o.draw?(STRUCT[o.smiles]||""):o.f))+'</span><span class="nm">'+o.name+(out?" · rejected":"")+'</span></button>';
+    return '<button type="button" class="opt'+(out?" out":"")+(right?" right":"")+'" data-opt="'+o.id+'" aria-pressed="'+(view.pick===o.id)+'"'+((out||st.solved)?" disabled":"")+'><span class="f">'+(ASTRO?fml(o.formula):o.ring?ringSVG(o.ring[0],o.ring[1]):(o.draw?(STRUCT[o.smiles]||""):o.f))+'</span><span class="nm">'+o.name+(out?" · rejected":"")+'</span></button>';
   }).join("");
   $("btn-propose").hidden=st.solved;
-  $("btn-propose").disabled=mc&&!view.pick;
+  $("btn-propose").disabled=(mc&&!view.pick)||(ASTRO&&!st.runs.ms);
   $("propose-cost").hidden=st.solved;
-  $("propose-cost").textContent=S.power==="mission"?"Mass spec check: "+COST.ms+"% battery. A rejected proposal costs "+COST.miss+"% more for a fresh sample.":"The mass spectrometer checks your structure.";
+  $("propose-cost").textContent=ASTRO?(!st.runs.ms?"Run the mass spectrometer first.":(S.power==="mission"?"A rejected proposal costs "+COST.miss+"% more for a fresh sample.":"Compare the spectrum with each candidate.")):S.power==="mission"?"Mass spec check: "+COST.ms+"% battery. A rejected proposal costs "+COST.miss+"% more for a fresh sample.":"The mass spectrometer checks your structure.";
   if(!mc&&!st.solved)ensureEditor();
 }
 $("opts").addEventListener("click",function(e){
@@ -1067,14 +1149,14 @@ $("opts").addEventListener("click",function(e){
   view.pick=b.dataset.opt; renderAnswer();
 });
 function feedback(kind,tag,html){$("feedback").innerHTML='<div class="fb '+kind+'"><span class="tag">'+tag+'</span><div>'+html+'</div></div>';}
-function charge(ok){var st=S.sites[S.site];if(S.power==="mission")st.spent+=COST.ms+(ok?0:COST.miss);}
+function charge(ok){var st=S.sites[S.site];if(S.power==="mission")st.spent+=(ASTRO?0:COST.ms)+(ok?0:COST.miss);}
 function settle(ok,idOrNull,msg){
   var d=SITES[S.site], st=S.sites[S.site];
   charge(ok);
   st.tries.push(idOrNull||"drawn");
   if(ok){
     st.solved=true; st.banked=S.power==="mission"?Math.max(0,100-st.spent):0;
-    feedback("good","Confirmed","The molecular ion at m/z "+d.mass+" matches "+fml(d.formula)+", and every spectrum fits. The sample is <b>"+esc(d.name.toLowerCase())+"</b>."+(S.power==="mission"?" Banked "+st.banked+" flight reserve.":""));
+    feedback("good","Confirmed","The molecular ion at m/z "+d.mass+" matches "+fml(d.formula)+", and "+(ASTRO?"the fragments fit":"every spectrum fits")+". The sample is <b>"+esc(d.name.toLowerCase())+"</b>."+(S.power==="mission"?" Banked "+st.banked+" flight reserve.":""));
   }else{
     st.misses++;
     feedback("bad","Rejected",msg);
@@ -1085,17 +1167,17 @@ function settle(ok,idOrNull,msg){
 }
 function fml(f){return f.replace(/(\d+)/g,"<sub>$1</sub>");}
 function massLine(d,mass,formula){
-  if(mass===d.mass)return "The mass spectrometer finds the molecular ion at m/z "+d.mass+". Your structure"+(formula?", "+fml(formula)+",":"")+" has that mass too, so mass alone cannot rule it out. The other spectra can. ";
+  if(mass===d.mass)return "The mass spectrometer finds the molecular ion at m/z "+d.mass+". Your "+(ASTRO?"molecule":"structure")+(formula?", "+fml(formula)+",":"")+" has that mass too, so mass alone cannot rule it out. "+(ASTRO?"The fragments can. ":"The other spectra can. ");
   var parity=(d.mass%2===1&&mass%2===0)?" An odd molecular ion means an odd number of nitrogen atoms.":((d.mass%2===0&&mass%2===1)?" An even molecular ion means no nitrogen, or an even number of them.":"");
-  return "The mass spectrometer finds the molecular ion at m/z "+d.mass+". Your structure"+(formula?", "+fml(formula)+",":"")+" has mass "+mass+"."+parity+" ";
+  return "The mass spectrometer finds the molecular ion at m/z "+d.mass+". Your "+(ASTRO?"molecule":"structure")+(formula?", "+fml(formula)+",":"")+" has mass "+mass+"."+parity+" ";
 }
 $("btn-propose").addEventListener("click",function(){
   var d=SITES[S.site];
   if(S.answer==="mc"){
     if(!view.pick)return;
-    var o=d.options.filter(function(x){return x.id===view.pick;})[0];
+    var o=siteOpts(d).filter(function(x){return x.id===view.pick;})[0];
     if(o.id===d.id)settle(true,o.id);
-    else settle(false,o.id,massLine(d,o.mass,"")+o.why);
+    else settle(false,o.id,massLine(d,o.mass,ASTRO?o.formula:"")+o.why);
   }else checkDrawn();
 });
 
@@ -1179,8 +1261,9 @@ function renderDebrief(){
   D.hidden=!st.solved; if(!st.solved)return;
   var last=S.site===ZONES[zoneOf(S.site)].to-1, b=d.debrief;
   D.innerHTML='<div class="row" style="justify-content:space-between"><h3>Debrief: '+esc(d.name)+'</h3><span class="badge">'+esc(d.tag)+'</span></div>'+
+    (ASTRO?'<dl><dt>MS</dt><dd>'+b.ms+'</dd>'+(ASTRO_SITES[d.id].note?'<dt>Note</dt><dd>'+ASTRO_SITES[d.id].note+'</dd>':'')+'<dt>Titan</dt><dd>'+b.titan+'</dd></dl>':
     '<p class="credit">All four spectra are now unlocked above. Compare each one with the notes below.</p>'+
-    '<dl><dt><sup>1</sup>H</dt><dd>'+b.h1+'</dd><dt><sup>13</sup>C</dt><dd>'+b.c13+'</dd><dt>IR</dt><dd>'+b.ir+'</dd><dt>MS</dt><dd>'+b.ms+'</dd><dt>Titan</dt><dd>'+b.titan+'</dd></dl>'+
+    '<dl><dt><sup>1</sup>H</dt><dd>'+b.h1+'</dd><dt><sup>13</sup>C</dt><dd>'+b.c13+'</dd><dt>IR</dt><dd>'+b.ir+'</dd><dt>MS</dt><dd>'+b.ms+'</dd><dt>Titan</dt><dd>'+b.titan+'</dd></dl>')+
     '<div class="row"><button class="btn primary" id="btn-next" type="button">'+(last?"Open the mission log":"Fly to the next site")+'</button></div>';
 }
 $("debrief").addEventListener("click",function(e){
@@ -1202,8 +1285,8 @@ function renderDone(){
   var msg;
   if(training)msg="Every sample identified. Switch to Mission power to fly it again with the battery counting.";
   else if(t>=n*68)msg="Long-range reserve. You chose your spectra carefully, and Dragonfly has power to spare.";
-  else if(t>=n*48)msg="Solid reserve. Next time, ask which single spectrum would separate the candidates before you run all three.";
-  else msg="The samples are identified, but the battery took a beating. Rejected proposals are the costly part: let the spectra narrow it down first.";
+  else if(t>=n*48)msg=ASTRO?"Solid reserve. Next time, rule out every other candidate from the spectrum before you propose.":"Solid reserve. Next time, ask which single spectrum would separate the candidates before you run all three.";
+  else msg="The samples are identified, but the battery took a beating. Rejected proposals are the costly part: let the "+(ASTRO?"spectrum":"spectra")+" narrow it down first.";
   $("done-rating").textContent=msg+(misses?" Rejected proposals: "+misses+".":"");
   var h="<thead><tr><th>Site</th><th>Sample</th><th>Instruments run</th><th class=\"num\">Proposals</th>"+(training?"":"<th class=\"num\">Banked</th>")+"</tr></thead><tbody>";
   for(i=Z.from;i<Z.to;i++){
@@ -1343,6 +1426,30 @@ $("btn-done-reset").addEventListener("click",function(){
   if(applet){try{applet.reset();}catch(_){}}
   go("map");
 });
+
+
+/* ---------------------------------------------------------------- astronomy edition: page text */
+function applyAstroText(){
+  document.title+=" · Astronomy edition";
+  $("open-eyebrow").textContent="Titan · surface temperature 94 K · Astronomy edition";
+  $("open-lede").textContent="A rotorcraft has landed on Saturn's largest moon. Its mass spectrometer is yours. Work out what the sand is made of.";
+  $("bar-name").textContent="Dragonfly Field Lab · Astronomy";
+  $("brief-intro").innerHTML='<p>Titan\'s atmosphere turns methane and nitrogen into a rain of organic molecules that settles on the surface. At each landing site Dragonfly collects a sample. Run the mass spectrometer, compare the spectrum with the candidate molecules, and propose the one that fits. If you are wrong, the spectrometer rejects it and you need a fresh sample.</p>'+
+    '<p>Running the spectrometer draws '+COST.ms+'% of the battery, and each rejected proposal draws '+COST.miss+'% more. Whatever is left when you solve a sample is banked as flight reserve, so rule candidates out before you propose.</p>';
+  $("brief-kit").innerHTML='<h3>The instrument: a mass spectrometer</h3>'+
+    '<p class="prose">Dragonfly really carries one, called DraMS, and it is the mission\'s main tool for identifying organic molecules. It knocks an electron off each molecule, which leaves the molecule with a positive charge and often breaks it into pieces. It then sorts the charged pieces by mass. The spectrum shows how many of each mass arrived.</p>'+
+    '<h3>How to read a mass spectrum</h3><ul class="prose rules">'+
+    '<li>The horizontal axis is <b>m/z</b>, the mass of each charged piece in atomic mass units (its charge is almost always 1). A taller peak means more of that piece. Heights are given as a percentage of the tallest peak.</li>'+
+    '<li>The <b>molecular ion</b>, M⁺, is the whole molecule minus one electron. It is the heaviest real peak, so its m/z is the mass of the molecule. It is not always the tallest peak, and it can be tiny.</li>'+
+    '<li>A small peak <b>one unit above M⁺</b> comes from molecules that contain one carbon-13 atom. It is about 1.1% as tall as M⁺ for every carbon atom in the molecule.</li>'+
+    '<li>The <b>nitrogen rule</b>: a molecule made of carbon, hydrogen, nitrogen and oxygen has an odd mass only if it has an odd number of nitrogen atoms.</li>'+
+    '<li>The <b>gap</b> between M⁺ and a big peak tells you what broke off: 1 is a hydrogen atom, 15 a CH<sub>3</sub> group, 29 a C<sub>2</sub>H<sub>5</sub> group, 45 a COOH group.</li>'+
+    '<li>Masses to know: H = 1, C = 12, N = 14, O = 16.</li></ul>'+
+    '<p class="credit">Spectra are based on reference data (SDBS and NIST) for electron-ionisation mass spectra, with heights rounded. The real payload also has a gamma-ray and neutron spectrometer, a weather and seismic package, and cameras. This is the astronomy edition of the game; the organic chemistry edition adds NMR and infrared spectra.</p>';
+  $("set-answer-wrap").hidden=true; $("answer-seg").hidden=true;
+  $("btn-propose").textContent="Propose this molecule";
+}
+if(ASTRO)applyAstroText();
 
 /* ---------------------------------------------------------------- boot */
 function start(d){
