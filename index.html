@@ -152,6 +152,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .paper :focus-visible{outline-color:var(--cross)}
 .paper details{font-size:.88rem;color:var(--ink-muted)}
 .paper details summary{cursor:pointer}
+.sources summary{cursor:pointer}
+.sources ul{margin:6px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 .paper details ul{margin:6px 0 0;padding-left:20px}
 .paper .note{font-size:.8rem;color:var(--ink-muted)}
 
@@ -291,6 +293,7 @@ sub{font-size:.72em}
   <h2>From the dunes toward Selk crater</h2>
   <div class="panel"><div class="route" id="route"></div></div>
   <p class="credit">The site pictures are illustrations of what Titan's surface might look like, painted for this game. They are not photographs.</p>
+  <details class="credit sources"><summary>Sources for the Titan notes</summary><ul><li>Titan's surface temperature (94 K): Fulchignoni, M. et al. (2005) <i>Nature</i> 438, 785–791 (Huygens probe).</li><li>Ethane in Ontario Lacus: Brown, R. H. et al. (2008) <i>Nature</i> 454, 607–610.</li><li>Propane: Maguire, W. C. et al. (1981) <i>Nature</i> 292, 683–686 (Voyager 1 infrared spectrometer).</li><li>Benzene: Coustenis, A. et al. (2003) <i>Icarus</i> 161, 383–403; Vuitton, V., Yelle, R. V. &amp; Cui, J. (2008) <i>J. Geophys. Res.</i> 113, E05007.</li><li>Acetonitrile: Bézard, B., Marten, A. &amp; Paubert, G. (1993), first millimetre-wave detection; Marten, A. et al. (2002) <i>Icarus</i> 158, 532–544.</li><li>Propanenitrile: Cordiner, M. A. et al. (2015) <i>Astrophys. J. Lett.</i> 800, L14. Propenenitrile: Palmer, M. Y. et al. (2017) <i>Sci. Adv.</i> 3, e1700022.</li><li>Toluene and ethylbenzene: Waite, J. H. et al. (2007) <i>Science</i> 316, 870–875 (Cassini mass spectra); Loison, J.-C. et al. (2019) <i>Icarus</i> 329, 55–71 (model).</li><li>Butanenitrile and 2-methylpropanenitrile in Sagittarius B2: Belloche, A. et al. (2009) <i>Astron. Astrophys.</i> 499, 215–232; Belloche, A. et al. (2014) <i>Science</i> 345, 1584–1587.</li><li>Amines and amides: Teinturier, S. et al., amines and amides analysed with Dragonfly-like GCMS methods; Boulesteix, D. et al. (2024) <i>J. Chromatogr. A</i> 1722, 464860 (chiral analysis with DraMS).</li><li>Alanine and β-alanine at Selk crater: Madan, I. &amp; Pearce, B. K. D. (2025) arXiv:2511.09636. Butanoic acid: Madan, I. &amp; Pearce, B. K. D. (2026) <i>Planet. Sci. J.</i>, arXiv:2604.16249.</li><li>The mission: Barnes, J. W. et al. (2021) <i>Planet. Sci. J.</i> 2, 130. Ahmakiq Undae: NASA Dragonfly blog, 2 September 2026.</li></ul></details>
   <div class="row">
     <button class="btn" id="btn-brief" type="button">Briefing and settings</button>
     <button class="btn" id="btn-open" type="button">Opening screen</button>
@@ -487,7 +490,7 @@ var SITES=[
     c13:"Five peaks: the CH"+s(3)+" at 21.5 ppm and four aromatic carbons between 125 and 138 ppm. A ring with one substituent has four kinds of ring carbon. The small peak at 137.9 ppm is the carbon that carries the CH"+s(3)+"; it has no hydrogen of its own.",
     ir:"C–H stretches on both sides of 3000 cm⁻¹: aromatic above, CH"+s(3)+" below. Ring stretches near 1605 and 1496 cm⁻¹, and two strong bands at 729 and 695 cm⁻¹ that mark a benzene ring with one substituent.",
     ms:"M⁺ at m/z 92. The tallest peak, m/z 91, is M – 1: losing one hydrogen leaves the very stable C"+s(7)+"H"+s(7)+"⁺ ion, the signature of an alkylbenzene.",
-    titan:"Toluene has not been detected on Titan. A model of Titan's atmospheric chemistry predicts it to be one of the more abundant aromatic molecules there after benzene."}
+    titan:"Toluene has not been confirmed on Titan. Cassini's mass spectrometer saw signals high in the atmosphere that fit a series of aromatic molecules up to toluene, but no spectrum has pinned it down yet. A model of Titan's atmospheric chemistry predicts it to be one of the more abundant aromatics after benzene."}
 },
 { id:"ethylbenzene", img:"media/site7.webp", view:"The flank of a very tall dune rises on the left, catching the low sun.", site:"Site 7 · Dune flank", flavor:"A second solid of the same family, drilled from the foot of the dune.",
   name:"Ethylbenzene", smiles:"CCc1ccccc1", jsme:"CCc1ccccc1", formula:"C8H10", mass:106, tag:"Predicted, not yet detected",
@@ -506,7 +509,7 @@ var SITES=[
     c13:"Six peaks: CH"+s(3)+" at 15.6 ppm, CH"+s(2)+" at 28.9 ppm, and four aromatic carbons. The dimethylbenzenes show fewer, because their two CH"+s(3)+" groups are equivalent.",
     ir:"Aromatic C–H stretches above 3000 cm⁻¹, sp³ C–H below, and the pair of strong bands at 746 and 697 cm⁻¹ that marks one substituent on the ring.",
     ms:"M⁺ at m/z 106. The tallest peak, m/z 91, is loss of CH"+s(3)+" (15), which again leaves C"+s(7)+"H"+s(7)+"⁺.",
-    titan:"Ethylbenzene has not been detected on Titan either. The same model that predicts toluene predicts ethylbenzene alongside it."}
+    titan:"Ethylbenzene has not been detected on Titan. The same model that predicts toluene predicts ethylbenzene alongside it."}
 },
 { id:"pxylene", img:"media/site8.webp", view:"Blocks of water ice, as hard as rock at 94 K, lie scattered over dark sand.", site:"Site 8 · Boulder field", flavor:"White crystals, collected in the lee of an ice boulder.",
   name:"1,4-Dimethylbenzene (p-xylene)", smiles:"Cc1ccc(C)cc1", jsme:"Cc1ccc(C)cc1", formula:"C8H10", mass:106, tag:"Stand-in for practice",
@@ -661,7 +664,7 @@ var SITES=[
     c13:"Three peaks: the carboxyl carbon at 176.6 ppm, the CH at 51.7 ppm and the CH"+s(3)+" at 17.3 ppm.",
     ir:"The same pattern as the last sample: a broad N–H band from the –NH"+s(3)+"⁺ group and a strong carboxylate band near 1590 cm⁻¹.",
     ms:"M⁺ at m/z 89 is very weak. The tallest peak, m/z 44, is what is left after the COOH group (45) is lost: CH"+s(3)+"–CH=NH"+s(2)+"⁺.",
-    titan:"A mission target, and one of the amino acids of life on Earth. Alanine has not been detected on Titan. It comes in left- and right-handed forms, and Dragonfly's gas chromatograph carries a column that can separate the two. An excess of one hand would be a striking find."}
+    titan:"A mission target, and one of the amino acids of life on Earth. Alanine has not been detected on Titan, but a thermodynamic study of Selk crater predicts it is one of only three amino acids that could form there without ammonia. It comes in left- and right-handed forms, and Dragonfly's mass spectrometer is designed to measure whether one hand is in excess: a reagent keeps each molecule's handedness intact, and the gas chromatograph separates the two forms. An excess of one hand would be a striking find."}
 }
 ];
 var ZONES=[
