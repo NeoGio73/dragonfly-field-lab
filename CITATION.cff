@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this game, please cite it as below."
+title: "Dragonfly Field Lab: a browser game on how a Titan lander identifies organic molecules"
+type: software
+authors:
+  - family-names: Picione
+    given-names: John
+    affiliation: Daytona State College
+    orcid: "https://orcid.org/0009-0007-9182-9664"
+license: MIT
+repository-code: "https://github.com/NeoGio73/dragonfly-field-lab"
+url: "https://neogio73.github.io/dragonfly-field-lab/"
+keywords:
+  - Titan
+  - Dragonfly mission
+  - mass spectrometry
+  - astronomy education
+  - chemistry education

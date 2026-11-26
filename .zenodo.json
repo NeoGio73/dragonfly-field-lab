@@ -1,0 +1,15 @@
+{
+  "title": "Dragonfly Field Lab: a browser game on how a Titan lander identifies organic molecules",
+  "upload_type": "software",
+  "description": "A free, browser-based game built around NASA's Dragonfly mission to Titan. Students follow the mission's route from the Ahmakiq Undae dune field to Selk crater and identify fifteen surface samples. The astronomy edition (astronomy.html) uses the mass spectrometer only; the organic chemistry edition (index.html) adds 1H NMR, 13C NMR and infrared spectra, labelled as instruments the real craft does not carry. Code: MIT licence. Educational content (text, spectral data tables, images and clips): CC BY 4.0. Bundled third-party libraries keep their own licences (see THIRD-PARTY-NOTICES.md). Not affiliated with NASA or Johns Hopkins APL.",
+  "creators": [
+    {
+      "name": "Picione, John",
+      "affiliation": "Daytona State College",
+      "orcid": "0009-0007-9182-9664"
+    }
+  ],
+  "license": "MIT",
+  "keywords": ["Titan", "Dragonfly mission", "mass spectrometry", "spectroscopy", "astrobiology", "astronomy education", "chemistry education", "game-based learning"],
+  "language": "eng"
+}

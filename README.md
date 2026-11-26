@@ -1,8 +1,14 @@
 # Dragonfly Field Lab
 
-A practice game for undergraduate organic chemistry. Students land at sites on
-Titan, record 1H NMR, 13C NMR and IR spectra of a sample, propose a structure
-(multiple choice or drawn), and the mass spectrometer confirms or rejects it.
+A practice game built around NASA's Dragonfly mission to Titan, in two
+editions served from the same file:
+
+- **Organic chemistry edition** (`index.html`): students land at sites on Titan,
+  record 1H NMR, 13C NMR and IR spectra of a sample, propose a structure
+  (multiple choice or drawn), and the mass spectrometer confirms or rejects it.
+- **Astronomy edition** (`astronomy.html`, which opens `index.html?course=astronomy`):
+  the mass spectrometer only, as on the real craft, with a briefing on reading
+  mass spectra and a hint at every site.
 Nothing is graded or sent anywhere; progress is kept only in the student's own
 browser.
 
@@ -146,3 +152,13 @@ Each sample is one entry in the `SITES` list in `index.html`:
 
 Not affiliated with NASA or Johns Hopkins APL. See `THIRD-PARTY-NOTICES.md`
 for the licences of JSME, RDKit, three.js and the 3D model.
+
+## Licence
+
+- Code (the HTML, CSS and JavaScript written for this game): MIT, see `LICENSE`.
+- Content (text, spectral data tables, candidate lists, and the pictures and
+  clips in `media/` other than the 3D model): CC BY 4.0, see `LICENSE-CONTENT.md`.
+- Bundled third-party files keep their own licences: `THIRD-PARTY-NOTICES.md`.
+
+To cite the game, use the "Cite this repository" button on GitHub
+(`CITATION.cff`) or the DOI of the archived release on Zenodo.
