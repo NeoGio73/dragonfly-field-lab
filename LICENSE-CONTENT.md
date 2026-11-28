@@ -11,8 +11,12 @@ This covers:
 - the text of the game (briefings, site descriptions, hints, feedback,
   debriefs and Titan notes);
 - the spectral data tables and candidate-molecule lists in `index.html`;
-- the site pictures, opening picture and arrival clips in `media/`
-  (AI-generated, as stated in the game), except `media/dragonfly-model.js`.
+- the site pictures in `media/` (drawn for this game by a terrain-drawing
+  script; see `README.md`);
+- the opening picture and arrival clips in `media/` (AI-generated, as stated
+  in the game).
+
+It does not cover `media/dragonfly-model.js`, which keeps its own licence.
 
 You may share and adapt this material for any purpose, including commercially,
 as long as you give appropriate credit, link to the licence and say whether you

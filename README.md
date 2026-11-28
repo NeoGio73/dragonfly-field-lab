@@ -92,7 +92,7 @@ with H.264 video; a few megabytes is plenty for ten seconds.
 
 ## The site pictures on the flight plan
 
-`media/site1.webp` to `site5.webp` are illustrations painted for this game by a
+`media/site1.webp` to `site15.webp` are illustrations painted for this game by a
 small terrain-drawing script (dunes, ripples, cobbles, haze and a dim sun).
 They are artistic impressions, not photographs or data, and the flight plan
 page says so. Each site's picture and one-line description are set by `img`
@@ -104,9 +104,32 @@ and `view` in its `SITES` entry in `index.html`.
   Fulmer et al., Organometallics 2010, 29, 2176 (values in CDCl3).
 - NMR shifts for propanenitrile, ethylbenzene, 1,4-dimethylbenzene, butanenitrile,
   2-methylpropanenitrile and all five zone 3 molecules, all IR band positions,
-  and all mass-spectrum peak heights were entered from memory of standard
-  reference spectra and should be checked against SDBS or the NIST WebBook
-  before students rely on them.
+  and all mass-spectrum peak heights were first entered from memory of standard
+  reference spectra. On 14 November 2026 the values for all fifteen molecules
+  were compared with reference spectra: NMR with SDBS (ethane and propane are
+  not in SDBS, so they rest on Fulmer et al. alone), electron-ionisation mass
+  spectra with the NIST Chemistry WebBook, and IR with the NIST WebBook, or
+  with SDBS for butanenitrile and the two amino acids. Most values agreed
+  closely: 1H shifts of hydrogens on carbon within 0.05 ppm, 13C shifts within
+  0.4 ppm apart from the propanamide C=O, and IR bands within about 8 cm-1.
+  Every base peak and molecular ion was already right. These values were
+  changed to the reference ones:
+  - Propanamide (SDBS No. 1431): 13C 177.0 to 177.7 ppm and 9.7 to 9.8 ppm;
+    the NH2 hydrogens are drawn as one broad 2H peak at 6.2 ppm.
+  - Alanine (SDBS No. 1055, L-alanine in D2O at pH 6.38): 13C now 176.6, 51.7
+    and 17.3 ppm.
+  - Propan-1-amine (SDBS No. 3781): 13C 27.3 to 27.1 ppm; NH2 1.15 to 1.24 ppm.
+  - β-Alanine (SDBS infrared spectrum, Nujol mull): combination band 2130 to
+    2207 cm-1.
+  - Mass-spectrum peak heights (NIST): propanenitrile, 2-methylpropanenitrile,
+    butanenitrile, propanamide, β-alanine and alanine.
+- The reference databases:
+  - SDBSWeb: https://sdbs.db.aist.go.jp (National Institute of Advanced
+    Industrial Science and Technology, accessed 14 November 2026).
+  - NIST Chemistry WebBook, NIST Standard Reference Database Number 69,
+    https://webbook.nist.gov/chemistry/ (mass spectra compiled by the NIST Mass
+    Spectrometry Data Center; infrared spectra from the NIST and Coblentz
+    Society collections), accessed 14 November 2026.
 - The two amino acids are shown as they would appear in D2O (hydrogens on N and
   O not seen), with IR spectra of the solid, which is made of ions. Their shifts
   depend on pH, so treat them as typical values.
@@ -121,8 +144,9 @@ and `view` in its `SITES` entry in `index.html`.
   buttons show only the chemical shift; `SHOW_AREAS` set to `true` adds relative
   areas to them. The collapsed "Peak list as text" under each spectrum gives the
   same numbers as the plot, for students who cannot read it.
-- Spectra are drawn from these numbers. Multiplets are first-order at 400 MHz;
-  IR band shapes are simplified.
+- Spectra are drawn from these numbers; no database image or file is
+  reproduced. Multiplets are first-order at 400 MHz, IR band shapes are
+  simplified, and mass-spectrum peak heights are rounded.
 
 ## Adding or editing a molecule
 
